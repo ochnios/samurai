@@ -1,3 +1,5 @@
+import { Text, Title } from "@mantine/core";
+
 interface TestPageProps {
   title?: string;
 }
@@ -5,8 +7,8 @@ interface TestPageProps {
 export default function TestPage({ title }: TestPageProps) {
   return (
     <div>
-      <h1>{title ?? "TestPage"}</h1>
-      <p>Some content</p>
+      <Title>{title ?? "TestPage"}</Title>
+      <Text fz="lg">Some content</Text>
     </div>
   );
 }

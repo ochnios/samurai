@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Code, Group, Title } from "@mantine/core";
 import {
   IconChartBar,
   IconFile,
@@ -40,14 +39,7 @@ export default function Navigation() {
 
   return (
     <nav className={classes.navbar}>
-      <div className={classes.navbarMain}>
-        <Group className={classes.header} justify="space-between">
-          <Title order={3}>DocsNinja</Title>
-          <Code fw={700}>v0.0.0</Code>
-        </Group>
-        {links}
-      </div>
-
+      <div className={classes.navbarMain}>{links}</div>
       <div className={classes.footer}>
         <Link to="/account" className={classes.link}>
           <IconSettings className={classes.linkIcon} stroke={1.5} />

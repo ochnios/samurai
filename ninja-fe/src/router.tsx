@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import Layout from "./views/layout/Layout.tsx";
 import TestPage from "./views/pages/TestPage.tsx";
+import { Layout } from "./views/layout/Layout.tsx";
 
 export default function router() {
   return createBrowserRouter([
