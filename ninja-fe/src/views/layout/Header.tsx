@@ -3,6 +3,7 @@ import {
   Burger,
   Code,
   Group,
+  Image,
   Text,
   Title,
   useMantineColorScheme,
@@ -24,26 +25,27 @@ export default function Header({ opened, setOpened }: HeaderProps) {
   });
   return (
     <Group h="100%" px="sm" py="sm" justify="space-between">
-      <Group justify="space-between">
-        <Burger
-          opened={toggled}
-          onClick={() => {
-            toggle();
-            setOpened(!toggled);
-          }}
-          hiddenFrom="sm"
-          size="sm"
-        />
+      <Burger
+        opened={toggled}
+        onClick={() => {
+          toggle();
+          setOpened(!toggled);
+        }}
+        hiddenFrom="sm"
+        size="sm"
+      />
+      <Group justify="space-between" gap="xs">
+        <Image src="/logo_small.png" h="35px" fit="contain" />
         <Title order={2}>DocsNinja</Title>
-        <Code fw={700} visibleFrom="sm">
+        <Code fw={700} visibleFrom="sm" mb="-5px">
           v0.0.0
         </Code>
       </Group>
       <Group justify="space-between" gap="xs">
-        <Text size="sm" fw={500} fz="md" visibleFrom="sm">
-          Username
-        </Text>
         <Link className={classes.actionIcon} to="/">
+          <Text size="sm" fw={500} fz="md" visibleFrom="sm" mr="xs">
+            Username
+          </Text>
           <IconUserCircle className={classes.icon} stroke={1.5} size={26} />
         </Link>
         <ActionIcon

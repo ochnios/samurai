@@ -45,14 +45,14 @@ export default function Navigation() {
           <IconSettings className={classes.linkIcon} stroke={1.5} />
           <span>My account</span>
         </Link>
-        <a
-          href="#"
+        <Link
+          to="#"
           className={classes.link}
           onClick={(event) => event.preventDefault()}
         >
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
-        </a>
+        </Link>
       </div>
     </nav>
   );
