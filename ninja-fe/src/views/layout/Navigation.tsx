@@ -1,15 +1,14 @@
-import { useState } from "react";
 import {
   IconChartBar,
   IconFile,
   IconLogout,
   IconMessageChatbot,
   IconRobot,
-  IconSettings,
+  IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
 import classes from "./Navigation.module.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const data = [
   { link: "/assistants", label: "Assistants", icon: IconMessageChatbot },
@@ -20,17 +19,14 @@ const data = [
 ];
 
 export default function Navigation() {
-  const [active, setActive] = useState("Assistants");
+  const location = useLocation();
 
   const links = data.map((item) => (
     <Link
       className={classes.link}
-      data-active={item.label === active || undefined}
+      data-active={location.pathname === item.link || undefined}
       to={item.link}
       key={item.label}
-      onClick={() => {
-        setActive(item.label);
-      }}
     >
       <item.icon className={classes.linkIcon} stroke={1.5} />
       <span>{item.label}</span>
@@ -41,9 +37,13 @@ export default function Navigation() {
     <nav className={classes.navbar}>
       <div className={classes.links}>{links}</div>
       <div className={classes.footer}>
-        <Link to="/account" className={classes.link}>
-          <IconSettings className={classes.linkIcon} stroke={1.5} />
-          <span>My account</span>
+        <Link
+          to="/account"
+          className={classes.link}
+          data-active={location.pathname === "/account" || undefined}
+        >
+          <IconUserCircle className={classes.linkIcon} stroke={1.5} />
+          <span>Account</span>
         </Link>
         <Link
           to="#"

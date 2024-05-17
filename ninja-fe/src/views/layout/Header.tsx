@@ -42,7 +42,7 @@ export default function Header({ opened, setOpened }: HeaderProps) {
         </Code>
       </Group>
       <Group justify="space-between" gap="xs">
-        <Link className={classes.actionIcon} to="/">
+        <Link className={classes.actionIcon} to="/account">
           <Text size="sm" fw={500} fz="md" visibleFrom="sm" mr="xs">
             Username
           </Text>
