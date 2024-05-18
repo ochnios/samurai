@@ -1,0 +1,10 @@
+.actionIcon {
+    display: inline-flex;
+    color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
+    text-decoration: none;
+
+    @mixin hover {
+        color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+        border-radius: var(--mantine-radius-lg);
+    }
+}
