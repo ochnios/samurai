@@ -1,8 +1,7 @@
 package pl.ochnios.ninjabe.model.entities.assistant;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -11,6 +10,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "assistants")
 public class AssistantEntity {
@@ -23,14 +25,17 @@ public class AssistantEntity {
     @JoinColumn(nullable = false)
     private AssistantConfig config;
 
-    @CreationTimestamp
-    private Instant createdAt;
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false)
     private Boolean enabled;
 
     @Column(nullable = false)
     private Boolean deleted;
+
+    @CreationTimestamp
+    private Instant createdAt;
 
     @Override
     public boolean equals(Object o) {

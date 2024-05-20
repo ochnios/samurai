@@ -25,7 +25,9 @@ public class AssistantFactory {
             case Basic -> {
                 return createBasicAssistant(config);
             }
-            default -> throw new RuntimeException("Unsupported assistant variant");
+            default -> {
+                return null;
+            }
         }
     }
 
@@ -33,7 +35,7 @@ public class AssistantFactory {
         var openAiApi = new OpenAiApi(config.getApiKey());
         var chatClient = createOpenAiChatClient(openAiApi, config);
         var embeddingClient = createOpenAiEmbeddingClient(openAiApi, config);
-        var vectorStore = createQdrantVectorStore(embeddingClient, config.getId());
+        var vectorStore = createQdrantVectorStore(embeddingClient, config.getId().toString());
         return new BasicAssistant(chatClient, embeddingClient, vectorStore);
     }
 

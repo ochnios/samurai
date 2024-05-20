@@ -3,11 +3,13 @@ package pl.ochnios.ninjabe.model.dtos.assistant;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @Builder
 public class AssistantConfigDto {
 
-    private String id;
+    private UUID id;
     private String chatModelName;
     private String embeddingModelName;
     private String systemPrompt;
@@ -16,4 +18,5 @@ public class AssistantConfigDto {
     private Integer lastMessages;
     private String apiKey;
     private AssistantVariant variant;
+    private String updatedAt;
 }

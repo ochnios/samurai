@@ -1,8 +1,7 @@
 package pl.ochnios.ninjabe.model.entities.assistant;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
 import pl.ochnios.ninjabe.model.dtos.assistant.AssistantVariant;
@@ -14,6 +13,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "assistant_configs")
 public class AssistantConfig {
@@ -28,6 +30,12 @@ public class AssistantConfig {
     @Nationalized
     @Column(length = 4096)
     private String systemPrompt;
+
+    @Column(nullable = false)
+    private String chatModelName; // TODO separate Model entity
+
+    @Column(nullable = false)
+    private String embeddingModelName; // TODO separate Model entity
 
     private BigDecimal temperature;
 

@@ -17,17 +17,14 @@ public class AssistantRegistry {
         this.assistants = new HashMap<>();
     }
 
-    public Assistant register(UUID id, Assistant assistant) {
-        Assistant registered;
+    public void register(UUID id, Assistant assistant) {
         try {
-            registered = assistants.put(id, assistant);
+            assistants.put(id, assistant);
         } catch (Exception ex) {
             log.error("Failed to register assistant with id={}", id, ex);
             throw new AssistantRegistryException(ex.getMessage());
         }
         log.info("Registered assistant with id={}", id);
-
-        return registered;
     }
 
     public Assistant get(UUID id) {
@@ -45,7 +42,7 @@ public class AssistantRegistry {
         return assistant;
     }
 
-    public Assistant unregister(UUID id, Assistant assistant) {
+    public void unregister(UUID id, Assistant assistant) {
         Assistant unregistered;
         try {
             unregistered = assistants.remove(id);
@@ -58,8 +55,6 @@ public class AssistantRegistry {
             log.info("Unregistered assistant with id={}", id);
         else
             log.warn("Can't find assistant to unregister, id={}", id);
-
-        return unregistered;
     }
 
     public Assistant update(UUID id, Assistant assistant) {
@@ -71,7 +66,7 @@ public class AssistantRegistry {
             throw new AssistantRegistryException(ex.getMessage());
         }
         log.info("Updated assistant with id={}", id);
-        
+
         return oldAssistant;
     }
 }
