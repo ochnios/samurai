@@ -27,6 +27,7 @@ ext {
 }
 
 dependencies {
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.7.0.jre11-preview'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -36,7 +37,7 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-qdrant-store-spring-boot-starter'
     implementation 'org.springframework.session:spring-session-core'
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
