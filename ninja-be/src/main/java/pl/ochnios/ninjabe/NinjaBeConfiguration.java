@@ -41,14 +41,14 @@ public class NinjaBeConfiguration {
             // TODO initializing assistants basing on config from database
             var dummyAssistantConfig = dummyAssistantConfig();
             var dummyAssistant = assistantFactory.createAssistant(dummyAssistantConfig);
-            var id = UUID.fromString(dummyAssistantConfig.getAssistantId());
+            var id = UUID.fromString(dummyAssistantConfig.getId());
             assistantRegistry.register(id, dummyAssistant);
         };
     }
 
     private AssistantConfigDto dummyAssistantConfig() {
         return AssistantConfigDto.builder()
-                .assistantId(UUID.nameUUIDFromBytes("dummy".getBytes()).toString())
+                .id(UUID.nameUUIDFromBytes("dummy".getBytes()).toString())
                 .chatModelName("gpt-3.5-turbo")
                 .embeddingModelName("text-embedding-small")
                 .systemPrompt("You are a helpful assistant")

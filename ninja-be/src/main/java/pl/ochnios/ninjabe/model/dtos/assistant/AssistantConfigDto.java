@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class AssistantConfigDto {
 
-    private String assistantId;
+    private String id;
     private String chatModelName;
     private String embeddingModelName;
     private String systemPrompt;
