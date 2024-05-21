@@ -8,3 +8,8 @@
         border-radius: var(--mantine-radius-lg);
     }
 }
+
+.title {
+    position: absolute;
+    left: 316px;
+}

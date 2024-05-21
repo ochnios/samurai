@@ -14,11 +14,12 @@ import classes from "./Header.module.css";
 import { Link } from "react-router-dom";
 
 interface HeaderProps {
+  title: string;
   opened: boolean;
   setOpened: (state: boolean) => void;
 }
 
-export default function Header({ opened, setOpened }: HeaderProps) {
+export default function Header({ title, opened, setOpened }: HeaderProps) {
   const [toggled, { toggle }] = useDisclosure(opened);
   const { colorScheme, setColorScheme } = useMantineColorScheme({
     keepTransitions: true,
@@ -36,10 +37,13 @@ export default function Header({ opened, setOpened }: HeaderProps) {
       />
       <Group justify="space-between" gap="xs">
         <Image src="/logo_small.png" h="35px" fit="contain" />
-        <Title order={2}>DocsNinja</Title>
+        <Title order={3}>DocsNinja</Title>
         <Code fw={700} visibleFrom="sm" mb="-5px">
           v0.0.0
         </Code>
+        <Title className={classes.title} order={2} visibleFrom={"sm"}>
+          {title}
+        </Title>
       </Group>
       <Group justify="space-between" gap="xs">
         <Link className={classes.actionIcon} to="/account">

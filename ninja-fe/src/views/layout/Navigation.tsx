@@ -3,6 +3,7 @@ import {
   IconFile,
   IconLogout,
   IconMessageChatbot,
+  IconMessages,
   IconRobot,
   IconUserCircle,
   IconUsers,
@@ -16,6 +17,7 @@ const data = [
   { link: "/statistics", label: "Statistics", icon: IconChartBar },
   { link: "/models", label: "Models", icon: IconRobot },
   { link: "/users", label: "Users", icon: IconUsers },
+  { link: "/chat", label: "Chat", icon: IconMessages },
 ];
 
 export default function Navigation() {
@@ -34,7 +36,7 @@ export default function Navigation() {
   ));
 
   return (
-    <nav className={classes.navbar}>
+    <div className={classes.navbar}>
       <div className={classes.links}>{links}</div>
       <div className={classes.footer}>
         <Link
@@ -54,6 +56,6 @@ export default function Navigation() {
           <span>Logout</span>
         </Link>
       </div>
-    </nav>
+    </div>
   );
 }

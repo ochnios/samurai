@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import TestPage from "./views/pages/TestPage.tsx";
+import PageWrapper from "./views/pages/PageWrapper.tsx";
 import { Layout } from "./views/layout/Layout.tsx";
+import ChatPage from "./views/pages/ChatPage.tsx";
+import TestPage from "./views/pages/TestPage.tsx";
 
 export default function router() {
   return createBrowserRouter([
@@ -8,30 +10,39 @@ export default function router() {
       path: "/",
       element: <Layout />,
       children: [
-        { index: true, element: <TestPage title="Default page" /> },
+        {
+          index: true,
+          element: (
+            <PageWrapper title="Default content" content={<TestPage />} />
+          ),
+        },
         {
           path: "assistants",
-          element: <TestPage title="Assistants" />,
+          element: <PageWrapper title="Assistants" content={<TestPage />} />,
         },
         {
           path: "documents",
-          element: <TestPage title="Documents" />,
+          element: <PageWrapper title="Documents" content={<TestPage />} />,
         },
         {
           path: "statistics",
-          element: <TestPage title="Statistics" />,
+          element: <PageWrapper title="Statistics" content={<TestPage />} />,
         },
         {
           path: "models",
-          element: <TestPage title="Models" />,
+          element: <PageWrapper title="Models" content={<TestPage />} />,
         },
         {
           path: "users",
-          element: <TestPage title="Users" />,
+          element: <PageWrapper title="Users" content={<TestPage />} />,
+        },
+        {
+          path: "chat",
+          element: <PageWrapper title="Chat" content={<ChatPage />} />,
         },
         {
           path: "account",
-          element: <TestPage title="Account" />,
+          element: <PageWrapper title="Account" content={<TestPage />} />,
         },
         {
           path: "*",
