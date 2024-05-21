@@ -36,7 +36,7 @@ public class AssistantFactory {
         var chatClient = createOpenAiChatClient(openAiApi, config);
         var embeddingClient = createOpenAiEmbeddingClient(openAiApi, config);
         var vectorStore = createQdrantVectorStore(embeddingClient, config.getId().toString());
-        return new BasicAssistant(chatClient, embeddingClient, vectorStore);
+        return new BasicAssistant(chatClient, embeddingClient, vectorStore, config);
     }
 
     private OpenAiChatClient createOpenAiChatClient(OpenAiApi openAiApi, AssistantConfigDto config) {

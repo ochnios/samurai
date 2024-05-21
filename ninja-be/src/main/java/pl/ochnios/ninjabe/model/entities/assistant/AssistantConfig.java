@@ -27,8 +27,8 @@ public class AssistantConfig {
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private AssistantEntity assistant;
 
+    @Lob
     @Nationalized
-    @Column(length = 4096)
     private String systemPrompt;
 
     @Column(nullable = false)

@@ -34,7 +34,6 @@ public class AssistantSeeder implements DataSeeder {
 
     private AssistantEntity generateBasicAssistant() {
         return AssistantEntity.builder()
-                .id(UUID.nameUUIDFromBytes("First Ninja".getBytes()))
                 .name("First Ninja")
                 .enabled(true)
                 .deleted(false)

@@ -1,12 +1,14 @@
 package pl.ochnios.ninjabe.model.dtos.chat;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
-@Builder
+@AllArgsConstructor
 public class ChatResponseDto {
 
-    String conversationId;
+    UUID conversationId;
     String completion;
 }
