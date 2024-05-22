@@ -1,4 +1,4 @@
-import { Container, Divider, Title } from "@mantine/core";
+import { Container } from "@mantine/core";
 import { useOutletContext } from "react-router-dom";
 import React from "react";
 
@@ -16,11 +16,11 @@ export default function PageWrapper(props: PageProps) {
   setTitle(props.title);
 
   return (
-    <Container m={0} p={0}>
-      <Title order={2} hiddenFrom="sm">
-        {props.title}
-      </Title>
-      <Divider hiddenFrom="sm" my="sm" />
+    <Container fluid m={0} p={0} pt="sm" h="calc(100dvh - 92px)">
+      {/*<Title order={2} hiddenFrom="sm">*/}
+      {/*  {props.title}*/}
+      {/*</Title>*/}
+      {/*<Divider hiddenFrom="sm" my="sm" />*/}
       {props.content}
     </Container>
   );
