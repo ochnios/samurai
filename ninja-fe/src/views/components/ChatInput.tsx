@@ -54,10 +54,10 @@ export default function ChatInput(props: ChatInputProps) {
         }
         rightSection={
           <ActionIcon
+            onClick={submitMessage}
             size={32}
             radius="xl"
             variant="filled"
-            onClick={submitMessage}
           >
             <IconSend
               stroke={1.5}

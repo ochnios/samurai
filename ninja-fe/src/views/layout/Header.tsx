@@ -36,7 +36,7 @@ export default function Header({ title, opened, setOpened }: HeaderProps) {
         size="sm"
       />
       <Group justify="space-between" gap="xs">
-        <Image src="/logo_small.png" h="35px" fit="contain" />
+        <Image src="/logo_medium.png" h="35px" fit="contain" />
         <Title order={3}>DocsNinja</Title>
         <Code fw={700} visibleFrom="sm" mb="-5px">
           v0.0.0

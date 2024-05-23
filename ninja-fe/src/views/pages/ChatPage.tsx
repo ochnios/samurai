@@ -1,4 +1,4 @@
-import { Divider, Grid, ScrollArea, Stack } from "@mantine/core";
+import { Divider, Grid, Image, ScrollArea, Stack } from "@mantine/core";
 import classes from "./ChatPage.module.css";
 import ChatInput from "../components/ChatInput.tsx";
 import ChatMessage, { MessageType } from "../components/ChatMessage.tsx";
@@ -91,15 +91,27 @@ export default function ChatPage() {
             viewportRef={viewport}
             className={classes.scrollArea}
           >
-            <Stack h="100%" align="strech" gap="md" mb="lg" justify="flex-end">
-              {messages.map((message, index) => (
-                <ChatMessage
-                  key={index}
-                  content={message.content}
-                  type={message.type}
-                />
-              ))}
-            </Stack>
+            {messages.length > 0 ? (
+              <Stack
+                h="100%"
+                align="strech"
+                justify="flex-end"
+                gap="md"
+                mb="lg"
+              >
+                {messages.map((message, index) => (
+                  <ChatMessage
+                    key={index}
+                    content={message.content}
+                    type={message.type}
+                  />
+                ))}
+              </Stack>
+            ) : (
+              <Stack h="100%" align="center" justify="center">
+                <Image src="/logo_medium.png" h="100%" w="auto" fit="contain" />
+              </Stack>
+            )}
           </ScrollArea>
           <Divider my="sm"></Divider>
           <ChatInput submitMessage={(value) => submitMessage(value)} />
