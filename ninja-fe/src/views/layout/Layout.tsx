@@ -16,6 +16,7 @@ export function Layout() {
       header={{ height: "60px" }}
       navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
+      c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1))"
     >
       <AppShell.Header>
         <Header title={title} opened={opened} setOpened={setOpened} />
