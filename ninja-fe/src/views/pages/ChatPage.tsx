@@ -81,9 +81,9 @@ export default function ChatPage() {
   return (
     <>
       <Grid className={classes.grid}>
-        <Grid.Col span={{ base: 12, md: 1, lg: 2 }}></Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 1, xl: 2 }}></Grid.Col>
         <Grid.Col
-          span={{ base: 12, md: 10, lg: 8 }}
+          span={{ base: 12, lg: 10, xl: 8 }}
           className={classes.messages}
         >
           <ScrollArea
@@ -116,7 +116,7 @@ export default function ChatPage() {
           <Divider my="sm"></Divider>
           <ChatInput submitMessage={(value) => submitMessage(value)} />
         </Grid.Col>
-        <Grid.Col span={{ base: 12, md: 1, lg: 2 }}></Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 1, xl: 2 }}></Grid.Col>
       </Grid>
     </>
   );
