@@ -26,14 +26,14 @@ export default function ChatMessage(props: Message) {
               fit="contain"
               style={{ width: rem(40), height: rem(40) }}
             />
-            <Alert variant="default" radius="lg" p="sm">
-              <Text fz="1.2em">{props.content}</Text>
+            <Alert variant="default" radius="lg" p="xs">
+              <Text fz="1.1em">{props.content}</Text>
             </Alert>
           </>
         ) : (
           <>
-            <Alert variant="filled" radius="lg">
-              <Text fz="1.2em">{props.content}</Text>
+            <Alert variant="filled" radius="lg" p="xs">
+              <Text fz="1.1em">{props.content}</Text>
             </Alert>
             <IconUserCircle
               stroke={1.5}

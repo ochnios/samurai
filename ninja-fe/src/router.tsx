@@ -37,7 +37,7 @@ export default function router() {
           element: <PageWrapper title="Users" content={<TestPage />} />,
         },
         {
-          path: "chat",
+          path: "chat/new",
           element: <PageWrapper title="Chat" content={<ChatPage />} />,
         },
         {

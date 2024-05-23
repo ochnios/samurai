@@ -1,9 +1,10 @@
-import { Divider, Grid, ScrollArea, Stack, Title } from "@mantine/core";
+import { Divider, Grid, ScrollArea, Stack } from "@mantine/core";
 import classes from "./ChatPage.module.css";
 import ChatInput from "../components/ChatInput.tsx";
 import ChatMessage, { MessageType } from "../components/ChatMessage.tsx";
+import { useEffect, useRef, useState } from "react";
 
-const messages = [
+const data = [
   {
     content: "Can you explain how to use feature ABC?",
     type: MessageType.USER,
@@ -60,37 +61,50 @@ Mauris in nisi placerat eros dapibus tempus id et magna.`,
 ];
 
 export default function ChatPage() {
+  const viewport = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState(data);
+  useEffect(() => {
+    viewport.current!.scrollTo({
+      top: viewport.current!.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
+
+  const submitMessage = (content: string) => {
+    const newMessage = {
+      content: content,
+      type: MessageType.USER,
+    };
+    setMessages([...messages, newMessage]);
+  };
+
   return (
     <>
       <Grid className={classes.grid}>
+        <Grid.Col span={{ base: 12, md: 1, lg: 2 }}></Grid.Col>
         <Grid.Col
-          span={{ base: 12, md: 8, lg: 9 }}
+          span={{ base: 12, md: 10, lg: 8 }}
           className={classes.messages}
         >
-          <ScrollArea h="calc(100vh - 180px)" visibleFrom="sm">
-            <Stack align="strech" gap="md" h="100%" mb="lg" justify="flex-end">
-              {messages.map(
-                (message, index) =>
-                  index < 20 && (
-                    <ChatMessage
-                      key={index}
-                      content={message.content}
-                      type={message.type}
-                    />
-                  ),
-              )}
+          <ScrollArea
+            h="calc(100dvh - 180px)"
+            viewportRef={viewport}
+            className={classes.scrollArea}
+          >
+            <Stack h="100%" align="strech" gap="md" mb="lg" justify="flex-end">
+              {messages.map((message, index) => (
+                <ChatMessage
+                  key={index}
+                  content={message.content}
+                  type={message.type}
+                />
+              ))}
             </Stack>
           </ScrollArea>
           <Divider my="sm"></Divider>
-          <ChatInput className={classes.input} />
+          <ChatInput submitMessage={(value) => submitMessage(value)} />
         </Grid.Col>
-        <Grid.Col
-          span={{ base: 12, md: 4, lg: 3 }}
-          className={classes.conversations}
-          visibleFrom="md" // TODO button to open conversations on mobile
-        >
-          <Title order={4}>Conversations</Title>
-        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 1, lg: 2 }}></Grid.Col>
       </Grid>
     </>
   );

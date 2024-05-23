@@ -20,3 +20,7 @@
     bottom: 0;
     width: 100%;
 }
+
+.scrollArea > div > div {
+    height: 100%;
+}
