@@ -3,9 +3,9 @@ package pl.ochnios.ninjabe.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import pl.ochnios.ninjabe.model.dtos.conversation.ConversationMapper;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
+import pl.ochnios.ninjabe.model.mappers.ConversationMapper;
 import pl.ochnios.ninjabe.repositories.AssistantEntityRepository;
 import pl.ochnios.ninjabe.repositories.ConversationRepository;
 

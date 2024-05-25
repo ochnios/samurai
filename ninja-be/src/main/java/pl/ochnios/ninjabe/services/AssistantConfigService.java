@@ -3,7 +3,7 @@ package pl.ochnios.ninjabe.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.ochnios.ninjabe.model.dtos.assistant.AssistantConfigDto;
-import pl.ochnios.ninjabe.model.dtos.assistant.AssistantConfigMapper;
+import pl.ochnios.ninjabe.model.mappers.AssistantConfigMapper;
 import pl.ochnios.ninjabe.repositories.AssistantConfigRepository;
 
 import java.util.stream.StreamSupport;
