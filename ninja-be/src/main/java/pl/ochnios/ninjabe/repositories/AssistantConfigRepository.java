@@ -9,5 +9,5 @@ import java.util.UUID;
 @Repository
 public interface AssistantConfigRepository extends CrudRepository<AssistantConfig, UUID> {
 
-    Iterable<AssistantConfig> findAllByAssistant_EnabledAndAssistant_Deleted(Boolean enabled, Boolean deleted);
+    Iterable<AssistantConfig> findAllByAssistantEnabledAndAssistantDeleted(Boolean enabled, Boolean deleted);
 }

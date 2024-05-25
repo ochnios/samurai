@@ -17,7 +17,7 @@ public class AssistantConfigService {
 
     public Iterable<AssistantConfigDto> findConfigsForActiveAssistants() {
         var configEntities = assistantConfigRepository
-                .findAllByAssistant_EnabledAndAssistant_Deleted(true, false);
+                .findAllByAssistantEnabledAndAssistantDeleted(true, false);
         return StreamSupport.stream(configEntities.spliterator(), false)
                 .map(assistantConfigMapper::map).toList();
     }
