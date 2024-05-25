@@ -8,8 +8,8 @@ import pl.ochnios.ninjabe.assistant.Assistant;
 import pl.ochnios.ninjabe.assistant.AssistantRegistry;
 import pl.ochnios.ninjabe.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.ninjabe.model.dtos.chat.ChatResponseDto;
-import pl.ochnios.ninjabe.model.entities.chat.Conversation;
-import pl.ochnios.ninjabe.model.entities.chat.Message;
+import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
+import pl.ochnios.ninjabe.model.entities.conversation.Message;
 import pl.ochnios.ninjabe.repositories.MessageRepository;
 
 import java.util.UUID;

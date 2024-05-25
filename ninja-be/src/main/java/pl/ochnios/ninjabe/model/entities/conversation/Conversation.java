@@ -1,4 +1,4 @@
-package pl.ochnios.ninjabe.model.entities.chat;
+package pl.ochnios.ninjabe.model.entities.conversation;
 
 import jakarta.persistence.*;
 import lombok.*;

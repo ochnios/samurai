@@ -2,7 +2,7 @@ package pl.ochnios.ninjabe.model.dtos.conversation;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import pl.ochnios.ninjabe.model.entities.chat.Conversation;
+import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 
 @Mapper(componentModel = "spring")
 public interface ConversationMapper {
