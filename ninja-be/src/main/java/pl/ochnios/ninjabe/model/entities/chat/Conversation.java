@@ -29,6 +29,8 @@ public class Conversation {
     @JoinColumn(name = "assistant_id", nullable = false)
     private AssistantEntity assistant;
 
+    private UUID userId; // TODO user
+
     // TODO private Model model;
 
     @Column(length = 140)

@@ -10,11 +10,8 @@ import pl.ochnios.ninjabe.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.ninjabe.model.dtos.chat.ChatResponseDto;
 import pl.ochnios.ninjabe.model.entities.chat.Conversation;
 import pl.ochnios.ninjabe.model.entities.chat.Message;
-import pl.ochnios.ninjabe.repositories.AssistantEntityRepository;
-import pl.ochnios.ninjabe.repositories.ConversationRepository;
 import pl.ochnios.ninjabe.repositories.MessageRepository;
 
-import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -23,14 +20,14 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final AssistantRegistry assistantRegistry;
-    private final AssistantEntityRepository assistantEntityRepository;
-    private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
+    private final ConversationService conversationService;
 
     @Transactional
     public ChatResponseDto getCompletion(UUID assistantId, ChatRequestDto chatRequestDto) {
         var assistant = assistantRegistry.get(assistantId);
-        var conversation = findOrCreateConversation(assistantId, chatRequestDto.getConversationId());
+        var conversation = conversationService
+                .findOrCreateConversation(assistantId, chatRequestDto.getConversationId());
 
         var prompt = preparePrompt(assistant, conversation, chatRequestDto.getQuestion());
         var completion = assistant.chat().call(prompt);
@@ -41,23 +38,6 @@ public class ChatService {
         return new ChatResponseDto(conversation.getId(), assistantMessage.getContent());
     }
 
-    private Conversation findOrCreateConversation(UUID assistantId, UUID conversationId) {
-        if (conversationId == null) {
-            return startConversation(assistantId);
-        } else {
-            return conversationRepository
-                    .findConversationByIdAndAssistantIdAndDeletedIs(conversationId, assistantId, false)
-                    .orElse(startConversation(assistantId));
-        }
-    }
-
-    private Conversation startConversation(UUID assistantId) {
-        return conversationRepository.save(Conversation.builder()
-                .assistant(assistantEntityRepository.findById(assistantId).orElse(null))
-                .messages(new ArrayList<>())
-                .deleted(false)
-                .build());
-    }
 
     private Prompt preparePrompt(Assistant assistant, Conversation conversation, String userMessageStr) {
         var systemMessage = Message.system(conversation, assistant.config().getSystemPrompt());
