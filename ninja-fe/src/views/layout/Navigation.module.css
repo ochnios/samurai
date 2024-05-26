@@ -3,17 +3,3 @@
     display: flex;
     flex-direction: column;
 }
-
-.conversationInput {
-
-    [data-disabled], :disabled, input {
-        background-color: inherit;
-        cursor: pointer;
-        color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-1));
-        opacity: 1;
-    }
-
-    :focus {
-        cursor: text !important;
-    }
-}

@@ -12,8 +12,9 @@ import java.util.UUID;
 @Repository
 public interface ConversationRepository extends CrudRepository<Conversation, UUID> {
 
-    Optional<Conversation> findConversationByIdAndAssistantIdAndDeletedIs(UUID conversationId, UUID assistantId,
-                                                                          Boolean deleted);
+    Optional<Conversation> findConversationByUserIdAndAssistantIdAndIdAndDeleted(UUID userId,
+                                                                                 UUID assistantId, UUID conversationId,
+                                                                                 Boolean deleted);
 
     Page<Conversation> findAllByUserIdAndAssistantIdAndDeletedOrderByCreatedAtDesc(UUID userId, UUID assistantId,
                                                                                    Boolean deleted,

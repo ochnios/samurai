@@ -1,68 +1,39 @@
 import { Divider, Grid, Image, ScrollArea, Stack } from "@mantine/core";
 import classes from "./ChatPage.module.css";
 import ChatInput from "../components/ChatInput.tsx";
-import ChatMessage, { MessageType } from "../components/ChatMessage.tsx";
+import ChatMessage, {
+  Message,
+  MessageType,
+} from "../components/ChatMessage.tsx";
 import { useEffect, useRef, useState } from "react";
-
-const data = [
-  {
-    content: "Can you explain how to use feature ABC?",
-    type: MessageType.USER,
-  },
-  {
-    content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse in ipsum this \
-semper, lobortis nibh ac, facilisis erat. Praesent nec turpis ultricies, commodo augue et, rhoncus \
-enim. Fusce sed faucibus dolor. Duis et lacus congue, gravida est a, scelerisque quam. \
-Mauris in nisi placerat eros dapibus tempus id et magna.`,
-    type: MessageType.ASSISTANT,
-  },
-  {
-    content: "I'm facing an error with the application. It keeps crashing.",
-    type: MessageType.USER,
-  },
-  {
-    content:
-      "I'm sorry to hear that. Could you provide more details on the error message?",
-    type: MessageType.ASSISTANT,
-  },
-  {
-    content: "Yes, the error code is 404. I can't seem to find the page.",
-    type: MessageType.USER,
-  },
-  {
-    content:
-      "Error 404 indicates the page was not found. Let me help you locate it.",
-    type: MessageType.ASSISTANT,
-  },
-  { content: "Thank you, that would be great!", type: MessageType.USER },
-  {
-    content:
-      "No problem. Please check if the URL you are trying to access is correct.",
-    type: MessageType.ASSISTANT,
-  },
-  {
-    content: "Can you tell me how to reset my password?",
-    type: MessageType.USER,
-  },
-  {
-    content:
-      "Absolutely. Just go to the settings page and click 'Reset Password'.",
-    type: MessageType.ASSISTANT,
-  },
-  {
-    content: "Got it. I've managed to reset my password.",
-    type: MessageType.USER,
-  },
-  {
-    content:
-      "Glad I could help! Is there anything else you need assistance with?",
-    type: MessageType.ASSISTANT,
-  },
-];
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrent } from "../../reducers/conversationsSlice.ts";
+import axios from "axios";
+import { RootState } from "../../store.ts";
 
 export default function ChatPage() {
   const viewport = useRef<HTMLDivElement>(null);
-  const [messages, setMessages] = useState(data);
+  const { conversationId } = useParams();
+  const dispatch = useDispatch();
+  const assistant = useSelector((state: RootState) => state.assistant);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    async function fetchConversation() {
+      await axios
+        .get(
+          `/assistants/${assistant.current!.id}/conversations/${conversationId}`,
+        )
+        .then((response) => setMessages(response.data.messages));
+    }
+
+    if (conversationId && assistant.current) {
+      dispatch(setCurrent(conversationId));
+      fetchConversation();
+    }
+  }, [conversationId]);
+
   useEffect(() => {
     viewport.current!.scrollTo({
       top: viewport.current!.scrollHeight,
@@ -71,9 +42,11 @@ export default function ChatPage() {
   }, [messages]);
 
   const submitMessage = (content: string) => {
-    const newMessage = {
+    const newMessage: Message = {
+      id: "tbd",
       content: content,
       type: MessageType.USER,
+      createdAt: "tbd",
     };
     setMessages([...messages, newMessage]);
   };
@@ -102,8 +75,10 @@ export default function ChatPage() {
                 {messages.map((message, index) => (
                   <ChatMessage
                     key={index}
+                    id={message.id}
                     content={message.content}
                     type={message.type}
+                    createdAt={message.createdAt}
                   />
                 ))}
               </Stack>

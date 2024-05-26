@@ -22,10 +22,10 @@ public class Conversation {
     @GeneratedValue
     private UUID id;
 
-    @OneToMany(mappedBy = "conversation")
+    @OneToMany(mappedBy = "conversation", fetch = FetchType.LAZY)
     private List<Message> messages;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assistant_id", nullable = false)
     private AssistantEntity assistant;
 

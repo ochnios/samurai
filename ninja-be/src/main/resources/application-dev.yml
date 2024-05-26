@@ -39,6 +39,7 @@ logging:
               BasicBinder: TRACE
 
 custom:
+  allowed-origins: http://localhost:5173,http://localhost:4173,localhost
   default-api-key: ${OPENAI_API_KEY}
   qdrant:
     client:

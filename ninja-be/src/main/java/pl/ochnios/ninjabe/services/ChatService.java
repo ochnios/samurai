@@ -27,7 +27,7 @@ public class ChatService {
     public ChatResponseDto getCompletion(UUID assistantId, ChatRequestDto chatRequestDto) {
         var assistant = assistantRegistry.get(assistantId);
         var conversation = conversationService
-                .findOrCreateConversation(assistantId, chatRequestDto.getConversationId());
+                .findOrCreateConversation(null, assistantId, chatRequestDto.getConversationId());
 
         var prompt = preparePrompt(assistant, conversation, chatRequestDto.getQuestion());
         var completion = assistant.chat().call(prompt);
@@ -44,7 +44,7 @@ public class ChatService {
         var userMessage = Message.user(conversation, userMessageStr);
         userMessage = messageRepository.save(userMessage);
 
-        var messages = conversation.getMessages();
+        var messages = messageRepository.findAllByConversationIdOrderByCreatedAtAsc(conversation.getId());
         messages.add(0, systemMessage);
         messages.add(userMessage);
 

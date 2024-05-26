@@ -1,27 +1,19 @@
 import {
   IconChartBar,
-  IconEdit,
   IconFile,
   IconLogout,
   IconMessageChatbot,
   IconMessagePlus,
   IconMessages,
   IconRobot,
-  IconTrash,
   IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
 import classes from "./Navigation.module.css";
-import {
-  Box,
-  Divider,
-  Flex,
-  ScrollArea,
-  Stack,
-  TextInput,
-} from "@mantine/core";
+import { Box, Divider, ScrollArea } from "@mantine/core";
 import NavLink from "../components/NavLink.tsx";
 import { useElementSize } from "@mantine/hooks";
+import Conversations from "./Conversations.tsx";
 
 const data = [
   { link: "/assistants", label: "Assistants", icon: IconMessageChatbot },
@@ -57,26 +49,7 @@ export default function Navigation() {
       ></Divider>
       <Box flex={1} ref={ref}>
         <ScrollArea h={height}>
-          <Stack align="stretch" justify="flex-start" gap="xs" pr="md">
-            {Array.from({ length: 10 }).map((_, index) => (
-              <TextInput
-                key={index}
-                type="text"
-                size="sm"
-                placeholder="Chat summary"
-                defaultValue="Chat summary"
-                disabled={true}
-                rightSectionWidth={50}
-                rightSection={
-                  <Flex>
-                    <IconEdit size={20} cursor="pointer" />
-                    <IconTrash size={20} cursor="pointer" />
-                  </Flex>
-                }
-                className={classes.conversationInput}
-              />
-            ))}
-          </Stack>
+          <Conversations />
         </ScrollArea>
       </Box>
       <Divider my="md"></Divider>

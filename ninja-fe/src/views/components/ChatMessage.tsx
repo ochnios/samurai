@@ -2,13 +2,15 @@ import { Alert, Flex, Image, rem, Stack, Text } from "@mantine/core";
 import { IconUserCircle } from "@tabler/icons-react";
 
 export enum MessageType {
-  USER,
-  ASSISTANT,
+  USER = "USER",
+  ASSISTANT = "ASSISTANT",
 }
 
-interface Message {
+export interface Message {
+  id: string;
   content: string;
   type: MessageType;
+  createdAt: string;
 }
 
 export default function ChatMessage(props: Message) {
