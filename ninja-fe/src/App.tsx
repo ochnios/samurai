@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { theme } from "./theme";
 import { RouterProvider } from "react-router-dom";
@@ -7,6 +8,7 @@ import config from "./config.ts";
 import axios from "axios";
 import { Provider } from "react-redux";
 import store from "./store.ts";
+import { Notifications } from "@mantine/notifications";
 
 axios.defaults.baseURL = config.baseUrl;
 axios.defaults.withCredentials = true;
@@ -17,6 +19,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <MantineProvider theme={theme}>
+        <Notifications position="top-right" />
         <RouterProvider router={router} />
       </MantineProvider>
     </Provider>

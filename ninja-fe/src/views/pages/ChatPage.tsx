@@ -1,8 +1,10 @@
 import { Divider, Grid, Image, ScrollArea, Stack } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import classes from "./ChatPage.module.css";
 import ChatInput from "../components/ChatInput.tsx";
 import ChatMessage, {
   Message,
+  MessageStatus,
   MessageType,
 } from "../components/ChatMessage.tsx";
 import { useEffect, useRef, useState } from "react";
@@ -11,27 +13,78 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrent } from "../../reducers/conversationsSlice.ts";
 import axios from "axios";
 import { RootState } from "../../store.ts";
+import { validate } from "uuid";
+
+interface ConversationDto {
+  id: string;
+  messages: Message[];
+  assistantId: string;
+  userId?: string;
+  createdAt: string;
+}
+
+interface ChatRequestDto {
+  conversationId?: string;
+  question: string;
+}
+
+interface ChatResponseDto {
+  conversationId: string;
+  completion: string;
+}
+
+const fetchConversation = async (
+  assistantId: string,
+  conversationId: string,
+): Promise<ConversationDto | void> => {
+  return await axios
+    .get<ConversationDto>(
+      `/assistants/${assistantId}/conversations/${conversationId}`,
+    )
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.error(error);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: "Failed to fetch given conversation",
+      });
+    });
+};
 
 export default function ChatPage() {
   const viewport = useRef<HTMLDivElement>(null);
-  const { conversationId } = useParams();
+  const { id } = useParams();
   const dispatch = useDispatch();
   const assistant = useSelector((state: RootState) => state.assistant);
+  const [conversationId, setConversationId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    async function fetchConversation() {
-      await axios
-        .get(
-          `/assistants/${assistant.current!.id}/conversations/${conversationId}`,
-        )
-        .then((response) => setMessages(response.data.messages));
+    console.log(id);
+    if (assistant.current) {
+      if (validate(id ?? "")) {
+        setConversationId(id!);
+        fetchConversation(assistant.current!.id, id!).then((c) =>
+          setMessages(c ? c.messages : []),
+        );
+      } else {
+        setConversationId("");
+        setMessages([]);
+      }
+    } else {
+      notifications.show({
+        color: "orange",
+        title: "Warning",
+        message: "Please select active assistant first",
+      });
     }
+  }, [id]);
 
-    if (conversationId && assistant.current) {
-      dispatch(setCurrent(conversationId));
-      fetchConversation();
-    }
+  useEffect(() => {
+    dispatch(setCurrent(conversationId));
   }, [conversationId]);
 
   useEffect(() => {
@@ -41,14 +94,58 @@ export default function ChatPage() {
     });
   }, [messages]);
 
+  const sendMessage = async (message: Message): Promise<Message> => {
+    return await axios
+      .post<ChatResponseDto>(`/assistants/${assistant.current!.id}/chat`, {
+        conversationId: conversationId,
+        question: message.content,
+      } as ChatRequestDto)
+      .then((response) => {
+        if (!conversationId) setConversationId(response.data.conversationId);
+        return {
+          content: response.data.completion,
+          type: MessageType.ASSISTANT,
+        };
+      })
+      .catch((error) => {
+        console.error(error);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Failed to send the message",
+        });
+        return {
+          content:
+            "Sorry, I am not able to answer your question right now, but I am working to fix it",
+          type: MessageType.ASSISTANT,
+          status: MessageStatus.ERROR,
+        };
+      });
+  };
+
   const submitMessage = (content: string) => {
-    const newMessage: Message = {
-      id: "tbd",
+    const userMessage: Message = {
       content: content,
       type: MessageType.USER,
-      createdAt: "tbd",
     };
-    setMessages([...messages, newMessage]);
+
+    const answerPlaceholder: Message = {
+      type: MessageType.ASSISTANT,
+      status: MessageStatus.LOADING,
+    };
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      userMessage,
+      answerPlaceholder,
+    ]);
+
+    sendMessage(userMessage).then((answer) =>
+      setMessages((prevMessages) => [
+        ...prevMessages.slice(0, prevMessages.length - 1),
+        answer,
+      ]),
+    );
   };
 
   return (
@@ -75,10 +172,9 @@ export default function ChatPage() {
                 {messages.map((message, index) => (
                   <ChatMessage
                     key={index}
-                    id={message.id}
                     content={message.content}
                     type={message.type}
-                    createdAt={message.createdAt}
+                    status={message.status}
                   />
                 ))}
               </Stack>

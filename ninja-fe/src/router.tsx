@@ -34,7 +34,7 @@ const router = createBrowserRouter([
         element: <PageWrapper title="Users" content={<TestPage />} />,
       },
       {
-        path: "conversations/:conversationId",
+        path: "conversations/:id",
         element: <PageWrapper title="Chat" content={<ChatPage />} />,
       },
       {

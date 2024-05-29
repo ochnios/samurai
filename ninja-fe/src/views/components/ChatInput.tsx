@@ -34,7 +34,7 @@ export default function ChatInput(props: ChatInputProps) {
         ref={inputRef}
         error={
           error && (
-            <Text size="sm" ta="center">
+            <Text size="sm" ta="center" span>
               {error}
             </Text>
           )

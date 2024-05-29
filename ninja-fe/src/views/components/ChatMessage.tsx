@@ -1,4 +1,13 @@
-import { Alert, Flex, Image, rem, Stack, Text } from "@mantine/core";
+import {
+  Alert,
+  Box,
+  Flex,
+  Image,
+  Loader,
+  rem,
+  Stack,
+  Text,
+} from "@mantine/core";
 import { IconUserCircle } from "@tabler/icons-react";
 
 export enum MessageType {
@@ -6,11 +15,15 @@ export enum MessageType {
   ASSISTANT = "ASSISTANT",
 }
 
+export enum MessageStatus {
+  LOADING = "LOADING",
+  ERROR = "ERROR",
+}
+
 export interface Message {
-  id: string;
-  content: string;
+  content?: string;
   type: MessageType;
-  createdAt: string;
+  status?: MessageStatus;
 }
 
 export default function ChatMessage(props: Message) {
@@ -21,18 +34,7 @@ export default function ChatMessage(props: Message) {
       justify="center"
     >
       <Flex gap="xs" align="flex-start" style={{ maxWidth: "80%" }}>
-        {props.type === MessageType.ASSISTANT ? (
-          <>
-            <Image
-              src="/logo_small.png"
-              fit="contain"
-              style={{ width: rem(40), height: rem(40) }}
-            />
-            <Alert variant="default" radius="lg" p="xs">
-              <Text fz="1.1em">{props.content}</Text>
-            </Alert>
-          </>
-        ) : (
+        {props.type === MessageType.USER ? (
           <>
             <Alert variant="filled" radius="lg" p="xs">
               <Text fz="1.1em">{props.content}</Text>
@@ -42,6 +44,30 @@ export default function ChatMessage(props: Message) {
               radius="xl"
               style={{ width: rem(40), height: rem(40) }}
             />
+          </>
+        ) : (
+          <>
+            <Image
+              src="/logo_small.png"
+              fit="contain"
+              style={{ width: rem(40), height: rem(40) }}
+            />
+            <Alert
+              variant={
+                props.status === MessageStatus.ERROR ? "outline" : "default"
+              }
+              radius="lg"
+              p="xs"
+              color={props.status === MessageStatus.ERROR ? "red" : ""}
+            >
+              {props.status === MessageStatus.LOADING ? (
+                <Box px="sm">
+                  <Loader type="dots" size="sm" />
+                </Box>
+              ) : (
+                <Text fz="1.1em">{props.content}</Text>
+              )}
+            </Alert>
           </>
         )}
       </Flex>

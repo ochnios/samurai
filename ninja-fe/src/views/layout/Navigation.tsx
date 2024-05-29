@@ -21,7 +21,7 @@ const data = [
   { link: "/statistics", label: "Statistics", icon: IconChartBar },
   { link: "/models", label: "Models", icon: IconRobot },
   { link: "/users", label: "Users", icon: IconUsers },
-  { link: "/chat/new", label: "New chat", icon: IconMessagePlus },
+  { link: "/conversations/new", label: "New chat", icon: IconMessagePlus },
 ];
 
 export default function Navigation() {

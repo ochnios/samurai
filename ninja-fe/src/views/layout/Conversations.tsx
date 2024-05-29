@@ -54,7 +54,6 @@ export default function Conversations() {
             className={classes.conversationInput}
             onClick={(e) => {
               e.preventDefault();
-              console.log("conversation click");
               navigate(`/conversations/${_.id}`);
             }}
           />
