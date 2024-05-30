@@ -26,25 +26,30 @@ public class AssistantSeeder implements DataSeeder {
     @Override
     @Transactional
     public void seed() {
-        var assistant = assistantEntityRepository.save(generateBasicAssistant());
-        var config = assistantConfigRepository.save(generateBasicConfig(assistant.getId()));
+        var assistant = assistantEntityRepository.save(generateBasicAssistant("Basic Ninja (GPT-3.5)"));
+        var config = assistantConfigRepository.save(generateBasicConfig(assistant.getId(), "gpt-3.5-turbo"));
+        assistant.setConfig(config);
+        assistantEntityRepository.save(assistant);
+
+        assistant = assistantEntityRepository.save(generateBasicAssistant("Another Ninja (GPT-4o)"));
+        config = assistantConfigRepository.save(generateBasicConfig(assistant.getId(), "gpt-4o"));
         assistant.setConfig(config);
         assistantEntityRepository.save(assistant);
     }
 
-    private AssistantEntity generateBasicAssistant() {
+    private AssistantEntity generateBasicAssistant(String name) {
         return AssistantEntity.builder()
-                .name("First Ninja")
+                .name(name)
                 .enabled(true)
                 .deleted(false)
                 .build();
     }
 
-    private AssistantConfig generateBasicConfig(UUID assistantId) {
+    private AssistantConfig generateBasicConfig(UUID assistantId, String chatModelName) {
         return AssistantConfig.builder()
                 .id(assistantId)
                 .systemPrompt("You are a helpful assistant")
-                .chatModelName("gpt-3.5-turbo")
+                .chatModelName(chatModelName)
                 .embeddingModelName("text-embedding-small")
                 .temperature(BigDecimal.ONE)
                 .maxChatTokens(4096)
