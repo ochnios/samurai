@@ -1,14 +1,14 @@
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import { MantineProvider } from "@mantine/core";
-import { theme } from "./theme";
-import { RouterProvider } from "react-router-dom";
-import router from "./router.tsx";
-import config from "./config.ts";
+import { Notifications } from "@mantine/notifications";
 import axios from "axios";
 import { Provider } from "react-redux";
+import { RouterProvider } from "react-router-dom";
+import config from "./config.ts";
+import router from "./router.tsx";
 import store from "./store.ts";
-import { Notifications } from "@mantine/notifications";
+import { theme } from "./theme";
 
 axios.defaults.baseURL = config.baseUrl;
 axios.defaults.withCredentials = true;

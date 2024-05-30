@@ -1,6 +1,6 @@
 import { Container } from "@mantine/core";
-import { useOutletContext } from "react-router-dom";
 import React, { useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 
 interface PageProps {
   title?: string;

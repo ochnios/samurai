@@ -1,6 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
 import { Icon, IconProps } from "@tabler/icons-react";
 import React, { ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 import classes from "./NavLink.module.css";
 
 interface NavLinkProps {

@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { AppShell } from "@mantine/core";
-import { Navigate, Outlet, useOutlet } from "react-router-dom";
-import Navigation from "./Navigation.tsx";
-import Header from "./Header.tsx";
 import { useDocumentTitle } from "@mantine/hooks";
+import { useState } from "react";
+import { Navigate, Outlet, useOutlet } from "react-router-dom";
+import Header from "./Header.tsx";
+import Navigation from "./Navigation.tsx";
 
 export function Layout() {
   const outlet = useOutlet();
@@ -25,7 +25,7 @@ export function Layout() {
         <Navigation />
       </AppShell.Navbar>
       <AppShell.Main>
-        {outlet == null && <Navigate to="/" />}{" "}
+        {outlet == null && <Navigate to="/" />}
         <Outlet context={{ setTitle }} />
       </AppShell.Main>
     </AppShell>

@@ -10,8 +10,8 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconMoon, IconSun, IconUserCircle } from "@tabler/icons-react";
-import classes from "./Header.module.css";
 import { Link } from "react-router-dom";
+import classes from "./Header.module.css";
 
 interface HeaderProps {
   title: string;
