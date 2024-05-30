@@ -4,10 +4,10 @@ import classes from "./Conversations.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store.ts";
 import { useEffect } from "react";
-import { fetchConversations } from "../../reducers/conversationsSlice.ts";
 import { useAppDispatch } from "../../hooks.ts";
 import { fetchAvailableAssistants } from "../../reducers/assistantSlice.ts";
 import { useNavigate } from "react-router-dom";
+import { fetchConversations } from "../../reducers/conversationsSlice.ts";
 
 export default function Conversations() {
   const navigate = useNavigate();
@@ -20,8 +20,10 @@ export default function Conversations() {
   }, []);
 
   useEffect(() => {
-    if (assistant.current) dispatch(fetchConversations(assistant.current.id));
+    assistant.current && dispatch(fetchConversations(assistant.current.id));
   }, [assistant.current]);
+
+  useEffect(() => {}, [assistant.current, conversations.currentId]);
 
   const isCurrent = (conversationId: string) => {
     return conversations.currentId === conversationId;

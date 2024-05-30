@@ -33,8 +33,15 @@ const conversationsSlice = createSlice({
   name: "conversations",
   initialState,
   reducers: {
-    setCurrent: (state, action) => {
+    setActiveConversation: (state, action) => {
       state.currentId = action.payload;
+    },
+    addConversationSummary: (state, action) => {
+      const summary = {
+        id: action.payload.id,
+        summary: action.payload.summary,
+      } as ConversationSummary;
+      state.conversations = [summary, ...state.conversations];
     },
   },
   extraReducers: (builder) => {
@@ -53,5 +60,6 @@ const conversationsSlice = createSlice({
   },
 });
 
-export const { setCurrent } = conversationsSlice.actions;
+export const { setActiveConversation, addConversationSummary } =
+  conversationsSlice.actions;
 export default conversationsSlice.reducer;

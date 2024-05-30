@@ -10,7 +10,10 @@ import ChatMessage, {
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrent } from "../../reducers/conversationsSlice.ts";
+import {
+  addConversationSummary,
+  setActiveConversation,
+} from "../../reducers/conversationsSlice.ts";
 import axios from "axios";
 import { RootState } from "../../store.ts";
 import { validate } from "uuid";
@@ -63,7 +66,6 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    console.log(id);
     if (assistant.current) {
       if (validate(id ?? "")) {
         setConversationId(id!);
@@ -84,7 +86,7 @@ export default function ChatPage() {
   }, [id]);
 
   useEffect(() => {
-    dispatch(setCurrent(conversationId));
+    dispatch(setActiveConversation(conversationId));
   }, [conversationId]);
 
   useEffect(() => {
@@ -101,7 +103,15 @@ export default function ChatPage() {
         question: message.content,
       } as ChatRequestDto)
       .then((response) => {
-        if (!conversationId) setConversationId(response.data.conversationId);
+        if (!conversationId) {
+          setConversationId(response.data.conversationId);
+          dispatch(
+            addConversationSummary({
+              id: response.data.conversationId,
+              summary: "New conversation",
+            }),
+          );
+        }
         return {
           content: response.data.completion,
           type: MessageType.ASSISTANT,
