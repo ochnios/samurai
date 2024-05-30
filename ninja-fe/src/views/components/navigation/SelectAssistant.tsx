@@ -1,4 +1,5 @@
 import { Center, Loader, Select } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../hooks.ts";
@@ -17,7 +18,16 @@ export default function SelectAssistant() {
     dispatch(fetchAvailableAssistants());
   }, []);
 
-  useEffect(() => {}, [assistant]);
+  useEffect(() => {
+    if (assistant.errors) {
+      console.error(assistant.errors);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: "Failed to fetch assistants",
+      });
+    }
+  }, [assistant]);
 
   return (
     <>

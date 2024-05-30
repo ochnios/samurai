@@ -19,7 +19,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <MantineProvider theme={theme}>
-        <Notifications position="top-right" />
+        <Notifications position="top-right" autoClose={10000} />
         <RouterProvider router={router} />
       </MantineProvider>
     </Provider>
