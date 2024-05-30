@@ -1,77 +1,56 @@
-import { Divider, Grid, Image, ScrollArea, Stack } from "@mantine/core";
+import { Divider, Grid, Image, Loader, ScrollArea, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import classes from "./ChatPage.module.css";
-import ChatInput from "../components/chat/ChatInput.tsx";
-import ChatMessage, {
-  Message,
-  MessageStatus,
-  MessageType,
-} from "../components/chat/ChatMessage.tsx";
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { validate } from "uuid";
+import { Message } from "../../model/helper/Message.ts";
+import { MessageStatus } from "../../model/helper/MessageStatus.ts";
+import { MessageType } from "../../model/helper/MessageType.ts";
+import { sendMessage } from "../../model/service/chatService.ts";
+import { fetchConversation } from "../../model/service/conversationService.ts";
 import {
   addConversationSummary,
   setActiveConversation,
 } from "../../reducers/conversationsSlice.ts";
-import axios from "axios";
 import { RootState } from "../../store.ts";
-import { validate } from "uuid";
-
-interface ConversationDto {
-  id: string;
-  messages: Message[];
-  assistantId: string;
-  userId?: string;
-  createdAt: string;
-}
-
-interface ChatRequestDto {
-  conversationId?: string;
-  question: string;
-}
-
-interface ChatResponseDto {
-  conversationId: string;
-  completion: string;
-}
-
-const fetchConversation = async (
-  assistantId: string,
-  conversationId: string,
-): Promise<ConversationDto | void> => {
-  return await axios
-    .get<ConversationDto>(
-      `/assistants/${assistantId}/conversations/${conversationId}`,
-    )
-    .then((response) => {
-      return response.data;
-    })
-    .catch((error) => {
-      console.error(error);
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "Failed to fetch given conversation",
-      });
-    });
-};
+import ChatInput from "../components/chat/ChatInput.tsx";
+import ChatMessage from "../components/chat/ChatMessage.tsx";
+import classes from "./ChatPage.module.css";
 
 export default function ChatPage() {
   const viewport = useRef<HTMLDivElement>(null);
   const { id } = useParams();
   const dispatch = useDispatch();
   const assistant = useSelector((state: RootState) => state.assistant);
+  const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
+    viewport.current!.scrollTo({
+      top: viewport.current!.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
+
+  useEffect(() => {
     if (assistant.current) {
       if (validate(id ?? "")) {
+        setLoading(true);
         setConversationId(id!);
-        fetchConversation(assistant.current!.id, id!).then((c) =>
-          setMessages(c ? c.messages : []),
-        );
+        fetchConversation(assistant.current!.id, id!).then((c) => {
+          if (c) setMessages(c.messages);
+          else {
+            setMessages([]);
+            notifications.show({
+              color: "red",
+              title: "Error",
+              message: "Failed to fetch selected conversation",
+            });
+          }
+          setLoading(false);
+        });
       } else {
         setConversationId("");
         setMessages([]);
@@ -88,50 +67,6 @@ export default function ChatPage() {
   useEffect(() => {
     dispatch(setActiveConversation(conversationId));
   }, [conversationId]);
-
-  useEffect(() => {
-    viewport.current!.scrollTo({
-      top: viewport.current!.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
-
-  const sendMessage = async (message: Message): Promise<Message> => {
-    return await axios
-      .post<ChatResponseDto>(`/assistants/${assistant.current!.id}/chat`, {
-        conversationId: conversationId,
-        question: message.content,
-      } as ChatRequestDto)
-      .then((response) => {
-        if (!conversationId) {
-          setConversationId(response.data.conversationId);
-          dispatch(
-            addConversationSummary({
-              id: response.data.conversationId,
-              summary: "New conversation",
-            }),
-          );
-        }
-        return {
-          content: response.data.completion,
-          type: MessageType.ASSISTANT,
-        };
-      })
-      .catch((error) => {
-        console.error(error);
-        notifications.show({
-          color: "red",
-          title: "Error",
-          message: "Failed to send the message",
-        });
-        return {
-          content:
-            "Sorry, I am not able to answer your question right now, but I am working to fix it",
-          type: MessageType.ASSISTANT,
-          status: MessageStatus.ERROR,
-        };
-      });
-  };
 
   const submitMessage = (content: string) => {
     const userMessage: Message = {
@@ -150,12 +85,44 @@ export default function ChatPage() {
       answerPlaceholder,
     ]);
 
-    sendMessage(userMessage).then((answer) =>
+    sendMessage(assistant.current!.id, {
+      conversationId: conversationId,
+      question: content,
+    }).then((response) => {
+      let answerMessage: Message;
+      if (response) {
+        answerMessage = {
+          content: response.completion,
+          type: MessageType.ASSISTANT,
+        };
+        if (!conversationId) {
+          setConversationId(response.conversationId);
+          dispatch(
+            addConversationSummary({
+              id: response.conversationId,
+              summary: "New conversation",
+            }),
+          );
+        }
+      } else {
+        answerMessage = {
+          content:
+            "Sorry, I am not able to answer your question right now but I am working to fix it",
+          type: MessageType.ASSISTANT,
+          status: MessageStatus.ERROR,
+        };
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Failed to send the message",
+        });
+      }
+
       setMessages((prevMessages) => [
         ...prevMessages.slice(0, prevMessages.length - 1),
-        answer,
-      ]),
-    );
+        answerMessage,
+      ]);
+    });
   };
 
   return (
@@ -171,7 +138,7 @@ export default function ChatPage() {
             viewportRef={viewport}
             className={classes.scrollArea}
           >
-            {messages.length > 0 ? (
+            {!loading && messages.length > 0 ? (
               <Stack
                 h="100%"
                 align="strech"
@@ -190,7 +157,16 @@ export default function ChatPage() {
               </Stack>
             ) : (
               <Stack h="100%" align="center" justify="center">
-                <Image src="/logo_medium.png" h="100%" w="auto" fit="contain" />
+                {loading ? (
+                  <Loader />
+                ) : (
+                  <Image
+                    src="/logo_medium.png"
+                    h="100%"
+                    w="auto"
+                    fit="contain"
+                  />
+                )}
               </Stack>
             )}
           </ScrollArea>

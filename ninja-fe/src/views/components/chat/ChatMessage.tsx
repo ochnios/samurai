@@ -9,22 +9,9 @@ import {
   Text,
 } from "@mantine/core";
 import { IconUserCircle } from "@tabler/icons-react";
-
-export enum MessageType {
-  USER = "USER",
-  ASSISTANT = "ASSISTANT",
-}
-
-export enum MessageStatus {
-  LOADING = "LOADING",
-  ERROR = "ERROR",
-}
-
-export interface Message {
-  content?: string;
-  type: MessageType;
-  status?: MessageStatus;
-}
+import { Message } from "../../../model/helper/Message.ts";
+import { MessageStatus } from "../../../model/helper/MessageStatus.ts";
+import { MessageType } from "../../../model/helper/MessageType.ts";
 
 export default function ChatMessage(props: Message) {
   return (
