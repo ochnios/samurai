@@ -1,12 +1,12 @@
 import { Divider, Grid, Image, ScrollArea, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import classes from "./ChatPage.module.css";
-import ChatInput from "../components/ChatInput.tsx";
+import ChatInput from "../components/chat/ChatInput.tsx";
 import ChatMessage, {
   Message,
   MessageStatus,
   MessageType,
-} from "../components/ChatMessage.tsx";
+} from "../components/chat/ChatMessage.tsx";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";

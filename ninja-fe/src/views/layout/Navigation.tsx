@@ -11,9 +11,9 @@ import {
 } from "@tabler/icons-react";
 import classes from "./Navigation.module.css";
 import { Box, Divider, ScrollArea } from "@mantine/core";
-import NavLink from "../components/NavLink.tsx";
+import NavLink from "../components/navigation/NavLink.tsx";
 import { useElementSize } from "@mantine/hooks";
-import Conversations from "./Conversations.tsx";
+import Conversations from "../components/conversations/Conversations.tsx";
 
 const data = [
   { link: "/assistants", label: "Assistants", icon: IconMessageChatbot },

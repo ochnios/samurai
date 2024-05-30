@@ -2,12 +2,12 @@ import { Center, Flex, Loader, Stack, TextInput } from "@mantine/core";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import classes from "./Conversations.module.css";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store.ts";
+import { RootState } from "../../../store.ts";
 import { useEffect } from "react";
-import { useAppDispatch } from "../../hooks.ts";
-import { fetchAvailableAssistants } from "../../reducers/assistantSlice.ts";
+import { useAppDispatch } from "../../../hooks.ts";
+import { fetchAvailableAssistants } from "../../../reducers/assistantSlice.ts";
 import { useNavigate } from "react-router-dom";
-import { fetchConversations } from "../../reducers/conversationsSlice.ts";
+import { fetchConversations } from "../../../reducers/conversationsSlice.ts";
 
 export default function Conversations() {
   const navigate = useNavigate();
