@@ -2,7 +2,6 @@ import { Center, Loader, Stack } from "@mantine/core";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../hooks.ts";
-import { fetchAvailableAssistants } from "../../../reducers/assistantSlice.ts";
 import { fetchConversations } from "../../../reducers/conversationsSlice.ts";
 import { RootState } from "../../../store.ts";
 import Summary from "./Summary.tsx";
@@ -13,12 +12,8 @@ export default function Conversations() {
   const conversations = useSelector((state: RootState) => state.conversations);
 
   useEffect(() => {
-    dispatch(fetchAvailableAssistants());
-  }, []);
-
-  useEffect(() => {
-    assistant.current && dispatch(fetchConversations(assistant.current.id));
-  }, [assistant.current]);
+    assistant.currentId && dispatch(fetchConversations(assistant.currentId));
+  }, [assistant.currentId]);
 
   return (
     <Stack align="stretch" justify="flex-start" gap="xs" pr="md">

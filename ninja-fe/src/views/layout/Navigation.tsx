@@ -1,3 +1,5 @@
+import { Box, Divider, ScrollArea } from "@mantine/core";
+import { useElementSize } from "@mantine/hooks";
 import {
   IconChartBar,
   IconFile,
@@ -9,11 +11,10 @@ import {
   IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
-import classes from "./Navigation.module.css";
-import { Box, Divider, ScrollArea } from "@mantine/core";
-import NavLink from "../components/navigation/NavLink.tsx";
-import { useElementSize } from "@mantine/hooks";
 import Conversations from "../components/conversations/Conversations.tsx";
+import NavLink from "../components/navigation/NavLink.tsx";
+import SelectAssistant from "../components/navigation/SelectAssistant.tsx";
+import classes from "./Navigation.module.css";
 
 const data = [
   { link: "/assistants", label: "Assistants", icon: IconMessageChatbot },
@@ -26,15 +27,20 @@ const data = [
 
 export default function Navigation() {
   const { ref, height } = useElementSize();
-  const links = data.map((item) => (
-    <NavLink link={item.link} icon={item.icon} key={item.link}>
-      {item.label}
-    </NavLink>
-  ));
 
   return (
     <Box className={classes.navbar}>
-      <Box className={classes.links}>{links}</Box>
+      <Box>
+        <SelectAssistant />
+      </Box>
+      <Divider my="md"></Divider>
+      <Box className={classes.links}>
+        {data.map((item) => (
+          <NavLink link={item.link} icon={item.icon} key={item.link}>
+            {item.label}
+          </NavLink>
+        ))}
+      </Box>
       <Divider
         my="md"
         labelPosition="center"

@@ -2,7 +2,7 @@ import { Divider, Grid, Image, Loader, ScrollArea, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { validate } from "uuid";
 import { Message } from "../../model/helper/Message.ts";
 import { MessageStatus } from "../../model/helper/MessageStatus.ts";
@@ -22,10 +22,16 @@ export default function ChatPage() {
   const viewport = useRef<HTMLDivElement>(null);
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const assistant = useSelector((state: RootState) => state.assistant);
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    setConversationId("");
+    setMessages([]);
+  }, [assistant.currentId]);
 
   useEffect(() => {
     viewport.current!.scrollTo({
@@ -35,11 +41,15 @@ export default function ChatPage() {
   }, [messages]);
 
   useEffect(() => {
-    if (assistant.current) {
+    dispatch(setActiveConversation(conversationId));
+  }, [conversationId]);
+
+  useEffect(() => {
+    if (assistant.currentId) {
       if (validate(id ?? "")) {
         setLoading(true);
         setConversationId(id!);
-        fetchConversation(assistant.current!.id, id!).then((c) => {
+        fetchConversation(assistant.currentId, id!).then((c) => {
           if (c) setMessages(c.messages);
           else {
             setMessages([]);
@@ -52,10 +62,14 @@ export default function ChatPage() {
           setLoading(false);
         });
       } else {
+        if (id != "new") navigate("/conversations/new");
         setConversationId("");
         setMessages([]);
       }
     } else {
+      if (id != "new") navigate("/conversations/new");
+      setConversationId("");
+      setMessages([]);
       notifications.show({
         color: "orange",
         title: "Warning",
@@ -63,10 +77,6 @@ export default function ChatPage() {
       });
     }
   }, [id]);
-
-  useEffect(() => {
-    dispatch(setActiveConversation(conversationId));
-  }, [conversationId]);
 
   const submitMessage = (content: string) => {
     const userMessage: Message = {
@@ -85,7 +95,7 @@ export default function ChatPage() {
       answerPlaceholder,
     ]);
 
-    sendMessage(assistant.current!.id, {
+    sendMessage(assistant.currentId!, {
       conversationId: conversationId,
       question: content,
     }).then((response) => {

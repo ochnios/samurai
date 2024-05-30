@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { validate } from "uuid";
 
 interface Assistant {
   id: string;
@@ -7,14 +8,14 @@ interface Assistant {
 }
 
 interface AssistantState {
-  current?: Assistant;
-  available?: Assistant[];
+  currentId?: string;
+  available: Assistant[];
   loading: boolean;
   errors?: string;
 }
 
 const initialState: AssistantState = {
-  current: undefined,
+  currentId: undefined,
   available: [] as Assistant[],
   loading: false,
   errors: undefined,
@@ -30,7 +31,11 @@ export const fetchAvailableAssistants = createAsyncThunk(
 const assistantSlice = createSlice({
   name: "assistant",
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    setActiveAssistant: (state, action) => {
+      state.currentId = validate(action.payload) ? action.payload : undefined;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAvailableAssistants.pending, (state) => {
@@ -39,16 +44,20 @@ const assistantSlice = createSlice({
       .addCase(fetchAvailableAssistants.fulfilled, (state, action) => {
         state.loading = false;
         state.available = action.payload;
-        // TODO selecting from GUI
-        state.current = state.available ? state.available[0] : undefined;
+        state.currentId =
+          state.currentId ?? state.available
+            ? state.available[0].id
+            : undefined;
         state.errors = undefined;
       })
       .addCase(fetchAvailableAssistants.rejected, (state, action) => {
         state.loading = false;
-        state.available = undefined;
+        state.available = [] as Assistant[];
         state.errors = action.payload as string;
       });
   },
 });
+
+export const { setActiveAssistant } = assistantSlice.actions;
 
 export default assistantSlice.reducer;

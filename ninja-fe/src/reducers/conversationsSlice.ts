@@ -11,6 +11,7 @@ interface ConversationsState {
 }
 
 const initialState: ConversationsState = {
+  currentId: undefined,
   conversations: [] as ConversationSummary[],
   loading: false,
   errors: "",
@@ -68,4 +69,5 @@ export const {
   addConversationSummary,
   renameConversation,
 } = conversationsSlice.actions;
+
 export default conversationsSlice.reducer;
