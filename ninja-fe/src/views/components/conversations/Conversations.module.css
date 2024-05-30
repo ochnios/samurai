@@ -7,7 +7,7 @@
         opacity: 1;
     }
 
-    :focus {
+    :read-write {
         cursor: text !important;
     }
 }

@@ -1,16 +1,13 @@
-import { Center, Flex, Loader, Stack, TextInput } from "@mantine/core";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
-import classes from "./Conversations.module.css";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../store.ts";
+import { Center, Loader, Stack } from "@mantine/core";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../hooks.ts";
 import { fetchAvailableAssistants } from "../../../reducers/assistantSlice.ts";
-import { useNavigate } from "react-router-dom";
 import { fetchConversations } from "../../../reducers/conversationsSlice.ts";
+import { RootState } from "../../../store.ts";
+import Summary from "./Summary.tsx";
 
 export default function Conversations() {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const assistant = useSelector((state: RootState) => state.assistant);
   const conversations = useSelector((state: RootState) => state.conversations);
@@ -23,12 +20,6 @@ export default function Conversations() {
     assistant.current && dispatch(fetchConversations(assistant.current.id));
   }, [assistant.current]);
 
-  useEffect(() => {}, [assistant.current, conversations.currentId]);
-
-  const isCurrent = (conversationId: string) => {
-    return conversations.currentId === conversationId;
-  };
-
   return (
     <Stack align="stretch" justify="flex-start" gap="xs" pr="md">
       {conversations.loading ? (
@@ -37,28 +28,7 @@ export default function Conversations() {
         </Center>
       ) : (
         conversations.conversations.map((_, index) => (
-          <TextInput
-            key={index}
-            type="text"
-            size="sm"
-            placeholder={_.summary}
-            defaultValue={_.summary}
-            readOnly={!isCurrent(_.id)}
-            rightSectionWidth={50}
-            rightSection={
-              isCurrent(_.id) && (
-                <Flex>
-                  <IconEdit size={20} cursor="pointer" />
-                  <IconTrash size={20} cursor="pointer" />
-                </Flex>
-              )
-            }
-            className={classes.conversationInput}
-            onClick={(e) => {
-              e.preventDefault();
-              navigate(`/conversations/${_.id}`);
-            }}
-          />
+          <Summary key={index} summary={_} />
         ))
       )}
     </Stack>

@@ -1,11 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import axios from "axios";
-
-interface ConversationSummary {
-  id: string;
-  summary: string;
-}
+import { ConversationSummary } from "../model/api/ConversationSummary.ts";
 
 interface ConversationsState {
   currentId?: string;
@@ -43,6 +39,13 @@ const conversationsSlice = createSlice({
       } as ConversationSummary;
       state.conversations = [summary, ...state.conversations];
     },
+    renameConversation: (state, action) => {
+      state.conversations = state.conversations.map((conversation) =>
+        conversation.id === action.payload.id
+          ? { ...conversation, summary: action.payload.newSummary }
+          : conversation,
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -60,6 +63,9 @@ const conversationsSlice = createSlice({
   },
 });
 
-export const { setActiveConversation, addConversationSummary } =
-  conversationsSlice.actions;
+export const {
+  setActiveConversation,
+  addConversationSummary,
+  renameConversation,
+} = conversationsSlice.actions;
 export default conversationsSlice.reducer;
