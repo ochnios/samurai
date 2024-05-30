@@ -1,38 +1,4 @@
-server:
-  port: 8080
-
 spring:
-  application:
-    name: ninja-be
-
-  autoconfigure:
-    exclude: >
-      org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration,
-      org.springframework.ai.autoconfigure.vectorstore.qdrant.QdrantVectorStoreAutoConfiguration
-
-  datasource:
-    url: jdbc:h2:mem:ninjadb
-    username: sa
-    password: sa
-    driverClassName: org.h2.Driver
-
-  h2:
-    console:
-      enabled: true
-
-  jpa:
-    defer-datasource-initialization: true
-    hibernate:
-      ddl-auto: create-drop
-
-logging:
-  level:
-    org:
-      springframework:
-        web: INFO
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
+  profiles:
+    default: dev
+    active: dev

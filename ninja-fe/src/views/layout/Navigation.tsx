@@ -1,14 +1,20 @@
+import { Box, Divider, ScrollArea } from "@mantine/core";
+import { useElementSize } from "@mantine/hooks";
 import {
   IconChartBar,
   IconFile,
   IconLogout,
   IconMessageChatbot,
+  IconMessagePlus,
+  IconMessages,
   IconRobot,
   IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
+import Conversations from "../components/conversations/Conversations.tsx";
+import NavLink from "../components/navigation/NavLink.tsx";
+import SelectAssistant from "../components/navigation/SelectAssistant.tsx";
 import classes from "./Navigation.module.css";
-import { Link, useLocation } from "react-router-dom";
 
 const data = [
   { link: "/assistants", label: "Assistants", icon: IconMessageChatbot },
@@ -16,44 +22,51 @@ const data = [
   { link: "/statistics", label: "Statistics", icon: IconChartBar },
   { link: "/models", label: "Models", icon: IconRobot },
   { link: "/users", label: "Users", icon: IconUsers },
+  { link: "/conversations/new", label: "New chat", icon: IconMessagePlus },
 ];
 
 export default function Navigation() {
-  const location = useLocation();
-
-  const links = data.map((item) => (
-    <Link
-      className={classes.link}
-      data-active={location.pathname === item.link || undefined}
-      to={item.link}
-      key={item.label}
-    >
-      <item.icon className={classes.linkIcon} stroke={1.5} />
-      <span>{item.label}</span>
-    </Link>
-  ));
+  const { ref, height } = useElementSize();
 
   return (
-    <nav className={classes.navbar}>
-      <div className={classes.links}>{links}</div>
-      <div className={classes.footer}>
-        <Link
-          to="/account"
-          className={classes.link}
-          data-active={location.pathname === "/account" || undefined}
-        >
-          <IconUserCircle className={classes.linkIcon} stroke={1.5} />
-          <span>Account</span>
-        </Link>
-        <Link
-          to="#"
-          className={classes.link}
-          onClick={(event) => event.preventDefault()}
-        >
-          <IconLogout className={classes.linkIcon} stroke={1.5} />
-          <span>Logout</span>
-        </Link>
-      </div>
-    </nav>
+    <Box className={classes.navbar}>
+      <Box>
+        <SelectAssistant />
+      </Box>
+      <Divider my="md"></Divider>
+      <Box className={classes.links}>
+        {data.map((item) => (
+          <NavLink link={item.link} icon={item.icon} key={item.link}>
+            {item.label}
+          </NavLink>
+        ))}
+      </Box>
+      <Divider
+        my="md"
+        labelPosition="center"
+        label={
+          <>
+            <IconMessages size={16} />
+            <Box fz="xs" ml={5}>
+              Your conversations
+            </Box>
+          </>
+        }
+      ></Divider>
+      <Box flex={1} ref={ref}>
+        <ScrollArea h={height}>
+          <Conversations />
+        </ScrollArea>
+      </Box>
+      <Divider my="md"></Divider>
+      <Box>
+        <NavLink link="/account" icon={IconUserCircle}>
+          Account
+        </NavLink>
+        <NavLink link="/logout" icon={IconLogout}>
+          Logout
+        </NavLink>
+      </Box>
+    </Box>
   );
 }
