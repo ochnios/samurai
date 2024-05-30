@@ -1,4 +1,5 @@
 import { Center, Loader, Stack } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../hooks.ts";
@@ -14,6 +15,17 @@ export default function Conversations() {
   useEffect(() => {
     assistant.currentId && dispatch(fetchConversations(assistant.currentId));
   }, [assistant.currentId]);
+
+  useEffect(() => {
+    if (conversations.errors) {
+      console.error(conversations.errors);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: "Failed to fetch conversations",
+      });
+    }
+  }, [conversations]);
 
   return (
     <Stack align="stretch" justify="flex-start" gap="xs" pr="md">

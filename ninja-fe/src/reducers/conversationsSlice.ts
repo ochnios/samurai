@@ -59,7 +59,8 @@ const conversationsSlice = createSlice({
       })
       .addCase(fetchConversations.rejected, (state, action) => {
         state.loading = false;
-        state.errors = action.payload as string;
+        state.errors =
+          (action.payload as string) ?? "fetchConversations: rejected";
       });
   },
 });

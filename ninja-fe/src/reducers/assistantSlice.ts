@@ -53,7 +53,8 @@ const assistantSlice = createSlice({
       .addCase(fetchAvailableAssistants.rejected, (state, action) => {
         state.loading = false;
         state.available = [] as Assistant[];
-        state.errors = action.payload as string;
+        state.errors =
+          (action.payload as string) ?? "fetchAvailableAssistants: rejected";
       });
   },
 });
