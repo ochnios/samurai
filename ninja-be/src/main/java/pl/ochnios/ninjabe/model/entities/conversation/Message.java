@@ -69,12 +69,12 @@ public class Message implements org.springframework.ai.chat.messages.Message {
     }
 
     @Override
-    public List<Media> getMedia() {
+    public List<Media> getMedia(String... dummy) {
         return null;
     }
 
     @Override
-    public Map<String, Object> getProperties() {
+    public Map<String, Object> getMetadata() {
         return null;
     }
 

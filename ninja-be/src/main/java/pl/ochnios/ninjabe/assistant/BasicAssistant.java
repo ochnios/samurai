@@ -1,30 +1,30 @@
 package pl.ochnios.ninjabe.assistant;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.ChatClient;
-import org.springframework.ai.embedding.EmbeddingClient;
-import org.springframework.ai.openai.OpenAiChatClient;
-import org.springframework.ai.openai.OpenAiEmbeddingClient;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
 import pl.ochnios.ninjabe.model.dtos.assistant.AssistantConfigDto;
 
 @RequiredArgsConstructor
 public class BasicAssistant implements Assistant {
-    
-    private final OpenAiChatClient chatClient;
-    private final OpenAiEmbeddingClient embeddingClient;
+
+    private final OpenAiChatModel chatModel;
+    private final OpenAiEmbeddingModel embeddingModel;
     private final QdrantVectorStore vectorStore;
     private final AssistantConfigDto assistantConfigDto;
 
     @Override
-    public ChatClient chat() {
-        return chatClient;
+    public ChatModel chat() {
+        return chatModel;
     }
 
     @Override
-    public EmbeddingClient embedding() {
-        return embeddingClient;
+    public EmbeddingModel embedding() {
+        return embeddingModel;
     }
 
     @Override
