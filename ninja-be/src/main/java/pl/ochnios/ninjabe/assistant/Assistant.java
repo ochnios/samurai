@@ -1,15 +1,15 @@
 package pl.ochnios.ninjabe.assistant;
 
-import org.springframework.ai.chat.ChatClient;
-import org.springframework.ai.embedding.EmbeddingClient;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.VectorStore;
 import pl.ochnios.ninjabe.model.dtos.assistant.AssistantConfigDto;
 
 public interface Assistant {
 
-    ChatClient chat();
+    ChatModel chat();
 
-    EmbeddingClient embedding();
+    EmbeddingModel embedding();
 
     VectorStore store();
 
