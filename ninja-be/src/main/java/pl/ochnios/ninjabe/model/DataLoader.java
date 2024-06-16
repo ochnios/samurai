@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import pl.ochnios.ninjabe.model.seeders.AssistantSeeder;
 
 @Slf4j
-@Profile("local")
+@Profile({"local", "dev"})
 @Component
 @RequiredArgsConstructor
 public class DataLoader implements ApplicationRunner {
