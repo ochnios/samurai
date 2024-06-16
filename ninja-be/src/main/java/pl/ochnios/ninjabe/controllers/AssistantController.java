@@ -18,6 +18,7 @@ public class AssistantController {
 
     @GetMapping("/assistants/available")
     public List<AssistantDto> getAvailableAssistants() {
+        // TODO: Should return only assistants which user has access to
         return assistantEntityService.getAvailableAssistants();
     }
 }

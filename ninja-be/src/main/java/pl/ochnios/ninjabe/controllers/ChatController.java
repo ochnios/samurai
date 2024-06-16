@@ -17,11 +17,7 @@ public class ChatController {
 
     @PostMapping("/assistants/{assistantId}/chat")
     public ChatResponseDto chat(@PathVariable UUID assistantId, @RequestBody ChatRequestDto chatRequestDto) {
-        /* TODO
-         * uniwersalny service response zamiast bezpośrednio DTO
-         * custom exception resolver
-         * zliczanie tokenów
-         */
+        // TODO: Add user id to method signature
         return chatService.getCompletion(assistantId, chatRequestDto);
     }
 

@@ -1,5 +1,6 @@
 package pl.ochnios.ninjabe.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class ConversationService {
             var messages = messageRepository.findAllByConversationIdOrderByCreatedAtAsc(conversationId);
             conversationDto.setMessages(messages.stream().map(conversationMapper::mapMessage).toList());
             return conversationDto;
-        } else return null;
+        } else throw new EntityNotFoundException("Conversation with id " + conversationId + " not found");
     }
 
     public List<ConversationSummaryDto> getConversationsSummaries(UUID userId, UUID assistantId, Integer limit) {

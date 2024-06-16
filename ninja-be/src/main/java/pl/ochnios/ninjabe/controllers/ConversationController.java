@@ -23,7 +23,8 @@ public class ConversationController {
     }
 
     @GetMapping("/assistants/{assistantId}/conversations/{conversationId}")
-    public ConversationDto getConversation(@PathVariable UUID assistantId, @PathVariable UUID conversationId) {
+    public ConversationDto getConversation(@PathVariable UUID assistantId,
+                                           @PathVariable UUID conversationId) {
         return conversationService.getConversation(null, assistantId, conversationId);
     }
 
