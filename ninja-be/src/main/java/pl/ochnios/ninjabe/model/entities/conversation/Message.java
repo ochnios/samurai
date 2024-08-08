@@ -1,7 +1,21 @@
 package pl.ochnios.ninjabe.model.entities.conversation;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.springframework.ai.chat.messages.Media;
@@ -21,17 +35,13 @@ import java.util.UUID;
 @Table(name = "messages")
 public class Message implements org.springframework.ai.chat.messages.Message {
 
-    @Id
-    @GeneratedValue
-    private UUID id;
+    @Id @GeneratedValue private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "conversation_id", nullable = false)
     private Conversation conversation;
 
-    @Lob
-    @Nationalized
-    private String content;
+    @Lob @Nationalized private String content;
 
     private Integer tokensIn;
 
@@ -40,15 +50,10 @@ public class Message implements org.springframework.ai.chat.messages.Message {
     @Enumerated(value = EnumType.STRING)
     private MessageType type;
 
-    @CreationTimestamp
-    private Instant createdAt;
+    @CreationTimestamp private Instant createdAt;
 
     public static Message message(Conversation conversation, String content, MessageType type) {
-        return Message.builder()
-                .conversation(conversation)
-                .content(content)
-                .type(type)
-                .build();
+        return Message.builder().conversation(conversation).content(content).type(type).build();
     }
 
     public static Message user(Conversation conversation, String content) {

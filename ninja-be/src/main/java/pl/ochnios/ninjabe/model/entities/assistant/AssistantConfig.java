@@ -1,9 +1,26 @@
 package pl.ochnios.ninjabe.model.entities.assistant;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import pl.ochnios.ninjabe.model.dtos.assistant.AssistantVariant;
 
 import java.math.BigDecimal;
@@ -20,16 +37,15 @@ import java.util.UUID;
 @Table(name = "assistant_configs")
 public class AssistantConfig {
 
-    @Id
-    private UUID id;
+    @Id private UUID id;
 
     @MapsId("id")
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @OneToOne(
+            cascade = {CascadeType.MERGE, CascadeType.REFRESH},
+            fetch = FetchType.LAZY)
     private AssistantEntity assistant;
 
-    @Lob
-    @Nationalized
-    private String systemPrompt;
+    @Lob @Nationalized private String systemPrompt;
 
     @Column(nullable = false)
     private String chatModelName; // TODO separate Model entity
@@ -48,8 +64,7 @@ public class AssistantConfig {
     @Enumerated(value = EnumType.STRING)
     private AssistantVariant variant;
 
-    @UpdateTimestamp
-    private Instant updatedAt;
+    @UpdateTimestamp private Instant updatedAt;
 
     @Override
     public boolean equals(Object o) {

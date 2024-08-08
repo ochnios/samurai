@@ -2,6 +2,7 @@ package pl.ochnios.ninjabe;
 
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.QdrantGrpcClient;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ public class NinjaBeConfiguration {
     @Bean
     public QdrantClient qdrantClient() {
         return new QdrantClient(
-                QdrantGrpcClient.newBuilder(qdrantClientHost, qdrantClientPort, qdrantClientTls).build()
-        );
+                QdrantGrpcClient.newBuilder(qdrantClientHost, qdrantClientPort, qdrantClientTls)
+                        .build());
     }
 }

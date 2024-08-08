@@ -15,4 +15,3 @@ public class ApiError {
         return new ApiError(errorId, List.of(errors));
     }
 }
-

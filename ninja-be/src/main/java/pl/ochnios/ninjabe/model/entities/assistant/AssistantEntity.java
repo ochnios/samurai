@@ -1,7 +1,21 @@
 package pl.ochnios.ninjabe.model.entities.assistant;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -17,9 +31,7 @@ import java.util.UUID;
 @Table(name = "assistants")
 public class AssistantEntity {
 
-    @Id
-    @GeneratedValue
-    private UUID id;
+    @Id @GeneratedValue private UUID id;
 
     @OneToOne(mappedBy = "assistant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -34,8 +46,7 @@ public class AssistantEntity {
     @Column(nullable = false)
     private Boolean deleted;
 
-    @CreationTimestamp
-    private Instant createdAt;
+    @CreationTimestamp private Instant createdAt;
 
     @Override
     public boolean equals(Object o) {

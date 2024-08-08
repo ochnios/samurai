@@ -1,6 +1,7 @@
 package pl.ochnios.ninjabe.assistant;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -36,8 +37,7 @@ public class AssistantRegistry {
             throw new AssistantRegistryException(ex.getMessage());
         }
 
-        if (assistant == null)
-            log.warn("Requested assistant not found, id={}", id);
+        if (assistant == null) log.warn("Requested assistant not found, id={}", id);
 
         return assistant;
     }
@@ -51,10 +51,8 @@ public class AssistantRegistry {
             throw new AssistantRegistryException(ex.getMessage());
         }
 
-        if (unregistered != null)
-            log.info("Unregistered assistant with id={}", id);
-        else
-            log.warn("Can't find assistant to unregister, id={}", id);
+        if (unregistered != null) log.info("Unregistered assistant with id={}", id);
+        else log.warn("Can't find assistant to unregister, id={}", id);
     }
 
     public Assistant update(UUID id, Assistant assistant) {

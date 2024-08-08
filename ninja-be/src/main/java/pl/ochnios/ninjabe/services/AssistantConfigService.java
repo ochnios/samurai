@@ -1,7 +1,9 @@
 package pl.ochnios.ninjabe.services;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
+
 import pl.ochnios.ninjabe.model.dtos.assistant.AssistantConfigDto;
 import pl.ochnios.ninjabe.model.mappers.AssistantConfigMapper;
 import pl.ochnios.ninjabe.repositories.AssistantConfigRepository;
@@ -16,9 +18,10 @@ public class AssistantConfigService {
     private final AssistantConfigMapper assistantConfigMapper;
 
     public Iterable<AssistantConfigDto> findConfigsForActiveAssistants() {
-        var configEntities = assistantConfigRepository
-                .findAllByAssistantEnabledAndAssistantDeleted(true, false);
+        var configEntities =
+                assistantConfigRepository.findAllByAssistantEnabledAndAssistantDeleted(true, false);
         return StreamSupport.stream(configEntities.spliterator(), false)
-                .map(assistantConfigMapper::map).toList();
+                .map(assistantConfigMapper::map)
+                .toList();
     }
 }

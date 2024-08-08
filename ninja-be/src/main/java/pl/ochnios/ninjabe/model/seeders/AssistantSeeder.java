@@ -1,9 +1,11 @@
 package pl.ochnios.ninjabe.model.seeders;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
 import pl.ochnios.ninjabe.model.dtos.assistant.AssistantVariant;
 import pl.ochnios.ninjabe.model.entities.assistant.AssistantConfig;
 import pl.ochnios.ninjabe.model.entities.assistant.AssistantEntity;
@@ -26,23 +28,23 @@ public class AssistantSeeder implements DataSeeder {
     @Override
     @Transactional
     public void seed() {
-        var assistant = assistantEntityRepository.save(generateBasicAssistant("Basic Ninja (GPT-3.5)"));
-        var config = assistantConfigRepository.save(generateBasicConfig(assistant.getId(), "gpt-3.5-turbo"));
+        var assistant =
+                assistantEntityRepository.save(generateBasicAssistant("Basic Ninja (GPT-3.5)"));
+        var config =
+                assistantConfigRepository.save(
+                        generateBasicConfig(assistant.getId(), "gpt-3.5-turbo"));
         assistant.setConfig(config);
         assistantEntityRepository.save(assistant);
 
-        assistant = assistantEntityRepository.save(generateBasicAssistant("Another Ninja (GPT-4o)"));
+        assistant =
+                assistantEntityRepository.save(generateBasicAssistant("Another Ninja (GPT-4o)"));
         config = assistantConfigRepository.save(generateBasicConfig(assistant.getId(), "gpt-4o"));
         assistant.setConfig(config);
         assistantEntityRepository.save(assistant);
     }
 
     private AssistantEntity generateBasicAssistant(String name) {
-        return AssistantEntity.builder()
-                .name(name)
-                .enabled(true)
-                .deleted(false)
-                .build();
+        return AssistantEntity.builder().name(name).enabled(true).deleted(false).build();
     }
 
     private AssistantConfig generateBasicConfig(UUID assistantId, String chatModelName) {

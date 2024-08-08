@@ -1,8 +1,23 @@
 package pl.ochnios.ninjabe.model.entities.conversation;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.hibernate.annotations.CreationTimestamp;
+
 import pl.ochnios.ninjabe.model.entities.assistant.AssistantEntity;
 
 import java.time.Instant;
@@ -18,9 +33,7 @@ import java.util.UUID;
 @Table(name = "conversations")
 public class Conversation {
 
-    @Id
-    @GeneratedValue
-    private UUID id;
+    @Id @GeneratedValue private UUID id;
 
     @OneToMany(mappedBy = "conversation", fetch = FetchType.LAZY)
     private List<Message> messages;
@@ -39,6 +52,5 @@ public class Conversation {
     @Column(nullable = false)
     private Boolean deleted;
 
-    @CreationTimestamp
-    private Instant createdAt;
+    @CreationTimestamp private Instant createdAt;
 }

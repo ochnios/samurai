@@ -9,6 +9,4 @@ public class NinjaBeApplication {
     public static void main(String[] args) {
         SpringApplication.run(NinjaBeApplication.class, args);
     }
-
 }
-
