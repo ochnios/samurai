@@ -11,7 +11,7 @@ import pl.ochnios.ninjabe.model.dtos.chat.ChatResponseDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 import pl.ochnios.ninjabe.model.entities.conversation.Message;
 import pl.ochnios.ninjabe.repositories.MessageRepository;
-import pl.ochnios.ninjabe.services.models.ChatClientProvider;
+import pl.ochnios.ninjabe.services.ai.ChatClientProvider;
 
 import java.util.stream.Collectors;
 

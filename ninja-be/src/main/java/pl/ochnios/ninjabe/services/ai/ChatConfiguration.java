@@ -1,4 +1,4 @@
-package pl.ochnios.ninjabe.services.models;
+package pl.ochnios.ninjabe.services.ai;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
