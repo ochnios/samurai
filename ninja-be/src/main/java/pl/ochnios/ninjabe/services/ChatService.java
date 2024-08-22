@@ -6,45 +6,41 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import pl.ochnios.ninjabe.assistant.Assistant;
-import pl.ochnios.ninjabe.assistant.AssistantRegistry;
 import pl.ochnios.ninjabe.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.ninjabe.model.dtos.chat.ChatResponseDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 import pl.ochnios.ninjabe.model.entities.conversation.Message;
 import pl.ochnios.ninjabe.repositories.MessageRepository;
+import pl.ochnios.ninjabe.services.models.ChatClientProvider;
 
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final AssistantRegistry assistantRegistry;
+    private final ChatClientProvider chatClientProvider;
     private final MessageRepository messageRepository;
     private final ConversationService conversationService;
 
     @Transactional
-    public ChatResponseDto getCompletion(UUID assistantId, ChatRequestDto chatRequestDto) {
-        var assistant = assistantRegistry.get(assistantId);
+    public ChatResponseDto getCompletion(ChatRequestDto chatRequestDto) {
+        var chatClient = chatClientProvider.getChatClient();
         var conversation =
                 conversationService.findOrCreateConversation(
-                        null, assistantId, chatRequestDto.getConversationId());
+                        null, chatRequestDto.getConversationId());
 
-        var prompt = preparePrompt(assistant, conversation, chatRequestDto.getQuestion());
-        var completion = assistant.chat().call(prompt);
+        var prompt = preparePrompt(conversation, chatRequestDto.getQuestion());
+        var completion = chatClient.prompt(prompt).call();
 
-        var assistantMessage =
-                Message.assistantt(conversation, completion.getResult().getOutput().getContent());
+        var assistantMessage = Message.assistant(conversation, completion.content());
         assistantMessage = messageRepository.save(assistantMessage);
 
         return new ChatResponseDto(conversation.getId(), assistantMessage.getContent());
     }
 
-    private Prompt preparePrompt(
-            Assistant assistant, Conversation conversation, String userMessageStr) {
-        var systemMessage = Message.system(conversation, assistant.config().getSystemPrompt());
+    private Prompt preparePrompt(Conversation conversation, String userMessageStr) {
+        var systemMessage = Message.system(conversation, "You are a helpful assistant");
         var userMessage = Message.user(conversation, userMessageStr);
         userMessage = messageRepository.save(userMessage);
 

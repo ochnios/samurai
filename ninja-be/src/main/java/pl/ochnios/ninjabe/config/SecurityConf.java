@@ -1,4 +1,4 @@
-package pl.ochnios.ninjabe;
+package pl.ochnios.ninjabe.config;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfiguration {
+public class SecurityConf {
 
     @Value("#{'${custom.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;

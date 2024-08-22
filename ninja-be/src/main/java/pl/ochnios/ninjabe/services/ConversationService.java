@@ -11,7 +11,6 @@ import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 import pl.ochnios.ninjabe.model.mappers.ConversationMapper;
-import pl.ochnios.ninjabe.repositories.AssistantEntityRepository;
 import pl.ochnios.ninjabe.repositories.ConversationRepository;
 import pl.ochnios.ninjabe.repositories.MessageRepository;
 
@@ -23,15 +22,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ConversationService {
 
-    private final AssistantEntityRepository assistantEntityRepository;
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
     private final ConversationMapper conversationMapper;
 
-    public ConversationDto getConversation(UUID userId, UUID assistantId, UUID conversationId) {
+    public ConversationDto getConversation(UUID userId, UUID conversationId) {
         var conversation =
-                conversationRepository.findConversationByUserIdAndAssistantIdAndIdAndDeleted(
-                        userId, assistantId, conversationId, false);
+                conversationRepository.findConversationByUserIdAndIdAndDeleted(
+                        userId, conversationId, false);
+
         if (conversation.isPresent()) {
             var conversationDto = conversationMapper.map(conversation.get());
             var messages =
@@ -44,32 +43,29 @@ public class ConversationService {
                     "Conversation with id " + conversationId + " not found");
     }
 
-    public List<ConversationSummaryDto> getConversationsSummaries(
-            UUID userId, UUID assistantId, Integer limit) {
+    public List<ConversationSummaryDto> getConversationsSummaries(UUID userId, Integer limit) {
         var pageable = PageRequest.of(0, limit != null && limit > 0 && limit < 100 ? limit : 50);
         var conversationsPage =
-                conversationRepository.findAllByUserIdAndAssistantIdAndDeletedOrderByCreatedAtDesc(
-                        userId, assistantId, false, pageable);
+                conversationRepository.findAllByUserIdAndDeletedOrderByCreatedAtDesc(
+                        userId, false, pageable);
         return conversationsPage.getContent().stream().map(conversationMapper::mapSummary).toList();
     }
 
-    protected Conversation findOrCreateConversation(
-            UUID userId, UUID assistantId, UUID conversationId) {
+    protected Conversation findOrCreateConversation(UUID userId, UUID conversationId) {
         if (conversationId == null) {
-            return startConversation(assistantId);
+            return startConversation();
         } else {
             var conversation =
-                    conversationRepository.findConversationByUserIdAndAssistantIdAndIdAndDeleted(
-                            userId, assistantId, conversationId, false);
-            return conversation.orElseGet(() -> startConversation(assistantId));
+                    conversationRepository.findConversationByUserIdAndIdAndDeleted(
+                            userId, conversationId, false);
+            return conversation.orElseGet(this::startConversation);
         }
     }
 
-    private Conversation startConversation(UUID assistantId) {
+    private Conversation startConversation() {
         return conversationRepository.save(
                 Conversation.builder()
-                        .assistant(assistantEntityRepository.findById(assistantId).orElse(null))
-                        .summary("Some conversation...") // TODO auto generate using LLM
+                        .summary("New conversation")
                         .messages(new ArrayList<>())
                         .deleted(false)
                         .build());

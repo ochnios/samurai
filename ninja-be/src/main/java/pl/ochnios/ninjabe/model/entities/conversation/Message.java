@@ -18,11 +18,9 @@ import lombok.Setter;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
-import org.springframework.ai.chat.messages.Media;
 import org.springframework.ai.chat.messages.MessageType;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -64,18 +62,13 @@ public class Message implements org.springframework.ai.chat.messages.Message {
         return Message.message(conversation, content, MessageType.SYSTEM);
     }
 
-    public static Message assistantt(Conversation conversation, String content) {
+    public static Message assistant(Conversation conversation, String content) {
         return Message.message(conversation, content, MessageType.ASSISTANT);
     }
 
     @Override
     public String getContent() {
         return content;
-    }
-
-    @Override
-    public List<Media> getMedia(String... dummy) {
-        return null;
     }
 
     @Override

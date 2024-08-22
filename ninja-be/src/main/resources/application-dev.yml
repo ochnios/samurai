@@ -8,8 +8,7 @@ spring:
     log-request-details: true
   autoconfigure:
     exclude: >
-      org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration,
-      org.springframework.ai.autoconfigure.vectorstore.qdrant.QdrantVectorStoreAutoConfiguration
+      org.springframework.ai.autoconfigure.anthropic.AnthropicAutoConfiguration
   datasource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     url: jdbc:sqlserver://localhost:1433;encrypt=false;trustServerCertificate=true;databaseName=ninja-db
@@ -21,9 +20,32 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.SQLServerDialect
     open-in-view: true
+  # Important note: Only one ChatModel have to be available in application context
+  # You can disable unused chat models using its 'enable' flag or by excluding model autoconfiguration
+  ai:
+    vectorstore:
+      qdrant:
+        host: localhost
+        port: 6334
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      embedding:
+        enabled: true
+        options:
+          model: text-embedding-3-large
+          dimensions: 3072
+      chat:
+        enabled: true
+      image:
+        enabled: false
+      audio:
+        speech:
+          enabled: false
+        transcription:
+          enabled: false
 
 logging:
   level:
@@ -31,6 +53,7 @@ logging:
       springframework:
         web: DEBUG
         security: DEBUG
+        ai: DEBUG
       hibernate:
         SQL: DEBUG
         type:
@@ -40,9 +63,8 @@ logging:
 
 custom:
   allowed-origins: http://localhost:5173,http://localhost:4173,localhost
-  default-api-key: ${OPENAI_API_KEY}
-  qdrant:
-    client:
-      host: "localhost"
-      port: 6334
-      tls: false
+  # Note that both models have to be from single provider
+  chat:
+    model: gpt-4o
+  task:
+    model: gpt-4o-mini
