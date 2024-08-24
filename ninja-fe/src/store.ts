@@ -1,10 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import assistantReducer from "./reducers/assistantSlice.ts";
 import conversationsReducer from "./reducers/conversationsSlice.ts";
 
 const store = configureStore({
   reducer: {
-    assistant: assistantReducer,
     conversations: conversationsReducer,
   },
 });

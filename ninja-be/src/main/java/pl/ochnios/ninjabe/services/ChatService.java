@@ -47,7 +47,6 @@ public class ChatService {
         var messages =
                 messageRepository.findAllByConversationIdOrderByCreatedAtAsc(conversation.getId());
         messages.add(0, systemMessage);
-        messages.add(userMessage);
 
         return new Prompt(
                 messages.stream()
