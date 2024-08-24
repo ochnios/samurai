@@ -5,8 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -17,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.hibernate.annotations.CreationTimestamp;
-
-import pl.ochnios.ninjabe.model.entities.assistant.AssistantEntity;
 
 import java.time.Instant;
 import java.util.List;
@@ -38,13 +34,7 @@ public class Conversation {
     @OneToMany(mappedBy = "conversation", fetch = FetchType.LAZY)
     private List<Message> messages;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assistant_id", nullable = false)
-    private AssistantEntity assistant;
-
     private UUID userId; // TODO user
-
-    // TODO private Model model;
 
     @Column(length = 140)
     private String summary;

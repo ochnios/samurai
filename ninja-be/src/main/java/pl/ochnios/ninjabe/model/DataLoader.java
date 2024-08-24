@@ -8,20 +8,15 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import pl.ochnios.ninjabe.model.seeders.AssistantSeeder;
-
 @Slf4j
 @Profile({"local", "dev"})
 @Component
 @RequiredArgsConstructor
 public class DataLoader implements ApplicationRunner {
 
-    private final AssistantSeeder assistantSeeder;
-
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("Started loading data");
-        assistantSeeder.seed();
         log.info("Finished loading data");
     }
 }

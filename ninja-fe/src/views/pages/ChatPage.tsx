@@ -1,19 +1,20 @@
 import { Divider, Grid, Image, Loader, ScrollArea, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { validate } from "uuid";
-import { Message } from "../../model/helper/Message.ts";
-import { MessageStatus } from "../../model/helper/MessageStatus.ts";
-import { MessageType } from "../../model/helper/MessageType.ts";
+import {
+  Message,
+  MessageStatus,
+  MessageType,
+} from "../../model/api/Message.ts";
 import { sendMessage } from "../../model/service/chatService.ts";
 import { fetchConversation } from "../../model/service/conversationService.ts";
 import {
   addConversationSummary,
   setActiveConversation,
 } from "../../reducers/conversationsSlice.ts";
-import { RootState } from "../../store.ts";
 import ChatInput from "../components/chat/ChatInput.tsx";
 import ChatMessage from "../components/chat/ChatMessage.tsx";
 import classes from "./ChatPage.module.css";
@@ -23,15 +24,9 @@ export default function ChatPage() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const assistant = useSelector((state: RootState) => state.assistant);
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-
-  useEffect(() => {
-    setConversationId("");
-    setMessages([]);
-  }, [assistant.currentId]);
 
   useEffect(() => {
     viewport.current!.scrollTo({
@@ -45,36 +40,28 @@ export default function ChatPage() {
   }, [conversationId]);
 
   useEffect(() => {
-    if (assistant.currentId) {
-      if (validate(id ?? "")) {
-        setLoading(true);
-        setConversationId(id!);
-        fetchConversation(assistant.currentId, id!).then((c) => {
-          if (c) setMessages(c.messages);
-          else {
-            setMessages([]);
-            notifications.show({
-              color: "red",
-              title: "Error",
-              message: "Failed to fetch selected conversation",
-            });
-          }
-          setLoading(false);
-        });
-      } else {
-        if (id != "new") navigate("/conversations/new");
-        setConversationId("");
-        setMessages([]);
-      }
+    if (validate(id ?? "")) {
+      setLoading(true);
+      setConversationId(id!);
+      fetchConversation(id!)
+        .then((conversation) => {
+          if (conversation) setMessages(conversation.messages);
+          else setMessages([]);
+        })
+        .catch(() =>
+          notifications.show({
+            color: "red",
+            title: "Error",
+            message: "Failed to fetch selected conversation",
+          }),
+        )
+        .finally(() => setLoading(false));
     } else {
-      if (id != "new") navigate("/conversations/new");
+      if (id != "new") {
+        navigate("/conversations/new");
+      }
       setConversationId("");
       setMessages([]);
-      notifications.show({
-        color: "orange",
-        title: "Warning",
-        message: "Please select active assistant first",
-      });
     }
   }, [id]);
 
@@ -95,7 +82,7 @@ export default function ChatPage() {
       answerPlaceholder,
     ]);
 
-    sendMessage(assistant.currentId!, {
+    sendMessage({
       conversationId: conversationId,
       question: content,
     }).then((response) => {

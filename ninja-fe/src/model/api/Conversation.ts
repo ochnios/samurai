@@ -1,4 +1,4 @@
-import { Message } from "../helper/Message.ts";
+import { Message } from "./Message.ts";
 
 export interface Conversation {
   id: string;

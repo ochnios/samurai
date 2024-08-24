@@ -1,18 +1,13 @@
 import axios from "axios";
 import { Conversation } from "../api/Conversation.ts";
 
+const conversationsUrl = "/conversations";
+
 export const fetchConversation = async (
-  assistantId: string,
   conversationId: string,
 ): Promise<Conversation | void> => {
   return await axios
-    .get<Conversation>(
-      `/assistants/${assistantId}/conversations/${conversationId}`,
-    )
-    .then((response) => {
-      return response.data;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+    .get<Conversation>(`${conversationsUrl}/${conversationId}`)
+    .then((response) => response.data as Conversation)
+    .catch((error) => console.error(error));
 };

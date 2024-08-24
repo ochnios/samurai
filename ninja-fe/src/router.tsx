@@ -1,8 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import PageWrapper from "./views/pages/PageWrapper.tsx";
 import { Layout } from "./views/layout/Layout.tsx";
 import ChatPage from "./views/pages/ChatPage.tsx";
-import TestPage from "./views/pages/TestPage.tsx";
+import DummyPage from "./views/pages/DummyPage.tsx";
+import PageWrapper from "./views/pages/PageWrapper.tsx";
 
 const router = createBrowserRouter([
   {
@@ -11,27 +11,29 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <PageWrapper title="Default content" content={<TestPage />} />,
+        element: (
+          <PageWrapper title="Default content" content={<DummyPage />} />
+        ),
       },
       {
         path: "assistants",
-        element: <PageWrapper title="Assistants" content={<TestPage />} />,
+        element: <PageWrapper title="Assistants" content={<DummyPage />} />,
       },
       {
         path: "documents",
-        element: <PageWrapper title="Documents" content={<TestPage />} />,
+        element: <PageWrapper title="Documents" content={<DummyPage />} />,
       },
       {
         path: "statistics",
-        element: <PageWrapper title="Statistics" content={<TestPage />} />,
+        element: <PageWrapper title="Statistics" content={<DummyPage />} />,
       },
       {
         path: "models",
-        element: <PageWrapper title="Models" content={<TestPage />} />,
+        element: <PageWrapper title="Models" content={<DummyPage />} />,
       },
       {
         path: "users",
-        element: <PageWrapper title="Users" content={<TestPage />} />,
+        element: <PageWrapper title="Users" content={<DummyPage />} />,
       },
       {
         path: "conversations/:id",
@@ -39,7 +41,7 @@ const router = createBrowserRouter([
       },
       {
         path: "account",
-        element: <PageWrapper title="Account" content={<TestPage />} />,
+        element: <PageWrapper title="Account" content={<DummyPage />} />,
       },
       {
         path: "*",
