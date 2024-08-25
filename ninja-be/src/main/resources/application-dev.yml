@@ -5,7 +5,7 @@ spring:
   application:
     name: ninja-be
   mvc:
-    log-request-details: true
+    log-request-details: false
   datasource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     url: jdbc:sqlserver://localhost:1433;encrypt=false;trustServerCertificate=true;databaseName=ninja-db
@@ -35,7 +35,7 @@ spring:
           model: text-embedding-3-large
           dimensions: 3072
       chat:
-        enabled: false
+        enabled: true
       image:
         enabled: false
       audio:
@@ -44,7 +44,8 @@ spring:
         transcription:
           enabled: false
     anthropic:
-      api-key: ${ANTHROPIC_API_KEY}
+      chat:
+        enabled: false
 
 logging:
   level:
@@ -64,6 +65,6 @@ custom:
   allowed-origins: http://localhost:5173,http://localhost:4173,localhost
   # Note that both models have to be from single provider
   chat:
-    model: claude-3-opus-20240229
+    model: gpt-4o
   task:
-    model: claude-3-opus-20240229
+    model: gpt-4o-mini

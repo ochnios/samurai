@@ -11,6 +11,12 @@ java {
     sourceCompatibility = '21'
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            '-Amapstruct.defaultComponentModel=spring'
+    ]
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -45,6 +51,7 @@ dependencies {
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     implementation "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
+    compileOnly "org.springframework.boot:spring-boot-devtools"
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     runtimeOnly 'com.h2database:h2'

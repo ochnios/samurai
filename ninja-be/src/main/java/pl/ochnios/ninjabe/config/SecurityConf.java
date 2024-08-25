@@ -45,10 +45,7 @@ public class SecurityConf {
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .headers(
                         headers ->
-                                headers
-                                        // necessary to make h2-console available
-                                        .frameOptions(
-                                        HeadersConfigurer.FrameOptionsConfig::disable))
+                                headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .httpBasic(Customizer.withDefaults());
         return httpSecurity.build();
     }

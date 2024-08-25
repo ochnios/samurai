@@ -1,18 +1,20 @@
 package pl.ochnios.ninjabe.services;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
+import pl.ochnios.ninjabe.model.dtos.conversation.MessageDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
+import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.ConversationMapper;
+import pl.ochnios.ninjabe.model.mappers.MessageMapper;
 import pl.ochnios.ninjabe.repositories.ConversationRepository;
-import pl.ochnios.ninjabe.repositories.MessageRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,51 +25,45 @@ import java.util.UUID;
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
-    private final MessageRepository messageRepository;
     private final ConversationMapper conversationMapper;
+    private final MessageMapper messageMapper;
 
-    public ConversationDto getConversation(UUID userId, UUID conversationId) {
-        var conversation =
-                conversationRepository.findConversationByUserIdAndIdAndDeleted(
-                        userId, conversationId, false);
-
-        if (conversation.isPresent()) {
-            var conversationDto = conversationMapper.map(conversation.get());
-            var messages =
-                    messageRepository.findAllByConversationIdOrderByCreatedAtAsc(conversationId);
-            conversationDto.setMessages(
-                    messages.stream().map(conversationMapper::mapMessage).toList());
-            return conversationDto;
-        } else
-            throw new EntityNotFoundException(
-                    "Conversation with id " + conversationId + " not found");
+    @Transactional(readOnly = true)
+    public ConversationDto getConversation(User user, UUID conversationId) {
+        final var conversation = conversationRepository.findByUserAndId(user, conversationId);
+        return conversationMapper.map(conversation);
     }
 
-    public List<ConversationSummaryDto> getConversationsSummaries(UUID userId, Integer limit) {
-        var pageable = PageRequest.of(0, limit != null && limit > 0 && limit < 100 ? limit : 50);
-        var conversationsPage =
-                conversationRepository.findAllByUserIdAndDeletedOrderByCreatedAtDesc(
-                        userId, false, pageable);
+    @Transactional(readOnly = true)
+    public List<ConversationSummaryDto> getSummaries(User user, Integer limit) {
+        final var validatedLimit = limit != null && limit > 0 && limit < 100 ? limit : 50;
+        final var pageable = PageRequest.of(0, validatedLimit, Sort.by("createdAt").ascending());
+        final var conversationsPage = conversationRepository.findAllByUser(user, pageable);
         return conversationsPage.getContent().stream().map(conversationMapper::mapSummary).toList();
     }
 
-    protected Conversation findOrCreateConversation(UUID userId, UUID conversationId) {
-        if (conversationId == null) {
-            return startConversation();
-        } else {
-            var conversation =
-                    conversationRepository.findConversationByUserIdAndIdAndDeleted(
-                            userId, conversationId, false);
-            return conversation.orElseGet(this::startConversation);
-        }
+    @Transactional
+    public ConversationDto startConversation(User user, String summary) {
+        final var conversation = createConversation(user, summary);
+        final var savedConversation = conversationRepository.save(conversation);
+        return conversationMapper.map(savedConversation);
     }
 
-    private Conversation startConversation() {
-        return conversationRepository.save(
-                Conversation.builder()
-                        .summary("New conversation")
-                        .messages(new ArrayList<>())
-                        .deleted(false)
-                        .build());
+    @Transactional
+    public void saveMessages(User user, UUID conversationId, List<MessageDto> messageDtos) {
+        if (messageDtos == null || messageDtos.isEmpty()) return;
+
+        final var conversation = conversationRepository.findByUserAndId(user, conversationId);
+        final var messages = messageMapper.map(conversation, messageDtos);
+        conversation.getMessages().addAll(messages);
+        conversationRepository.save(conversation);
+    }
+
+    private Conversation createConversation(User user, String summary) {
+        return Conversation.builder()
+                .user(user)
+                .summary(summary)
+                .messages(new ArrayList<>())
+                .build();
     }
 }

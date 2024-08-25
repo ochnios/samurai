@@ -6,9 +6,6 @@ spring:
     name: ninja-be
   mvc:
     log-request-details: true
-  autoconfigure:
-    exclude: >
-      org.springframework.ai.autoconfigure.anthropic.AnthropicAutoConfiguration
   datasource:
     driverClassName: org.h2.Driver
     url: jdbc:h2:mem:ninja-db
@@ -35,12 +32,12 @@ spring:
     openai:
       api-key: ${OPENAI_API_KEY}
       embedding:
+        enabled: true
         options:
           model: text-embedding-3-large
           dimensions: 3072
       chat:
         enabled: true
-        api-key: ${OPENAI_CHAT_API_KEY}
       image:
         enabled: false
       audio:
@@ -48,6 +45,9 @@ spring:
           enabled: false
         transcription:
           enabled: false
+    anthropic:
+      chat:
+        enabled: false
 
 logging:
   level:

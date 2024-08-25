@@ -15,4 +15,16 @@ public class MessageDto {
     private String content;
     private MessageType type;
     private String createdAt;
+
+    public static MessageDto message(String content, MessageType type) {
+        return new MessageDto(null, content, type, null);
+    }
+
+    public static MessageDto user(String content) {
+        return message(content, MessageType.USER);
+    }
+
+    public static MessageDto assistant(String content) {
+        return message(content, MessageType.ASSISTANT);
+    }
 }

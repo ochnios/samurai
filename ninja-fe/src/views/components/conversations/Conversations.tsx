@@ -2,11 +2,18 @@ import { Center, Loader, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../../hooks.ts";
+import { fetchConversations } from "../../../reducers/conversationsSlice.ts";
 import { RootState } from "../../../store.ts";
 import Summary from "./Summary.tsx";
 
 export default function Conversations() {
+  const dispatch = useAppDispatch();
   const conversations = useSelector((state: RootState) => state.conversations);
+
+  useEffect(() => {
+    dispatch(fetchConversations());
+  }, []);
 
   useEffect(() => {
     if (conversations.errors) {

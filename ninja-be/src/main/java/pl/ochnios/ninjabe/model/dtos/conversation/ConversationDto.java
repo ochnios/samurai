@@ -11,9 +11,8 @@ import java.util.UUID;
 public class ConversationDto {
 
     private UUID id;
+    private String username;
     private List<MessageDto> messages;
-    private UUID assistantId;
-    private UUID userId;
     private String summary;
     private String createdAt;
 }

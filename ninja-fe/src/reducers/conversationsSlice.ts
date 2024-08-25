@@ -19,10 +19,8 @@ const initialState: ConversationsState = {
 
 export const fetchConversations = createAsyncThunk(
   "fetchConversations",
-  async (assistantId: string) => {
-    return axios
-      .get(`/assistants/${assistantId}/conversations`)
-      .then((response) => response.data);
+  async () => {
+    return axios.get(`/conversations`).then((response) => response.data);
   },
 );
 
