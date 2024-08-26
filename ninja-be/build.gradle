@@ -11,12 +11,6 @@ java {
     sourceCompatibility = '21'
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += [
-            '-Amapstruct.defaultComponentModel=spring'
-    ]
-}
-
 configurations {
     compileOnly {
         extendsFrom annotationProcessor

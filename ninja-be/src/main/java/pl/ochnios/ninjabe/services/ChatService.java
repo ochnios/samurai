@@ -27,7 +27,7 @@ public class ChatService {
         final var conversationDto = getConversation(user, chatRequestDto);
         final var springMessages = getSpringMessages(conversationDto);
 
-        var completion =
+        final var completion =
                 chatClientProvider
                         .getChatClient()
                         .prompt()

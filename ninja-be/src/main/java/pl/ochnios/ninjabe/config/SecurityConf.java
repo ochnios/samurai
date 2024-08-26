@@ -31,12 +31,12 @@ public class SecurityConf {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(
                         config -> {
-                            var configuration = new CorsConfiguration();
+                            final var configuration = new CorsConfiguration();
                             configuration.setAllowedOrigins(allowedOrigins);
                             configuration.setAllowedMethods(List.of("GET", "POST"));
                             configuration.setAllowedHeaders(List.of("*"));
                             configuration.setAllowCredentials(true);
-                            var source = new UrlBasedCorsConfigurationSource();
+                            final var source = new UrlBasedCorsConfigurationSource();
                             source.registerCorsConfiguration("/**", configuration);
                             config.configurationSource(source);
                         })
