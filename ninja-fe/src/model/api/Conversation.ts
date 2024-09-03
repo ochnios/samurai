@@ -2,8 +2,8 @@ import { Message } from "./Message.ts";
 
 export interface Conversation {
   id: string;
+  username: string;
   messages: Message[];
-  assistantId: string;
-  userId?: string;
+  summary: string;
   createdAt: string;
 }

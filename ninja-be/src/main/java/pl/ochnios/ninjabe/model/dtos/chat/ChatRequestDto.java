@@ -9,6 +9,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ChatRequestDto {
 
-    UUID conversationId;
-    String question;
+    private final UUID conversationId;
+    private final String question;
 }

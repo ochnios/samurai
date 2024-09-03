@@ -2,55 +2,64 @@ package pl.ochnios.ninjabe.services;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import pl.ochnios.ninjabe.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.ninjabe.model.dtos.chat.ChatResponseDto;
-import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
-import pl.ochnios.ninjabe.model.entities.conversation.Message;
-import pl.ochnios.ninjabe.repositories.MessageRepository;
+import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
+import pl.ochnios.ninjabe.model.dtos.conversation.MessageDto;
+import pl.ochnios.ninjabe.model.entities.user.User;
+import pl.ochnios.ninjabe.model.mappers.MessageMapper;
 import pl.ochnios.ninjabe.services.ai.ChatClientProvider;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
     private final ChatClientProvider chatClientProvider;
-    private final MessageRepository messageRepository;
     private final ConversationService conversationService;
+    private final MessageMapper messageMapper;
 
-    @Transactional
-    public ChatResponseDto getCompletion(ChatRequestDto chatRequestDto) {
-        var chatClient = chatClientProvider.getChatClient();
-        var conversation =
-                conversationService.findOrCreateConversation(
-                        null, chatRequestDto.getConversationId());
+    public ChatResponseDto getCompletion(User user, ChatRequestDto chatRequestDto) {
+        final var conversationDto = getConversation(user, chatRequestDto);
+        final var springMessages = getSpringMessages(conversationDto);
 
-        var prompt = preparePrompt(conversation, chatRequestDto.getQuestion());
-        var completion = chatClient.prompt(prompt).call();
+        final var completion =
+                chatClientProvider
+                        .getChatClient()
+                        .prompt()
+                        .system("You are a helpful assistant") // TODO from app configuration
+                        .messages(springMessages)
+                        .user(chatRequestDto.getQuestion())
+                        .call();
 
-        var assistantMessage = Message.assistant(conversation, completion.content());
-        assistantMessage = messageRepository.save(assistantMessage);
+        final var userMessage = MessageDto.user(chatRequestDto.getQuestion());
+        final var assistantMessage = MessageDto.assistant(completion.content());
+        final var messages = List.of(userMessage, assistantMessage);
+        conversationService.saveMessages(user, conversationDto.getId(), messages);
 
-        return new ChatResponseDto(conversation.getId(), assistantMessage.getContent());
+        return new ChatResponseDto(conversationDto.getId(), completion.content());
     }
 
-    private Prompt preparePrompt(Conversation conversation, String userMessageStr) {
-        var systemMessage = Message.system(conversation, "You are a helpful assistant");
-        var userMessage = Message.user(conversation, userMessageStr);
-        userMessage = messageRepository.save(userMessage);
+    private ConversationDto getConversation(User user, ChatRequestDto chatRequestDto) {
+        if (chatRequestDto.getConversationId() == null) {
+            final var summary = generateSummary(chatRequestDto.getQuestion());
+            return conversationService.startConversation(user, summary);
+        }
 
-        var messages =
-                messageRepository.findAllByConversationIdOrderByCreatedAtAsc(conversation.getId());
-        messages.add(0, systemMessage);
+        return conversationService.getConversation(user, chatRequestDto.getConversationId());
+    }
 
-        return new Prompt(
-                messages.stream()
-                        .map(m -> (org.springframework.ai.chat.messages.Message) m)
-                        .collect(Collectors.toList()));
+    private List<Message> getSpringMessages(ConversationDto conversationDto) {
+        return conversationDto.getMessages().stream()
+                .map(messageMapper::mapToSpringMessage)
+                .toList();
+    }
+
+    private String generateSummary(String question) {
+        return "New conversation"; // TODO generate with AI basing on question
     }
 }
