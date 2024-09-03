@@ -48,18 +48,17 @@ export default function ChatPage() {
           if (conversation) setMessages(conversation.messages);
           else setMessages([]);
         })
-        .catch(() =>
+        .catch(() => {
           notifications.show({
             color: "red",
             title: "Error",
             message: "Failed to fetch selected conversation",
-          }),
-        )
+          });
+          navigate("/conversations/new");
+        })
         .finally(() => setLoading(false));
     } else {
-      if (id != "new") {
-        navigate("/conversations/new");
-      }
+      if (id != "new") navigate("/conversations/new");
       setConversationId("");
       setMessages([]);
     }

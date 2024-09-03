@@ -1,7 +1,6 @@
 package pl.ochnios.ninjabe.services;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ConversationService {
 
     private final PageMapper pageMapper;
@@ -43,10 +41,6 @@ public class ConversationService {
             User user, PageRequestDto pageRequestDto) {
         final var pageRequest = pageMapper.map(pageRequestDto);
         final var conversationsPage = conversationRepository.findAllByUser(user, pageRequest);
-
-        log.warn(pageRequestDto.toString());
-        log.warn(pageRequest.toString());
-
         return pageMapper.map(conversationsPage, conversationMapper::mapSummary);
     }
 

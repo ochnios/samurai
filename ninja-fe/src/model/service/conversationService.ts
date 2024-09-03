@@ -12,16 +12,21 @@ export const fetchConversation = async (
   return await axios
     .get<Conversation>(`${conversationsUrl}/${conversationId}`)
     .then((response) => response.data)
-    .catch((error) => console.error(error));
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
 };
 
 export const fetchConversationsSummaries = async (
   pageRequest: PageRequest,
 ): Promise<Page<ConversationSummary> | void> => {
   const pageRequestParams = pageRequest.getUrl();
-  console.log(pageRequestParams);
   return await axios
     .get<Page<ConversationSummary>>(`${conversationsUrl}?${pageRequestParams}`)
     .then((response) => response.data)
-    .catch((error) => console.error(error));
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
 };
