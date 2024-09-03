@@ -6,15 +6,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
+import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
+import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.services.ConversationService;
 import pl.ochnios.ninjabe.services.UserService;
 
-import java.util.List;
 import java.util.UUID;
 
 @CrossOrigin
@@ -27,10 +27,10 @@ public class ConversationController {
     private final ConversationService conversationService;
 
     @GetMapping
-    public List<ConversationSummaryDto> getConversationsSummaries(
-            @RequestParam(required = false) Integer limit) {
+    public PageDto<ConversationSummaryDto> getConversationsSummaries(
+            PageRequestDto pageRequestDto) {
         final var user = userService.getCurrentUser();
-        return conversationService.getSummaries(user, limit);
+        return conversationService.getSummariesPage(user, pageRequestDto);
     }
 
     @GetMapping("/{conversationId}")

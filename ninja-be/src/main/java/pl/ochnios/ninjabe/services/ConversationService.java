@@ -1,19 +1,21 @@
 package pl.ochnios.ninjabe.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.MessageDto;
+import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
+import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.ConversationMapper;
 import pl.ochnios.ninjabe.model.mappers.MessageMapper;
+import pl.ochnios.ninjabe.model.mappers.PageMapper;
 import pl.ochnios.ninjabe.repositories.ConversationRepository;
 
 import java.util.ArrayList;
@@ -22,8 +24,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ConversationService {
 
+    private final PageMapper pageMapper;
     private final ConversationRepository conversationRepository;
     private final ConversationMapper conversationMapper;
     private final MessageMapper messageMapper;
@@ -35,11 +39,15 @@ public class ConversationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationSummaryDto> getSummaries(User user, Integer limit) {
-        final var validatedLimit = limit != null && limit > 0 && limit < 100 ? limit : 50;
-        final var pageable = PageRequest.of(0, validatedLimit, Sort.by("createdAt").ascending());
-        final var conversationsPage = conversationRepository.findAllByUser(user, pageable);
-        return conversationsPage.getContent().stream().map(conversationMapper::mapSummary).toList();
+    public PageDto<ConversationSummaryDto> getSummariesPage(
+            User user, PageRequestDto pageRequestDto) {
+        final var pageRequest = pageMapper.map(pageRequestDto);
+        final var conversationsPage = conversationRepository.findAllByUser(user, pageRequest);
+
+        log.warn(pageRequestDto.toString());
+        log.warn(pageRequest.toString());
+
+        return pageMapper.map(conversationsPage, conversationMapper::mapSummary);
     }
 
     @Transactional

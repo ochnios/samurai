@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
-import axios from "axios";
 import { ConversationSummary } from "../model/api/ConversationSummary.ts";
+import { PageRequestImpl, SortDir } from "../model/api/PageRequest.ts";
+import { fetchConversationsSummaries } from "../model/service/conversationService.ts";
 
 interface ConversationsState {
   currentId?: string;
@@ -20,7 +20,9 @@ const initialState: ConversationsState = {
 export const fetchConversations = createAsyncThunk(
   "fetchConversations",
   async () => {
-    return axios.get(`/conversations`).then((response) => response.data);
+    // TODO Add "Load more" button in the future
+    const pageRequest = new PageRequestImpl(0, 100, "createdAt", SortDir.DESC);
+    return fetchConversationsSummaries(pageRequest);
   },
 );
 
@@ -32,10 +34,10 @@ const conversationsSlice = createSlice({
       state.currentId = action.payload;
     },
     addConversationSummary: (state, action) => {
-      const summary = {
+      const summary: ConversationSummary = {
         id: action.payload.id,
         summary: action.payload.summary,
-      } as ConversationSummary;
+      };
       state.conversations = [summary, ...state.conversations];
     },
     renameConversation: (state, action) => {
@@ -53,7 +55,9 @@ const conversationsSlice = createSlice({
       })
       .addCase(fetchConversations.fulfilled, (state, action) => {
         state.loading = false;
-        state.conversations = action.payload;
+        if (action.payload) {
+          state.conversations = action.payload.items;
+        }
       })
       .addCase(fetchConversations.rejected, (state, action) => {
         state.loading = false;
