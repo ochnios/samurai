@@ -24,7 +24,7 @@ repositories {
 }
 
 ext {
-    set('springAiVersion', '1.0.0-SNAPSHOT')
+    set('springAiVersion', '1.0.0-M2')
     set('mapstructVersion', '1.6.0')
     set('lombokMapstructBindingVersion', '0.2.0')
     set('mssqlVersion', '12.8.1.jre11')
