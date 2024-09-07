@@ -28,12 +28,12 @@ ext {
     set('mapstructVersion', '1.6.0')
     set('lombokMapstructBindingVersion', '0.2.0')
     set('mssqlVersion', '12.8.1.jre11')
+    set('jsonwebtokenVersion', '0.12.6')
 }
 
 dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    implementation "com.microsoft.sqlserver:mssql-jdbc:${mssqlVersion}"
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -44,12 +44,19 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-anthropic-spring-boot-starter'
     implementation 'org.springframework.ai:spring-ai-qdrant-store-spring-boot-starter'
 
+    implementation "com.microsoft.sqlserver:mssql-jdbc:${mssqlVersion}"
+    implementation "io.jsonwebtoken:jjwt-api:${jsonwebtokenVersion}"
+
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     implementation "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
     compileOnly 'org.projectlombok:lombok'
+
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     runtimeOnly 'com.h2database:h2'
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jsonwebtokenVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jsonwebtokenVersion}"
+
 
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"

@@ -65,6 +65,14 @@ logging:
 
 custom:
   allowed-origins: http://localhost:5173,http://localhost:4173,localhost
+  jwt:
+    passphrase: ${JWT_PASSPHRASE}
+    expiration: 8h
+    cookie:
+      name: Authorization
+      secure: false
+      httpOnly: true
+      acceptAsHeader: true
   # Note that both models have to be from single provider
   chat:
     model: gpt-4o

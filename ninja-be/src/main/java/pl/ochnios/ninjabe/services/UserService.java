@@ -2,19 +2,26 @@ package pl.ochnios.ninjabe.services;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import pl.ochnios.ninjabe.model.entities.user.User;
+import pl.ochnios.ninjabe.exceptions.ResourceNotFoundException;
 import pl.ochnios.ninjabe.repositories.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    public User getCurrentUser() {
-        // TODO configure custom user detail service
-        return userRepository.findByUsername("user");
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        try {
+            return userRepository.findByUsername(username);
+        } catch (ResourceNotFoundException ex) {
+            throw new UsernameNotFoundException(ex.getMessage());
+        }
     }
 }

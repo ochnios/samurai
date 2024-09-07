@@ -12,8 +12,8 @@ import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
+import pl.ochnios.ninjabe.security.AuthService;
 import pl.ochnios.ninjabe.services.ConversationService;
-import pl.ochnios.ninjabe.services.UserService;
 
 import java.util.UUID;
 
@@ -23,19 +23,19 @@ import java.util.UUID;
 @RequestMapping("/conversations")
 public class ConversationController {
 
-    private final UserService userService;
+    private final AuthService authService;
     private final ConversationService conversationService;
 
     @GetMapping
     public PageDto<ConversationSummaryDto> getConversationsSummaries(
             PageRequestDto pageRequestDto) {
-        final var user = userService.getCurrentUser();
+        final var user = authService.getAuthenticatedUser();
         return conversationService.getSummariesPage(user, pageRequestDto);
     }
 
     @GetMapping("/{conversationId}")
     public ConversationDto getConversation(@PathVariable UUID conversationId) {
-        final var user = userService.getCurrentUser();
+        final var user = authService.getAuthenticatedUser();
         return conversationService.getConversation(user, conversationId);
     }
 }
