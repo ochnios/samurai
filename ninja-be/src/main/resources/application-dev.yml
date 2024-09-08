@@ -69,6 +69,7 @@ custom:
       name: Authorization
       secure: true
       httpOnly: true
+      prefix: Bearer_
       acceptAsHeader: false
   # Note that both models have to be from single provider
   chat:

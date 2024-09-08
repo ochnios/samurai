@@ -43,6 +43,9 @@ public class JwtService {
     @Value("${custom.jwt.cookie.httpOnly:true}")
     private boolean httpOnly;
 
+    @Value("${custom.jwt.cookie.prefix:Bearer_}")
+    private String prefix;
+
     @Value("${custom.jwt.cookie.acceptAsHeader:false}")
     private boolean acceptAsHeader;
 
@@ -94,15 +97,17 @@ public class JwtService {
     public Optional<String> getJwt(HttpServletRequest request) {
         final var cookies = request.getCookies();
         if (cookies != null) {
-            final var jwtCookie =
-                    Arrays.stream(cookies)
-                            .filter(cookie -> cookie.getName().equals(jwtCookieName))
-                            .findFirst();
-            return jwtCookie.filter(this::isJwtCookieValid).map(Cookie::getValue);
+            return Arrays.stream(cookies)
+                    .filter(cookie -> cookie.getName().equals(jwtCookieName))
+                    .findFirst()
+                    .filter(this::isJwtCookieValid)
+                    .map(Cookie::getValue)
+                    .map(this::removeJwtPrefix);
+
+        } else if (acceptAsHeader) {
+            return Optional.ofNullable(request.getHeader(jwtCookieName)).map(this::removeJwtPrefix);
         } else {
-            return acceptAsHeader
-                    ? Optional.of(request.getHeader(jwtCookieName))
-                    : Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -112,7 +117,8 @@ public class JwtService {
     }
 
     private void setJwtCookie(HttpServletResponse response, String jwt, int maxAge) {
-        final var jwtCookie = new Cookie(jwtCookieName, jwt);
+        final var jwtWithPrefix = addJwtPrefix(jwt);
+        final var jwtCookie = new Cookie(jwtCookieName, jwtWithPrefix);
         jwtCookie.setSecure(secure);
         jwtCookie.setHttpOnly(httpOnly);
         jwtCookie.setMaxAge(maxAge);
@@ -127,6 +133,18 @@ public class JwtService {
             return false;
         } else {
             return true;
+        }
+    }
+
+    private String addJwtPrefix(String jwt) {
+        return prefix + jwt;
+    }
+
+    private String removeJwtPrefix(String jwtWithPrefix) {
+        if (jwtWithPrefix.startsWith(prefix)) {
+            return jwtWithPrefix.substring(prefix.length());
+        } else {
+            return jwtWithPrefix;
         }
     }
 }
