@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +15,6 @@ import pl.ochnios.ninjabe.model.dtos.auth.LoginDto;
 import pl.ochnios.ninjabe.model.dtos.user.UserDto;
 import pl.ochnios.ninjabe.security.AuthService;
 
-@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
