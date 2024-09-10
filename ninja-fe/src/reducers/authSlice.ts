@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Login } from "../model/api/Login.ts";
 import { User } from "../model/api/User.ts";
-import { loginCall } from "../model/service/authService.ts";
+import { loginCall, logoutCall } from "../model/service/authService.ts";
 
 interface AuthState {
   authenticated: boolean;
@@ -20,6 +20,8 @@ export const initialState: AuthState = {
 export const authenticate = createAsyncThunk("login", async (login: Login) =>
   loginCall(login),
 );
+
+export const logout = createAsyncThunk("logout", async () => logoutCall());
 
 const authSlice = createSlice({
   name: "auth",
@@ -43,6 +45,19 @@ const authSlice = createSlice({
       .addCase(authenticate.rejected, (state, action) => {
         state.loading = false;
         state.errors = (action.payload as string) ?? "login: rejected";
+      })
+      .addCase(logout.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.loading = false;
+        state.authenticated = false;
+        state.user = undefined;
+        state.errors = undefined;
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.loading = false;
+        state.errors = (action.payload as string) ?? "logout: rejected";
       });
   },
 });

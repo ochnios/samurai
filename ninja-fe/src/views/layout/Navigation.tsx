@@ -10,6 +10,8 @@ import {
   IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
+import { useAppDispatch } from "../../hooks.ts";
+import { logout } from "../../reducers/authSlice.ts";
 import Conversations from "../components/conversations/Conversations.tsx";
 import NavLink from "../components/navigation/NavLink.tsx";
 import classes from "./Navigation.module.css";
@@ -24,6 +26,12 @@ const data = [
 
 export default function Navigation() {
   const { ref, height } = useElementSize();
+  const dispatch = useAppDispatch();
+
+  const handleLogout = (e: any) => {
+    e.preventDefault();
+    dispatch(logout());
+  };
 
   return (
     <Box className={classes.navbar}>
@@ -56,7 +64,7 @@ export default function Navigation() {
         <NavLink link="/account" icon={IconUserCircle}>
           Account
         </NavLink>
-        <NavLink link="/logout" icon={IconLogout}>
+        <NavLink link="/logout" icon={IconLogout} onClick={handleLogout}>
           Logout
         </NavLink>
       </Box>
