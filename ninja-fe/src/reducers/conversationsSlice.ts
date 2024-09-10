@@ -7,14 +7,14 @@ interface ConversationsState {
   currentId?: string;
   conversations: ConversationSummary[];
   loading: boolean;
-  errors: string;
+  errors?: string;
 }
 
 const initialState: ConversationsState = {
   currentId: undefined,
   conversations: [] as ConversationSummary[],
   loading: false,
-  errors: "",
+  errors: undefined,
 };
 
 export const fetchConversations = createAsyncThunk(
@@ -47,6 +47,9 @@ const conversationsSlice = createSlice({
           : conversation,
       );
     },
+    resetConversations: () => {
+      return initialState;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -55,9 +58,8 @@ const conversationsSlice = createSlice({
       })
       .addCase(fetchConversations.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload) {
-          state.conversations = action.payload.items;
-        }
+        state.conversations = action.payload ? action.payload.items : [];
+        state.errors = undefined;
       })
       .addCase(fetchConversations.rejected, (state, action) => {
         state.loading = false;
@@ -71,6 +73,7 @@ export const {
   setActiveConversation,
   addConversationSummary,
   renameConversation,
+  resetConversations,
 } = conversationsSlice.actions;
 
 export default conversationsSlice.reducer;

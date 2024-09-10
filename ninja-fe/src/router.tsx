@@ -2,9 +2,11 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { Layout } from "./views/layout/Layout.tsx";
 import ChatPage from "./views/pages/ChatPage.tsx";
 import DummyPage from "./views/pages/DummyPage.tsx";
+import LoginPage from "./views/pages/LoginPage.tsx";
 import PageWrapper from "./views/pages/PageWrapper.tsx";
 
 const router = createBrowserRouter([
+  { path: "/login", element: <LoginPage /> },
   {
     path: "/",
     element: <Layout />,

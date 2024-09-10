@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +24,6 @@ import javax.crypto.SecretKey;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class JwtService {
 
     @Value("${custom.jwt.passphrase}")
@@ -100,7 +98,6 @@ public class JwtService {
             return Arrays.stream(cookies)
                     .filter(cookie -> cookie.getName().equals(jwtCookieName))
                     .findFirst()
-                    .filter(this::isJwtCookieValid)
                     .map(Cookie::getValue)
                     .map(this::removeJwtPrefix);
 
@@ -124,16 +121,6 @@ public class JwtService {
         jwtCookie.setMaxAge(maxAge);
         jwtCookie.setPath("/");
         response.addCookie(jwtCookie);
-    }
-
-    private boolean isJwtCookieValid(Cookie cookie) {
-        if (secure && !cookie.getSecure()) {
-            return false;
-        } else if (httpOnly && !cookie.isHttpOnly()) {
-            return false;
-        } else {
-            return true;
-        }
     }
 
     private String addJwtPrefix(String jwt) {
