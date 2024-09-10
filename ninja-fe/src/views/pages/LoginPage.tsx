@@ -20,6 +20,7 @@ import { Login } from "../../model/api/Login.ts";
 import { authenticate } from "../../reducers/authSlice.ts";
 import { resetConversations } from "../../reducers/conversationsSlice.ts";
 import { RootState } from "../../store.ts";
+import { showNotImplementedMessage } from "../../utils.ts";
 
 export default function LoginPage() {
   useDocumentTitle("Sign in | DocsNinja");
@@ -57,7 +58,11 @@ export default function LoginPage() {
       <Title ta="center">Welcome back!</Title>
       <Text c="dimmed" size="sm" ta="center" mt={5}>
         Do not have an account yet?{" "}
-        <Anchor size="sm" component="button">
+        <Anchor
+          size="sm"
+          component="button"
+          onClick={showNotImplementedMessage}
+        >
           Create account
         </Anchor>
       </Text>
@@ -77,8 +82,13 @@ export default function LoginPage() {
             mt="md"
           />
           <Group justify="space-between" mt="lg">
-            <Anchor component="button" size="sm"></Anchor>
-            Forgot password?
+            <Anchor
+              component="button"
+              size="sm"
+              onClick={showNotImplementedMessage}
+            >
+              Forgot password?
+            </Anchor>
             <Checkbox label="Remember me" />
           </Group>
           <Button fullWidth mt="xl" type="submit">
