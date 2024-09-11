@@ -11,7 +11,6 @@ import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.MessageDto;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.MessageMapper;
-import pl.ochnios.ninjabe.services.ai.ChatClientProvider;
 
 import java.util.List;
 

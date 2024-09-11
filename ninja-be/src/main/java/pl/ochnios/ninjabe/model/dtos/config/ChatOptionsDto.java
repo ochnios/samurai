@@ -1,11 +1,15 @@
-package pl.ochnios.ninjabe.services.ai;
+package pl.ochnios.ninjabe.model.dtos.config;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-public class ChatConfiguration {
+public class ChatOptionsDto {
 
     private String model;
     private Float frequencyPenalty;
@@ -14,5 +18,4 @@ public class ChatConfiguration {
     private Float temperature;
     private Integer topK;
     private Float topP;
-    private boolean useDefault;
 }
