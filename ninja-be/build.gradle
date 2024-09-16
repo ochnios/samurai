@@ -23,14 +23,6 @@ repositories {
     maven { url 'https://repo.spring.io/snapshot' }
 }
 
-ext {
-    set('springAiVersion', '1.0.0-M2')
-    set('mapstructVersion', '1.6.0')
-    set('lombokMapstructBindingVersion', '0.2.0')
-    set('mssqlVersion', '12.8.1.jre11')
-    set('jsonwebtokenVersion', '0.12.6')
-}
-
 dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
@@ -44,31 +36,32 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-anthropic-spring-boot-starter'
     implementation 'org.springframework.ai:spring-ai-qdrant-store-spring-boot-starter'
 
-    implementation "com.microsoft.sqlserver:mssql-jdbc:${mssqlVersion}"
-    implementation "io.jsonwebtoken:jjwt-api:${jsonwebtokenVersion}"
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 
-    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
-    implementation "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    implementation 'org.mapstruct:mapstruct:1.6.0'
+    implementation 'org.mapstruct:mapstruct-processor:1.6.0'
 
     compileOnly 'org.projectlombok:lombok'
 
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     runtimeOnly 'com.h2database:h2'
-    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jsonwebtokenVersion}"
-    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jsonwebtokenVersion}"
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
 
     annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.0'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.hamcrest:hamcrest:3.0'
 }
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+        mavenBom 'org.springframework.ai:spring-ai-bom:1.0.0-M2'
     }
 }
 
