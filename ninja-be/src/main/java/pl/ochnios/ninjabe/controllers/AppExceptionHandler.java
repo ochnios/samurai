@@ -1,10 +1,14 @@
 package pl.ochnios.ninjabe.controllers;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -12,6 +16,8 @@ import pl.ochnios.ninjabe.exceptions.ApplicationException;
 import pl.ochnios.ninjabe.exceptions.ResourceNotFoundException;
 import pl.ochnios.ninjabe.model.dtos.AppError;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -25,7 +31,14 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<AppError> handleApplicationException(Exception ex) {
-        return logAndGetResponse(ex, HttpStatus.BAD_REQUEST);
+        return logAndGetResponse(ex, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<AppError> handleConstraintViolationException(
+            MethodArgumentNotValidException ex) {
+        final var errors = processFieldErrors(ex.getFieldErrors());
+        return logAndGetResponse(ex, BAD_REQUEST, errors);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -39,15 +52,29 @@ public class AppExceptionHandler {
     }
 
     private ResponseEntity<AppError> logAndGetResponse(Exception ex, HttpStatus status) {
+        final var errors = List.of(ex.getMessage());
+        return logAndGetResponse(ex, status, errors);
+    }
+
+    private ResponseEntity<AppError> logAndGetResponse(
+            Exception ex, HttpStatus status, Iterable<String> errors) {
         final var errorId = UUID.randomUUID();
         if (status.is5xxServerError()) {
-            log.error(String.format("errorId=%s, message=%s", errorId, ex.getMessage()), ex);
+            log.error(String.format("errorId=%s, message=%s", errorId, errors), ex);
             final var body = AppError.create(errorId, "Unexpected error");
             return ResponseEntity.status(status).body(body);
         } else {
-            log.warn(String.format("errorId=%s, message=%s", errorId, ex.getMessage()));
-            final var body = AppError.create(errorId, ex.getMessage());
+            log.warn(String.format("errorId=%s, message=%s", errorId, errors));
+            final var body = AppError.create(errorId, errors);
             return ResponseEntity.status(status).body(body);
         }
+    }
+
+    private Iterable<String> processFieldErrors(List<FieldError> fieldErrors) {
+        final var errors = new ArrayList<String>();
+        for (var fieldError : fieldErrors) {
+            errors.add(fieldError.getField() + " " + fieldError.getDefaultMessage());
+        }
+        return errors;
     }
 }

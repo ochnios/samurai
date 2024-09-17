@@ -14,4 +14,8 @@ public class AppError {
     public static AppError create(UUID errorId, String... errors) {
         return new AppError(errorId, List.of(errors));
     }
+
+    public static AppError create(UUID errorId, Iterable<String> errors) {
+        return new AppError(errorId, errors);
+    }
 }

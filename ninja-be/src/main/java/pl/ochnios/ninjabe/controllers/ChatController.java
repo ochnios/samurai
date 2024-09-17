@@ -1,5 +1,7 @@
 package pl.ochnios.ninjabe.controllers;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +23,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping
-    public ChatResponseDto chat(@RequestBody ChatRequestDto chatRequestDto) {
+    public ChatResponseDto chat(@Valid @RequestBody ChatRequestDto chatRequestDto) {
         final var user = authService.getAuthenticatedUser();
         return chatService.getCompletion(user, chatRequestDto);
     }
