@@ -13,4 +13,12 @@ public class TestUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static String generateTooLongString(int length) {
+        final var sb = new StringBuilder();
+        do {
+            sb.append('X');
+        } while (sb.length() < length);
+        return sb.toString();
+    }
 }
