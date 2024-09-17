@@ -12,7 +12,8 @@ import java.util.UUID;
 
 public interface ConversationCrudRepository extends CrudRepository<Conversation, UUID> {
 
-    Optional<Conversation> findByUserAndId(User user, UUID conversationId);
+    Optional<Conversation> findByUserAndIdAndDeleted(
+            User user, UUID conversationId, Boolean deleted);
 
-    Page<Conversation> findAllByUser(User user, Pageable pageable);
+    Page<Conversation> findAllByUserAndDeleted(User user, Pageable pageable, Boolean deleted);
 }

@@ -9,5 +9,5 @@ import java.util.UUID;
 
 public interface MessageCrudRepository extends CrudRepository<MessageEntity, UUID> {
 
-    List<MessageEntity> findAllByConversationId(UUID conversationId);
+    List<MessageEntity> findAllByConversationIdAndDeleted(UUID conversationId, Boolean deleted);
 }

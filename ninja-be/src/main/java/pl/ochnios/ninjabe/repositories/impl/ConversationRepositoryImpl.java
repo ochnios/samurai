@@ -22,13 +22,13 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     @Override
     public Conversation findByUserAndId(User user, UUID id) {
         return conversationCrudRepository
-                .findByUserAndId(user, id)
+                .findByUserAndIdAndDeleted(user, id, false)
                 .orElseThrow(() -> ResourceNotFoundException.of(Conversation.class, id));
     }
 
     @Override
     public Page<Conversation> findAllByUser(User user, Pageable pageable) {
-        return conversationCrudRepository.findAllByUser(user, pageable);
+        return conversationCrudRepository.findAllByUserAndDeleted(user, pageable, false);
     }
 
     @Override
@@ -38,6 +38,10 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public void delete(Conversation conversation) {
-        conversationCrudRepository.delete(conversation);
+        conversation.setDeleted(true);
+        for (var message : conversation.getMessages()) {
+            message.setDeleted(true);
+        }
+        conversationCrudRepository.save(conversation);
     }
 }
