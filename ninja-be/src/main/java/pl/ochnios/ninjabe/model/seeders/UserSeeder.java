@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import pl.ochnios.ninjabe.model.entities.user.Role;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.repositories.UserRepository;
 
@@ -21,12 +22,19 @@ public class UserSeeder implements DataSeeder {
 
     @Override
     public void seed() {
-        if (!userRepository.existsByUsername("user")) {
+        createUser("user", Role.User);
+        createUser("mod", Role.Mod);
+        createUser("admin", Role.Admin);
+    }
+
+    private void createUser(String username, Role role) {
+        if (!userRepository.existsByUsername(username)) {
             final var user =
                     User.builder()
-                            .username("user")
-                            .email("user@users.com")
-                            .password(passwordEncoder.encode("user"))
+                            .username(username)
+                            .email(username + "@users.com")
+                            .password(passwordEncoder.encode(username))
+                            .role(role)
                             .conversations(new ArrayList<>())
                             .build();
             final var savedUser = userRepository.save(user);
