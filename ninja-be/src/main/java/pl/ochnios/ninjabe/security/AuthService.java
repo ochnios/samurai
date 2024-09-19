@@ -5,20 +5,24 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import pl.ochnios.ninjabe.model.dtos.auth.LoginDto;
 import pl.ochnios.ninjabe.model.dtos.user.UserDto;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.UserMapper;
+import pl.ochnios.ninjabe.repositories.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final AuthenticationManager authManager;
+    private final UserRepository userRepository;
     private final JwtService jwtService;
     private final UserMapper userMapper;
 
@@ -39,7 +43,13 @@ public class AuthService {
     }
 
     public User getAuthenticatedUser() {
-        final var auth = SecurityContextHolder.getContext().getAuthentication();
-        return (User) auth.getPrincipal();
+        final var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof User user) {
+            return user;
+        } else if (principal instanceof UserDetails userDetails) {
+            return userRepository.findByUsername(userDetails.getUsername());
+        } else {
+            throw new AuthenticationServiceException("Bad principal type");
+        }
     }
 }

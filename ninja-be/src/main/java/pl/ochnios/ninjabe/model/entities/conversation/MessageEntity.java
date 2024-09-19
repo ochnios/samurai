@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -15,11 +14,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
-import org.hibernate.annotations.SoftDelete;
 import org.springframework.ai.chat.messages.MessageType;
+
+import pl.ochnios.ninjabe.model.entities.AppEntity;
+import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -30,13 +33,14 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Entity
-@SoftDelete
 @Table(name = "messages")
-public class MessageEntity {
+public class MessageEntity implements AppEntity {
 
-    @Id @GeneratedValue private UUID id;
+    @Id @CustomUuidGenerator private UUID id;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "conversation_id", nullable = false)
     private Conversation conversation;
@@ -51,6 +55,10 @@ public class MessageEntity {
     @CreationTimestamp
     @Column(updatable = false)
     private Instant createdAt;
+
+    @Builder.Default
+    @ColumnDefault(value = "0")
+    private boolean deleted = false;
 
     @Override
     public boolean equals(Object o) {

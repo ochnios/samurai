@@ -4,7 +4,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -17,10 +16,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SoftDelete;
 
+import pl.ochnios.ninjabe.model.entities.AppEntity;
+import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.ninjabe.model.entities.user.User;
 
 import java.time.Instant;
@@ -34,14 +36,15 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Entity
-@SoftDelete
 @Table(name = "conversations")
-public class Conversation {
+public class Conversation implements AppEntity {
 
-    @Id @GeneratedValue private UUID id;
+    @Id @CustomUuidGenerator private UUID id;
 
     @Builder.Default
+    @ToString.Exclude
     @OrderBy("createdAt asc")
     @OneToMany(
             mappedBy = "conversation",
@@ -50,6 +53,7 @@ public class Conversation {
             orphanRemoval = true)
     private List<MessageEntity> messages = new ArrayList<>();
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -60,6 +64,10 @@ public class Conversation {
     @CreationTimestamp
     @Column(updatable = false)
     private Instant createdAt;
+
+    @Builder.Default
+    @ColumnDefault(value = "0")
+    private boolean deleted = false;
 
     @Override
     public boolean equals(Object o) {
