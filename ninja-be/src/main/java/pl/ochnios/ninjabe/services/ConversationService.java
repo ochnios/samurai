@@ -1,10 +1,12 @@
 package pl.ochnios.ninjabe.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import pl.ochnios.ninjabe.commons.patch.JsonPatchService;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.MessageDto;
@@ -21,12 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.json.JsonPatch;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ConversationService {
 
-    private final PageMapper pageMapper;
     private final ConversationRepository conversationRepository;
+    private final JsonPatchService patchService;
+    private final PageMapper pageMapper;
     private final ConversationMapper conversationMapper;
     private final MessageMapper messageMapper;
 
@@ -59,6 +65,14 @@ public class ConversationService {
         final var messages = messageMapper.map(conversation, messageDtos);
         conversation.getMessages().addAll(messages);
         conversationRepository.save(conversation);
+    }
+
+    @Transactional
+    public ConversationDto patchConversation(User user, UUID conversationId, JsonPatch jsonPatch) {
+        final var conversation = conversationRepository.findByUserAndId(user, conversationId);
+        patchService.apply(conversation, jsonPatch);
+        final var savedConversation = conversationRepository.save(conversation);
+        return conversationMapper.map(savedConversation);
     }
 
     private Conversation createConversation(User user, String summary) {

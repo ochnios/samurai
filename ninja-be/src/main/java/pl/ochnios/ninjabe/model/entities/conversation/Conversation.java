@@ -21,7 +21,9 @@ import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
-import pl.ochnios.ninjabe.model.entities.AppEntity;
+import pl.ochnios.ninjabe.model.dtos.PatchDto;
+import pl.ochnios.ninjabe.model.dtos.conversation.ConversationPatch;
+import pl.ochnios.ninjabe.model.entities.PatchableEntity;
 import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.ninjabe.model.entities.user.User;
 
@@ -39,7 +41,7 @@ import java.util.UUID;
 @ToString
 @Entity
 @Table(name = "conversations")
-public class Conversation implements AppEntity {
+public class Conversation implements PatchableEntity {
 
     @Id @CustomUuidGenerator private UUID id;
 
@@ -79,5 +81,16 @@ public class Conversation implements AppEntity {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public PatchDto getPatchDto() {
+        return new ConversationPatch(summary);
+    }
+
+    @Override
+    public void apply(PatchDto patchDto) {
+        final var conversationPatch = (ConversationPatch) patchDto;
+        summary = conversationPatch.getSummary();
     }
 }
