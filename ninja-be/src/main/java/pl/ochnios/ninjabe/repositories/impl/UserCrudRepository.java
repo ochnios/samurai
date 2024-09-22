@@ -1,10 +1,8 @@
 package pl.ochnios.ninjabe.repositories.impl;
 
-import org.springframework.data.repository.CrudRepository;
-
-import pl.ochnios.ninjabe.model.entities.user.User;
-
 import java.util.Optional;
+import org.springframework.data.repository.CrudRepository;
+import pl.ochnios.ninjabe.model.entities.user.User;
 
 public interface UserCrudRepository extends CrudRepository<User, String> {
 

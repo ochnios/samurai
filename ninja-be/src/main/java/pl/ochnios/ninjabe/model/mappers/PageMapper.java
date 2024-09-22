@@ -1,15 +1,13 @@
 package pl.ochnios.ninjabe.model.mappers;
 
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-
 import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
-
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface PageMapper {

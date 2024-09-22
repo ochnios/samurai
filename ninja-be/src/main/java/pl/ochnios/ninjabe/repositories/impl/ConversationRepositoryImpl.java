@@ -1,5 +1,6 @@
 package pl.ochnios.ninjabe.repositories.impl;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,8 +9,6 @@ import pl.ochnios.ninjabe.commons.exceptions.ResourceNotFoundException;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.repositories.ConversationRepository;
-
-import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor

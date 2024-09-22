@@ -6,10 +6,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import static pl.ochnios.ninjabe.TestUtils.asJsonString;
 import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
 
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
 import pl.ochnios.ninjabe.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.ninjabe.model.seeders.ConversationSeeder;
 import pl.ochnios.ninjabe.model.seeders.UserSeeder;
@@ -30,20 +29,29 @@ import pl.ochnios.ninjabe.repositories.impl.ConversationCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.MessageCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.UserCrudRepository;
 
-import java.util.UUID;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ChatControllerTests {
 
     private static final String CHAT_URL = "/chat";
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private UserSeeder userSeeder;
-    @Autowired private ConversationSeeder conversationSeeder;
-    @Autowired private UserCrudRepository userCrudRepository;
-    @Autowired private ConversationCrudRepository conversationCrudRepository;
-    @Autowired private MessageCrudRepository messageCrudRepository;
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private UserSeeder userSeeder;
+
+    @Autowired
+    private ConversationSeeder conversationSeeder;
+
+    @Autowired
+    private UserCrudRepository userCrudRepository;
+
+    @Autowired
+    private ConversationCrudRepository conversationCrudRepository;
+
+    @Autowired
+    private MessageCrudRepository messageCrudRepository;
 
     @BeforeAll
     public void setup() {
@@ -66,10 +74,9 @@ public class ChatControllerTests {
         @Test
         public void new_chat_200() throws Exception {
             final var chatRequestDto = new ChatRequestDto(null, "Answer with OK and nothing more");
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(CHAT_URL)
-                            .content(asJsonString(chatRequestDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+            final var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
+                    .content(asJsonString(chatRequestDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -80,12 +87,10 @@ public class ChatControllerTests {
         @Test
         public void continue_chat_200() throws Exception {
             final var conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
-            final var chatRequestDto =
-                    new ChatRequestDto(conversationId, "What was my first message?");
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(CHAT_URL)
-                            .content(asJsonString(chatRequestDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+            final var chatRequestDto = new ChatRequestDto(conversationId, "What was my first message?");
+            final var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
+                    .content(asJsonString(chatRequestDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -97,10 +102,9 @@ public class ChatControllerTests {
         public void continue_not_existing_chat_404() throws Exception {
             final var conversationId = UUID.nameUUIDFromBytes("not existing".getBytes());
             final var chatRequestDto = new ChatRequestDto(conversationId, "Blah blah");
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(CHAT_URL)
-                            .content(asJsonString(chatRequestDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+            final var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
+                    .content(asJsonString(chatRequestDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNotFound())
@@ -132,12 +136,10 @@ public class ChatControllerTests {
             test_validation(chatRequestDto, "question must have at most");
         }
 
-        private void test_validation(ChatRequestDto chatRequestDto, String expectedError)
-                throws Exception {
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(CHAT_URL)
-                            .content(asJsonString(chatRequestDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+        private void test_validation(ChatRequestDto chatRequestDto, String expectedError) throws Exception {
+            final var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
+                    .content(asJsonString(chatRequestDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isBadRequest())

@@ -1,14 +1,12 @@
 package pl.ochnios.ninjabe.services;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.ChatOptionsBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import pl.ochnios.ninjabe.model.dtos.config.ChatOptionsDto;
 import pl.ochnios.ninjabe.model.mappers.ChatOptionsMapper;
 
@@ -42,11 +40,10 @@ public class ChatClientProvider {
     public ChatClient getClient(ChatOptionsDto chatOptionsDto) {
         final ChatOptions chatOptions;
         if (chatOptionsDto == null) {
-            chatOptions =
-                    ChatOptionsBuilder.builder()
-                            .withModel(chatModelName)
-                            .withTemperature(0.7F)
-                            .build();
+            chatOptions = ChatOptionsBuilder.builder()
+                    .withModel(chatModelName)
+                    .withTemperature(0.7F)
+                    .build();
         } else {
             chatOptions = chatOptionsMapper.map(chatOptionsDto);
         }

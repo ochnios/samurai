@@ -12,7 +12,8 @@ import org.springframework.context.ApplicationContext;
 @SpringBootTest
 class NinjaBeApplicationTests {
 
-    @Autowired private ApplicationContext applicationContext;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Test
     void contextLoads() {

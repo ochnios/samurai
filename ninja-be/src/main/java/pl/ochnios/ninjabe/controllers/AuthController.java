@@ -20,8 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<UserDto> login(
-            @RequestBody LoginDto loginDto, HttpServletResponse response) {
+    public ResponseEntity<UserDto> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
         final var user = authService.authenticate(loginDto, response);
         return ResponseEntity.ok(user);
     }

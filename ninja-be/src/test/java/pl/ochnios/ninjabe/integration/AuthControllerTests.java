@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import static pl.ochnios.ninjabe.TestUtils.asJsonString;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -21,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
 import pl.ochnios.ninjabe.model.dtos.auth.LoginDto;
 import pl.ochnios.ninjabe.model.entities.user.Role;
 import pl.ochnios.ninjabe.model.seeders.UserSeeder;
@@ -39,9 +37,14 @@ public class AuthControllerTests {
     @Value("${custom.jwt.cookie.prefix}")
     private String jwtPrefix;
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private UserCrudRepository userCrudRepository;
-    @Autowired private UserSeeder userSeeder;
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private UserCrudRepository userCrudRepository;
+
+    @Autowired
+    private UserSeeder userSeeder;
 
     @BeforeAll
     public void setup() {
@@ -56,10 +59,9 @@ public class AuthControllerTests {
         @Test
         void login_as_user_200() throws Exception {
             final var loginDto = new LoginDto("user", "user");
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(AUTH_URL + "/login")
-                            .content(asJsonString(loginDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+                    .content(asJsonString(loginDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -72,10 +74,9 @@ public class AuthControllerTests {
         @Test
         void login_as_mod_200() throws Exception {
             final var loginDto = new LoginDto("mod", "mod");
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(AUTH_URL + "/login")
-                            .content(asJsonString(loginDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+                    .content(asJsonString(loginDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -88,10 +89,9 @@ public class AuthControllerTests {
         @Test
         void login_as_admin_200() throws Exception {
             final var loginDto = new LoginDto("admin", "admin");
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(AUTH_URL + "/login")
-                            .content(asJsonString(loginDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+                    .content(asJsonString(loginDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -104,10 +104,9 @@ public class AuthControllerTests {
         @Test
         void login_bad_username_401() throws Exception {
             final var loginDto = new LoginDto("user1", "user");
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(AUTH_URL + "/login")
-                            .content(asJsonString(loginDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+                    .content(asJsonString(loginDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isUnauthorized())
@@ -118,10 +117,9 @@ public class AuthControllerTests {
         @Test
         void login_bad_password_401() throws Exception {
             final var loginDto = new LoginDto("user", "user1");
-            final var requestBuilder =
-                    MockMvcRequestBuilders.post(AUTH_URL + "/login")
-                            .content(asJsonString(loginDto))
-                            .contentType(MediaType.APPLICATION_JSON);
+            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+                    .content(asJsonString(loginDto))
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isUnauthorized())

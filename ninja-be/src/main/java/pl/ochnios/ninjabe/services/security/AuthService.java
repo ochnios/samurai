@@ -24,9 +24,7 @@ public class AuthService {
     private final UserMapper userMapper;
 
     public UserDto authenticate(LoginDto loginDto, HttpServletResponse response) {
-        final var authToken =
-                new UsernamePasswordAuthenticationToken(
-                        loginDto.getUsername(), loginDto.getPassword());
+        final var authToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
         final var auth = authManager.authenticate(authToken);
         SecurityContextHolder.getContext().setAuthentication(auth);
         final var user = (User) auth.getPrincipal();
@@ -40,7 +38,8 @@ public class AuthService {
     }
 
     public User getAuthenticatedUser() {
-        final var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final var principal =
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof User user) {
             return user;
         } else if (principal instanceof UserDetails userDetails) {

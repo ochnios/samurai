@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.3'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.diffplug.spotless' version '7.0.0.BETA2'
 }
 
 group = 'pl.ochnios'
@@ -63,6 +64,15 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom 'org.springframework.ai:spring-ai-bom:1.0.0-M2'
+    }
+}
+
+spotless {
+    java {
+        toggleOffOn()
+        palantirJavaFormat()
+        removeUnusedImports()
+        importOrder().semanticSort(true)
     }
 }
 

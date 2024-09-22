@@ -1,5 +1,7 @@
 package pl.ochnios.ninjabe.controllers;
 
+import java.util.UUID;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,9 +18,6 @@ import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.services.ConversationService;
 import pl.ochnios.ninjabe.services.security.AuthService;
-
-import javax.json.JsonPatch;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor

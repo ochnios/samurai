@@ -3,7 +3,6 @@ package pl.ochnios.ninjabe.model.mappers;
 import org.mapstruct.Mapper;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.ChatOptionsBuilder;
-
 import pl.ochnios.ninjabe.model.dtos.config.ChatOptionsDto;
 
 @Mapper(componentModel = "spring")

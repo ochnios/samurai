@@ -8,8 +8,7 @@ public class ResourceNotFoundException extends ApplicationException {
 
     public static ResourceNotFoundException of(Class<?> resourceClass, Object key) {
         String resourceName = resourceClass.getSimpleName();
-        String message =
-                String.format("Not found %s resource with key=%s", resourceName, key.toString());
+        String message = String.format("Not found %s resource with key=%s", resourceName, key.toString());
         return new ResourceNotFoundException(message);
     }
 }
