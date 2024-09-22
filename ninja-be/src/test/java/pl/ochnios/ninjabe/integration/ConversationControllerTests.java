@@ -106,7 +106,7 @@ public class ConversationControllerTests {
                     .build();
             conversationCrudRepository.save(conversation);
 
-            final var pageRequest = new PageRequestDto(1, 1, "createdAt", "asc");
+            final var pageRequest = new PageRequestDto(1, 1, "summary", "asc");
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(pageRequest));
             mockMvc.perform(requestBuilder)
