@@ -1,16 +1,13 @@
-package pl.ochnios.ninjabe.security;
+package pl.ochnios.ninjabe.services.security;
 
 import jakarta.servlet.http.HttpServletResponse;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import pl.ochnios.ninjabe.model.dtos.auth.LoginDto;
 import pl.ochnios.ninjabe.model.dtos.user.UserDto;
 import pl.ochnios.ninjabe.model.entities.user.User;
@@ -27,9 +24,7 @@ public class AuthService {
     private final UserMapper userMapper;
 
     public UserDto authenticate(LoginDto loginDto, HttpServletResponse response) {
-        final var authToken =
-                new UsernamePasswordAuthenticationToken(
-                        loginDto.getUsername(), loginDto.getPassword());
+        final var authToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
         final var auth = authManager.authenticate(authToken);
         SecurityContextHolder.getContext().setAuthentication(auth);
         final var user = (User) auth.getPrincipal();
@@ -43,7 +38,8 @@ public class AuthService {
     }
 
     public User getAuthenticatedUser() {
-        final var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final var principal =
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof User user) {
             return user;
         } else if (principal instanceof UserDetails userDetails) {

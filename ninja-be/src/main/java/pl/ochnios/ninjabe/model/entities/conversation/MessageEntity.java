@@ -8,25 +8,21 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.springframework.ai.chat.messages.MessageType;
-
 import pl.ochnios.ninjabe.model.entities.AppEntity;
 import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
-
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -38,7 +34,9 @@ import java.util.UUID;
 @Table(name = "messages")
 public class MessageEntity implements AppEntity {
 
-    @Id @CustomUuidGenerator private UUID id;
+    @Id
+    @CustomUuidGenerator
+    private UUID id;
 
     @ToString.Exclude
     @ManyToOne

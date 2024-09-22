@@ -10,28 +10,24 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
-
 import pl.ochnios.ninjabe.model.dtos.PatchDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationPatch;
 import pl.ochnios.ninjabe.model.entities.PatchableEntity;
 import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.ninjabe.model.entities.user.User;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -43,16 +39,14 @@ import java.util.UUID;
 @Table(name = "conversations")
 public class Conversation implements PatchableEntity {
 
-    @Id @CustomUuidGenerator private UUID id;
+    @Id
+    @CustomUuidGenerator
+    private UUID id;
 
     @Builder.Default
     @ToString.Exclude
     @OrderBy("createdAt asc")
-    @OneToMany(
-            mappedBy = "conversation",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "conversation", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MessageEntity> messages = new ArrayList<>();
 
     @ToString.Exclude

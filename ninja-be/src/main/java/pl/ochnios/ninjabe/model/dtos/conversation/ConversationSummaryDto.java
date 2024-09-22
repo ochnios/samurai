@@ -1,10 +1,9 @@
 package pl.ochnios.ninjabe.model.dtos.conversation;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.time.Instant;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor

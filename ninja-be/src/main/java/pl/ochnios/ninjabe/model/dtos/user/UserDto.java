@@ -1,7 +1,6 @@
 package pl.ochnios.ninjabe.model.dtos.user;
 
 import lombok.Data;
-
 import pl.ochnios.ninjabe.model.entities.user.Role;
 
 @Data

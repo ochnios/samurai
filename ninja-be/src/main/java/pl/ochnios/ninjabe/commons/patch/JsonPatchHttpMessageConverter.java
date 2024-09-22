@@ -1,5 +1,8 @@
 package pl.ochnios.ninjabe.commons.patch;
 
+import javax.json.Json;
+import javax.json.JsonPatch;
+import javax.json.JsonReader;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
@@ -11,10 +14,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import pl.ochnios.ninjabe.commons.AppConstants;
 
-import javax.json.Json;
-import javax.json.JsonPatch;
-import javax.json.JsonReader;
-
 @Component
 public class JsonPatchHttpMessageConverter extends AbstractHttpMessageConverter<JsonPatch> {
 
@@ -24,8 +23,7 @@ public class JsonPatchHttpMessageConverter extends AbstractHttpMessageConverter<
 
     @Override
     @NonNull
-    protected JsonPatch readInternal(
-            @NonNull Class<? extends JsonPatch> clazz, @NonNull HttpInputMessage inputMessage)
+    protected JsonPatch readInternal(@NonNull Class<? extends JsonPatch> clazz, @NonNull HttpInputMessage inputMessage)
             throws HttpMessageNotReadableException {
 
         try (JsonReader reader = Json.createReader(inputMessage.getBody())) {
@@ -36,8 +34,7 @@ public class JsonPatchHttpMessageConverter extends AbstractHttpMessageConverter<
     }
 
     @Override
-    protected void writeInternal(
-            @NonNull JsonPatch jsonPatch, @NonNull HttpOutputMessage outputMessage)
+    protected void writeInternal(@NonNull JsonPatch jsonPatch, @NonNull HttpOutputMessage outputMessage)
             throws HttpMessageNotWritableException {
         throw new NotImplementedException("The write Json patch is not implemented");
     }

@@ -4,18 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import pl.ochnios.ninjabe.exceptions.JsonPatchException;
-import pl.ochnios.ninjabe.exceptions.ValidationException;
-import pl.ochnios.ninjabe.model.dtos.PatchDto;
-import pl.ochnios.ninjabe.model.entities.PatchableEntity;
-
+import java.util.stream.Collectors;
 import javax.json.JsonException;
 import javax.json.JsonPatch;
 import javax.json.JsonStructure;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import pl.ochnios.ninjabe.commons.exceptions.JsonPatchException;
+import pl.ochnios.ninjabe.commons.exceptions.ValidationException;
+import pl.ochnios.ninjabe.model.dtos.PatchDto;
+import pl.ochnios.ninjabe.model.entities.PatchableEntity;
 
 @Slf4j
 @Service

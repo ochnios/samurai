@@ -1,5 +1,8 @@
 package pl.ochnios.ninjabe.commons;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,15 +11,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import pl.ochnios.ninjabe.exceptions.ApplicationException;
-import pl.ochnios.ninjabe.exceptions.JsonPatchException;
-import pl.ochnios.ninjabe.exceptions.ResourceNotFoundException;
-import pl.ochnios.ninjabe.exceptions.ValidationException;
+import pl.ochnios.ninjabe.commons.exceptions.ApplicationException;
+import pl.ochnios.ninjabe.commons.exceptions.JsonPatchException;
+import pl.ochnios.ninjabe.commons.exceptions.ResourceNotFoundException;
+import pl.ochnios.ninjabe.commons.exceptions.ValidationException;
 import pl.ochnios.ninjabe.model.dtos.AppError;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @ControllerAdvice
@@ -49,8 +48,7 @@ public class AppExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<AppError> handleMethodArgumentNotValidException(
-            MethodArgumentNotValidException ex) {
+    public ResponseEntity<AppError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         final var errors = processFieldErrors(ex.getFieldErrors());
         return logAndGetResponse(ex, HttpStatus.BAD_REQUEST, errors);
     }
@@ -65,8 +63,7 @@ public class AppExceptionHandler {
         return logAndGetResponse(ex, status, errors);
     }
 
-    private ResponseEntity<AppError> logAndGetResponse(
-            Exception ex, HttpStatus status, Iterable<String> errors) {
+    private ResponseEntity<AppError> logAndGetResponse(Exception ex, HttpStatus status, Iterable<String> errors) {
         final var errorId = UUID.randomUUID();
         if (status.is5xxServerError()) {
             log.error(String.format("errorId=%s, message=%s", errorId, errors), ex);

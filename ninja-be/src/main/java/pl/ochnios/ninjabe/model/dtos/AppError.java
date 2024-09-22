@@ -1,9 +1,8 @@
 package pl.ochnios.ninjabe.model.dtos;
 
-import lombok.Data;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.Data;
 
 @Data
 public class AppError {

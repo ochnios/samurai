@@ -1,12 +1,10 @@
 package pl.ochnios.ninjabe.repositories;
 
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 import pl.ochnios.ninjabe.model.entities.user.User;
-
-import java.util.UUID;
 
 public interface ConversationRepository {
 

@@ -1,16 +1,13 @@
 package pl.ochnios.ninjabe.model.seeders;
 
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import pl.ochnios.ninjabe.model.entities.user.Role;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.repositories.UserRepository;
-
-import java.util.ArrayList;
 
 @Component
 @RequiredArgsConstructor
@@ -29,14 +26,13 @@ public class UserSeeder implements DataSeeder {
 
     private void createUser(String username, Role role) {
         if (!userRepository.existsByUsername(username)) {
-            final var user =
-                    User.builder()
-                            .username(username)
-                            .email(username + "@users.com")
-                            .password(passwordEncoder.encode(username))
-                            .role(role)
-                            .conversations(new ArrayList<>())
-                            .build();
+            final var user = User.builder()
+                    .username(username)
+                    .email(username + "@users.com")
+                    .password(passwordEncoder.encode(username))
+                    .role(role)
+                    .conversations(new ArrayList<>())
+                    .build();
             final var savedUser = userRepository.save(user);
             log.info("Created user: {}", savedUser);
         }

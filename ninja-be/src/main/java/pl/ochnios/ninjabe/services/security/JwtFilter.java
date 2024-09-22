@@ -1,21 +1,17 @@
-package pl.ochnios.ninjabe.security;
+package pl.ochnios.ninjabe.services.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import pl.ochnios.ninjabe.services.UserService;
-
-import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -35,8 +31,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (jwt.isPresent() && jwtService.validateJwt(jwt.get())) {
             final var username = jwtService.getUsername(jwt.get());
             final var user = userService.loadUserByUsername(username);
-            final var auth =
-                    new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
+            final var auth = new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

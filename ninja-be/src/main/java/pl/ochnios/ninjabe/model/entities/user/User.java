@@ -10,24 +10,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -39,7 +35,8 @@ import java.util.Objects;
 @Table(name = "users")
 public class User implements UserDetails {
 
-    @Id private String username;
+    @Id
+    private String username;
 
     @Column(unique = true)
     private String email;
@@ -55,16 +52,14 @@ public class User implements UserDetails {
 
     @Builder.Default
     @OrderBy("createdAt desc")
-    @OneToMany(
-            mappedBy = "user",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Conversation> conversations = new ArrayList<>();
 
-    @Builder.Default private boolean isLocked = false;
+    @Builder.Default
+    private boolean isLocked = false;
 
-    @Builder.Default private boolean isEnabled = true;
+    @Builder.Default
+    private boolean isEnabled = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

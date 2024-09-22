@@ -1,13 +1,11 @@
 package pl.ochnios.ninjabe.services;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import pl.ochnios.ninjabe.exceptions.ResourceNotFoundException;
+import pl.ochnios.ninjabe.commons.exceptions.ResourceNotFoundException;
 import pl.ochnios.ninjabe.repositories.UserRepository;
 
 @Service

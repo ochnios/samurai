@@ -16,8 +16,8 @@ import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
-import pl.ochnios.ninjabe.security.AuthService;
 import pl.ochnios.ninjabe.services.ConversationService;
+import pl.ochnios.ninjabe.services.security.AuthService;
 
 @RestController
 @RequiredArgsConstructor
