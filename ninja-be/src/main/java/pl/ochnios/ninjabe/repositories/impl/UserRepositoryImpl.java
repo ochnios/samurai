@@ -1,10 +1,8 @@
 package pl.ochnios.ninjabe.repositories.impl;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Repository;
-
-import pl.ochnios.ninjabe.exceptions.ResourceNotFoundException;
+import pl.ochnios.ninjabe.commons.exceptions.ResourceNotFoundException;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.repositories.UserRepository;
 

@@ -1,4 +1,4 @@
-package pl.ochnios.ninjabe.exceptions;
+package pl.ochnios.ninjabe.commons.exceptions;
 
 public class ResourceNotFoundException extends ApplicationException {
 

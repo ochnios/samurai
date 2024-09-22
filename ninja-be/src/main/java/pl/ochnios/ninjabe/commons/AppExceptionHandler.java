@@ -8,10 +8,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import pl.ochnios.ninjabe.exceptions.ApplicationException;
-import pl.ochnios.ninjabe.exceptions.JsonPatchException;
-import pl.ochnios.ninjabe.exceptions.ResourceNotFoundException;
-import pl.ochnios.ninjabe.exceptions.ValidationException;
+import pl.ochnios.ninjabe.commons.exceptions.ApplicationException;
+import pl.ochnios.ninjabe.commons.exceptions.JsonPatchException;
+import pl.ochnios.ninjabe.commons.exceptions.ResourceNotFoundException;
+import pl.ochnios.ninjabe.commons.exceptions.ValidationException;
 import pl.ochnios.ninjabe.model.dtos.AppError;
 
 import java.util.ArrayList;
