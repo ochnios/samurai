@@ -49,6 +49,7 @@ public class ConversationService {
     public ConversationDto startConversation(User user, String summary) {
         final var conversation = createConversation(user, summary);
         final var savedConversation = conversationRepository.save(conversation);
+        log.info("Conversation {} started", savedConversation.getId());
         return conversationMapper.map(savedConversation);
     }
 
@@ -60,6 +61,7 @@ public class ConversationService {
         final var messages = messageMapper.map(conversation, messageDtos);
         conversation.getMessages().addAll(messages);
         conversationRepository.save(conversation);
+        log.info("Messages for conversation {} saved", conversationId);
     }
 
     @Transactional
@@ -67,6 +69,7 @@ public class ConversationService {
         final var conversation = conversationRepository.findByUserAndId(user, conversationId);
         patchService.apply(conversation, jsonPatch);
         final var savedConversation = conversationRepository.save(conversation);
+        log.info("Conversation {} patched", conversationId);
         return conversationMapper.map(savedConversation);
     }
 
@@ -74,6 +77,7 @@ public class ConversationService {
     public void deleteConversation(User user, UUID conversationId) {
         final var conversation = conversationRepository.findByUserAndId(user, conversationId);
         conversationRepository.delete(conversation);
+        log.info("Conversation {} deleted", conversationId);
     }
 
     private Conversation createConversation(User user, String summary) {
