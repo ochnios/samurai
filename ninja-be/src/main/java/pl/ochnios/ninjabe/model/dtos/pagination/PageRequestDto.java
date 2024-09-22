@@ -26,7 +26,7 @@ public class PageRequestDto {
     }
 
     private Integer validOrDefaultSize(Integer size) {
-        if (size == null || size < 0 || size > 1000) {
+        if (size == null || size < 1 || size > 1000) {
             return 10;
         } else {
             return size;

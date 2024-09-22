@@ -1,10 +1,14 @@
 package pl.ochnios.ninjabe.services;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import pl.ochnios.ninjabe.commons.patch.JsonPatchService;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.MessageDto;
@@ -17,16 +21,14 @@ import pl.ochnios.ninjabe.model.mappers.MessageMapper;
 import pl.ochnios.ninjabe.model.mappers.PageMapper;
 import pl.ochnios.ninjabe.repositories.ConversationRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ConversationService {
 
-    private final PageMapper pageMapper;
     private final ConversationRepository conversationRepository;
+    private final JsonPatchService patchService;
+    private final PageMapper pageMapper;
     private final ConversationMapper conversationMapper;
     private final MessageMapper messageMapper;
 
@@ -37,8 +39,7 @@ public class ConversationService {
     }
 
     @Transactional(readOnly = true)
-    public PageDto<ConversationSummaryDto> getSummariesPage(
-            User user, PageRequestDto pageRequestDto) {
+    public PageDto<ConversationSummaryDto> getSummariesPage(User user, PageRequestDto pageRequestDto) {
         final var pageRequest = pageMapper.map(pageRequestDto);
         final var conversationsPage = conversationRepository.findAllByUser(user, pageRequest);
         return pageMapper.map(conversationsPage, conversationMapper::mapSummary);
@@ -48,6 +49,7 @@ public class ConversationService {
     public ConversationDto startConversation(User user, String summary) {
         final var conversation = createConversation(user, summary);
         final var savedConversation = conversationRepository.save(conversation);
+        log.info("Conversation {} started", savedConversation.getId());
         return conversationMapper.map(savedConversation);
     }
 
@@ -59,6 +61,23 @@ public class ConversationService {
         final var messages = messageMapper.map(conversation, messageDtos);
         conversation.getMessages().addAll(messages);
         conversationRepository.save(conversation);
+        log.info("Messages for conversation {} saved", conversationId);
+    }
+
+    @Transactional
+    public ConversationDto patchConversation(User user, UUID conversationId, JsonPatch jsonPatch) {
+        final var conversation = conversationRepository.findByUserAndId(user, conversationId);
+        patchService.apply(conversation, jsonPatch);
+        final var savedConversation = conversationRepository.save(conversation);
+        log.info("Conversation {} patched", conversationId);
+        return conversationMapper.map(savedConversation);
+    }
+
+    @Transactional
+    public void deleteConversation(User user, UUID conversationId) {
+        final var conversation = conversationRepository.findByUserAndId(user, conversationId);
+        conversationRepository.delete(conversation);
+        log.info("Conversation {} deleted", conversationId);
     }
 
     private Conversation createConversation(User user, String summary) {

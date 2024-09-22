@@ -1,9 +1,6 @@
-package pl.ochnios.ninjabe.controllers;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+package pl.ochnios.ninjabe.commons;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -11,9 +8,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import pl.ochnios.ninjabe.exceptions.ApplicationException;
+import pl.ochnios.ninjabe.exceptions.JsonPatchException;
 import pl.ochnios.ninjabe.exceptions.ResourceNotFoundException;
+import pl.ochnios.ninjabe.exceptions.ValidationException;
 import pl.ochnios.ninjabe.model.dtos.AppError;
 
 import java.util.ArrayList;
@@ -31,19 +29,30 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<AppError> handleApplicationException(Exception ex) {
-        return logAndGetResponse(ex, BAD_REQUEST);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<AppError> handleConstraintViolationException(
-            MethodArgumentNotValidException ex) {
-        final var errors = processFieldErrors(ex.getFieldErrors());
-        return logAndGetResponse(ex, BAD_REQUEST, errors);
+        return logAndGetResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<AppError> handleResourceNotFoundException(Exception ex) {
         return logAndGetResponse(ex, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(JsonPatchException.class)
+    public ResponseEntity<AppError> handleJsonPatchException(Exception ex) {
+        return logAndGetResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<AppError> handleValidationException(ValidationException ex) {
+        final var errors = ex.getMessages();
+        return logAndGetResponse(ex, HttpStatus.BAD_REQUEST, errors);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<AppError> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex) {
+        final var errors = processFieldErrors(ex.getFieldErrors());
+        return logAndGetResponse(ex, HttpStatus.BAD_REQUEST, errors);
     }
 
     @ExceptionHandler(AuthenticationException.class)

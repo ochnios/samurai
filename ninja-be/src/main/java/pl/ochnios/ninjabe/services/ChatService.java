@@ -1,10 +1,10 @@
 package pl.ochnios.ninjabe.services;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.stereotype.Service;
-
 import pl.ochnios.ninjabe.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.ninjabe.model.dtos.chat.ChatResponseDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
@@ -12,8 +12,7 @@ import pl.ochnios.ninjabe.model.dtos.conversation.MessageDto;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.MessageMapper;
 
-import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -26,20 +25,20 @@ public class ChatService {
         final var conversationDto = getConversation(user, chatRequestDto);
         final var springMessages = getSpringMessages(conversationDto);
 
-        final var completion =
-                chatClientProvider
-                        .getChatClient()
-                        .prompt()
-                        .system("You are a helpful assistant") // TODO from app configuration
-                        .messages(springMessages)
-                        .user(chatRequestDto.getQuestion())
-                        .call();
+        final var completion = chatClientProvider
+                .getChatClient()
+                .prompt()
+                .system("You are a helpful assistant") // TODO from app configuration
+                .messages(springMessages)
+                .user(chatRequestDto.getQuestion())
+                .call();
 
         final var userMessage = MessageDto.user(chatRequestDto.getQuestion());
         final var assistantMessage = MessageDto.assistant(completion.content());
         final var messages = List.of(userMessage, assistantMessage);
         conversationService.saveMessages(user, conversationDto.getId(), messages);
 
+        log.info("Completion for conversation {} created", conversationDto.getId());
         return new ChatResponseDto(conversationDto.getId(), completion.content());
     }
 
