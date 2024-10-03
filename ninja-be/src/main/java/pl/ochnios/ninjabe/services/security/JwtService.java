@@ -42,6 +42,9 @@ public class JwtService {
     @Value("${custom.jwt.cookie.acceptAsHeader:false}")
     private boolean acceptAsHeader;
 
+    @Value("${custom.jwt.cookie.headerPrefix:Bearer_}")
+    private String headerPrefix;
+
     private SecretKey secret;
 
     @PostConstruct
@@ -89,15 +92,17 @@ public class JwtService {
 
     public Optional<String> getJwt(HttpServletRequest request) {
         final var cookies = request.getCookies();
-        if (cookies != null) {
-            return Arrays.stream(cookies)
-                    .filter(cookie -> cookie.getName().equals(jwtCookieName))
-                    .findFirst()
-                    .map(Cookie::getValue)
-                    .map(this::removeJwtPrefix);
+        var jwt = Arrays.stream(cookies != null ? cookies : new Cookie[0])
+                .filter(cookie -> cookie.getName().equals(jwtCookieName))
+                .findFirst()
+                .map(Cookie::getValue)
+                .map(val -> removeJwtPrefix(val, prefix));
+        return jwt.isPresent() ? jwt : getJwtFromHeader(request);
+    }
 
-        } else if (acceptAsHeader) {
-            return Optional.ofNullable(request.getHeader(jwtCookieName)).map(this::removeJwtPrefix);
+    private Optional<String> getJwtFromHeader(HttpServletRequest request) {
+        if (acceptAsHeader) {
+            return Optional.ofNullable(request.getHeader(jwtCookieName)).map(val -> removeJwtPrefix(val, headerPrefix));
         } else {
             return Optional.empty();
         }
@@ -122,7 +127,7 @@ public class JwtService {
         return prefix + jwt;
     }
 
-    private String removeJwtPrefix(String jwtWithPrefix) {
+    private String removeJwtPrefix(String jwtWithPrefix, String prefix) {
         if (jwtWithPrefix.startsWith(prefix)) {
             return jwtWithPrefix.substring(prefix.length());
         } else {
