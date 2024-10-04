@@ -1,7 +1,5 @@
-package pl.ochnios.ninjabe.controllers;
+package pl.ochnios.ninjabe.controllers.impl;
 
-import java.util.UUID;
-import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.ochnios.ninjabe.commons.AppConstants;
+import pl.ochnios.ninjabe.controllers.ConversationApi;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
@@ -19,16 +18,19 @@ import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.services.ConversationService;
 import pl.ochnios.ninjabe.services.security.AuthService;
 
+import javax.json.JsonPatch;
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/conversations")
-public class ConversationController {
+public class ConversationController implements ConversationApi {
 
     private final AuthService authService;
     private final ConversationService conversationService;
 
     @GetMapping
-    public ResponseEntity<PageDto<ConversationSummaryDto>> getConversationsSummaries(PageRequestDto pageRequestDto) {
+    public ResponseEntity<PageDto<ConversationSummaryDto>> getSummaries(PageRequestDto pageRequestDto) {
         final var user = authService.getAuthenticatedUser();
         final var summaries = conversationService.getSummariesPage(user, pageRequestDto);
         return ResponseEntity.ok(summaries);

@@ -30,7 +30,7 @@ public class CorsConf {
         return corsConfigurer -> {
             final var corsConfiguration = new CorsConfiguration();
             corsConfiguration.setAllowedOrigins(allowedOrigins);
-            corsConfiguration.setAllowedMethods(List.of("GET", "POST"));
+            corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE"));
             corsConfiguration.setAllowedHeaders(List.of("*"));
             corsConfiguration.setAllowCredentials(true);
             final var corsConfigurationSource = new UrlBasedCorsConfigurationSource();

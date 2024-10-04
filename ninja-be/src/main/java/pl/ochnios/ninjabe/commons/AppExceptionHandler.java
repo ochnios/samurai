@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import pl.ochnios.ninjabe.commons.exceptions.ApplicationException;
 import pl.ochnios.ninjabe.commons.exceptions.JsonPatchException;
 import pl.ochnios.ninjabe.commons.exceptions.ResourceNotFoundException;
@@ -18,7 +18,7 @@ import pl.ochnios.ninjabe.commons.exceptions.ValidationException;
 import pl.ochnios.ninjabe.model.dtos.AppError;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class AppExceptionHandler {
 
     @ExceptionHandler(Exception.class)

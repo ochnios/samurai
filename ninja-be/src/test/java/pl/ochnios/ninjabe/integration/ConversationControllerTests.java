@@ -1,19 +1,5 @@
 package pl.ochnios.ninjabe.integration;
 
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.ninjabe.TestUtils.asJsonString;
-import static pl.ochnios.ninjabe.TestUtils.asParamsMap;
-import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
-
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +20,22 @@ import pl.ochnios.ninjabe.model.seeders.UserSeeder;
 import pl.ochnios.ninjabe.repositories.impl.ConversationCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.MessageCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.UserCrudRepository;
+
+import java.util.Set;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.ninjabe.TestUtils.asJsonString;
+import static pl.ochnios.ninjabe.TestUtils.asParamsMap;
+import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -106,7 +108,7 @@ public class ConversationControllerTests {
                     .build();
             conversationCrudRepository.save(conversation);
 
-            final var pageRequest = new PageRequestDto(1, 1, "summary", "asc");
+            final var pageRequest = new PageRequestDto(1, 1, "summary", ASC);
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(pageRequest));
             mockMvc.perform(requestBuilder)

@@ -51,6 +51,7 @@ public class User implements UserDetails {
     private Role role = Role.User;
 
     @Builder.Default
+    @ToString.Exclude
     @OrderBy("createdAt desc")
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Conversation> conversations = new ArrayList<>();
