@@ -5,7 +5,7 @@ import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.ChatOptionsBuilder;
 import pl.ochnios.ninjabe.model.dtos.config.ChatOptionsDto;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface ChatOptionsMapper {
 
     default ChatOptions map(ChatOptionsDto chatOptionsDto) {

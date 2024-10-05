@@ -23,11 +23,13 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.mapstruct.factory.Mappers;
 import pl.ochnios.ninjabe.model.dtos.PatchDto;
-import pl.ochnios.ninjabe.model.dtos.conversation.ConversationPatch;
+import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.entities.PatchableEntity;
 import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.ninjabe.model.entities.user.User;
+import pl.ochnios.ninjabe.model.mappers.ConversationMapper;
 
 @Getter
 @Setter
@@ -79,12 +81,13 @@ public class Conversation implements PatchableEntity {
 
     @Override
     public PatchDto getPatchDto() {
-        return new ConversationPatch(summary);
+        final var conversationMapper = Mappers.getMapper(ConversationMapper.class);
+        return conversationMapper.map(this);
     }
 
     @Override
     public void apply(PatchDto patchDto) {
-        final var conversationPatch = (ConversationPatch) patchDto;
-        summary = conversationPatch.getSummary();
+        final var conversationPatchDto = (ConversationDto) patchDto;
+        summary = conversationPatchDto.getSummary();
     }
 }

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.json.JsonException;
 import javax.json.JsonPatch;
@@ -31,9 +33,10 @@ public class JsonPatchService {
 
     public void apply(PatchableEntity original, JsonPatch jsonPatch) {
         final var toBePatched = original.getPatchDto();
-        final var patch = apply(toBePatched, jsonPatch);
-        validate(patch);
-        original.apply(patch);
+        validateJsonPatch(toBePatched, jsonPatch);
+        final var patchDto = apply(toBePatched, jsonPatch);
+        validatePatchDto(patchDto);
+        original.apply(patchDto);
     }
 
     private PatchDto apply(PatchDto toBePatched, JsonPatch jsonPatch) {
@@ -46,8 +49,32 @@ public class JsonPatchService {
         }
     }
 
-    private void validate(PatchDto patch) {
-        final var violations = validator.validate(patch);
+    private void validateJsonPatch(PatchDto toBePatched, JsonPatch jsonPatch) {
+        final var fields = Arrays.stream(toBePatched.getClass().getDeclaredFields())
+                .collect(Collectors.toMap(Field::getName, field -> field));
+        final var operations = jsonPatch.toJsonArray();
+
+        for (var operation : operations) {
+            final var patchPathValue = operation.asJsonObject().get("path");
+            if (patchPathValue == null) {
+                throw new ValidationException("Field 'path' is required");
+            }
+
+            String patchFieldName = patchPathValue.toString().replace("\"", "").replaceFirst("/", "");
+            final var field = fields.get(patchFieldName);
+            if (field == null) {
+                throw new ValidationException("Field '" + patchFieldName + "' does not exist in "
+                        + toBePatched.getClass().getSimpleName());
+            }
+
+            if (field.isAnnotationPresent(NotPatchable.class)) {
+                throw new ValidationException("Field '" + field.getName() + "' is not patchable");
+            }
+        }
+    }
+
+    private void validatePatchDto(PatchDto patchDto) {
+        final var violations = validator.validate(patchDto);
         if (!violations.isEmpty()) {
             final var messages = violations.stream()
                     .map(violation -> violation.getPropertyPath() + " " + violation.getMessage())

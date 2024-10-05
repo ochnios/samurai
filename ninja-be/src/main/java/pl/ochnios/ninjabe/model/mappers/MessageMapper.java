@@ -1,6 +1,5 @@
 package pl.ochnios.ninjabe.model.mappers;
 
-import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -11,7 +10,9 @@ import pl.ochnios.ninjabe.model.dtos.conversation.MessageDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 import pl.ochnios.ninjabe.model.entities.conversation.MessageEntity;
 
-@Mapper(componentModel = "spring")
+import java.util.List;
+
+@Mapper
 public interface MessageMapper {
 
     MessageDto map(MessageEntity messageEntity);

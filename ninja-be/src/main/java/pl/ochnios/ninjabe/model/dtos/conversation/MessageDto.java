@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.ai.chat.messages.MessageType;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "${docs.dto.message}")
 public class MessageDto {
 
