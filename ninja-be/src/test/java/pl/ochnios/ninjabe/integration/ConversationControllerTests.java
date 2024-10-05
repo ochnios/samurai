@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -107,7 +106,7 @@ public class ConversationControllerTests {
                     .build();
             conversationCrudRepository.save(conversation);
 
-            final var pageRequest = new PageRequestDto(1, 1, "summary", ASC);
+            final var pageRequest = new PageRequestDto(1, 1, "summary", "asc");
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(pageRequest));
             mockMvc.perform(requestBuilder)

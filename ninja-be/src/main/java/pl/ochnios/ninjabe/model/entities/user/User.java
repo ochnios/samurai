@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Nationalized;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,6 +38,12 @@ public class User implements UserDetails {
 
     @Id
     private String username;
+
+    @Nationalized
+    private String firstname;
+
+    @Nationalized
+    private String lastname;
 
     @Column(unique = true)
     private String email;

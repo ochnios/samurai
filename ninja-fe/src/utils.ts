@@ -7,3 +7,11 @@ export function showNotImplementedMessage() {
     message: "This feature not implemented yet",
   });
 }
+
+export function showErrorMessage(message: string) {
+  notifications.show({
+    color: "red",
+    title: "Error",
+    message: message,
+  });
+}

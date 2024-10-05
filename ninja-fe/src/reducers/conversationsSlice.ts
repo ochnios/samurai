@@ -40,14 +40,19 @@ const conversationsSlice = createSlice({
       };
       state.conversations = [summary, ...state.conversations];
     },
-    renameConversation: (state, action) => {
-      state.conversations = state.conversations.map((conversation) =>
-        conversation.id === action.payload.id
-          ? { ...conversation, summary: action.payload.newSummary }
-          : conversation,
+    editConversationSummary: (state, action) => {
+      state.conversations = state.conversations.map((summary) =>
+        summary.id === action.payload.id
+          ? { ...summary, summary: action.payload.summary }
+          : summary,
       );
     },
-    resetConversations: () => {
+    removeConversation: (state, action) => {
+      state.conversations = state.conversations.filter(
+        (summary) => summary.id != action.payload,
+      );
+    },
+    resetConversationList: () => {
       return initialState;
     },
   },
@@ -72,8 +77,9 @@ const conversationsSlice = createSlice({
 export const {
   setActiveConversation,
   addConversationSummary,
-  renameConversation,
-  resetConversations,
+  editConversationSummary,
+  removeConversation,
+  resetConversationList,
 } = conversationsSlice.actions;
 
 export default conversationsSlice.reducer;

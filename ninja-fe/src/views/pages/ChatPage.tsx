@@ -1,9 +1,9 @@
 import { Divider, Grid, Image, Loader, ScrollArea, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { validate } from "uuid";
+import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
 import {
   Message,
   MessageStatus,
@@ -22,7 +22,7 @@ import classes from "./ChatPage.module.css";
 export default function ChatPage() {
   const viewport = useRef<HTMLDivElement>(null);
   const { id } = useParams();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState("");

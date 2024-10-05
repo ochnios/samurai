@@ -10,7 +10,8 @@ import {
   IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
-import { useAppDispatch } from "../../hooks.ts";
+
+import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
 import { logout } from "../../reducers/authSlice.ts";
 import Conversations from "../components/conversations/Conversations.tsx";
 import NavLink from "../components/navigation/NavLink.tsx";

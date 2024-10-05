@@ -2,7 +2,6 @@ package pl.ochnios.ninjabe.model.dtos.pagination;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import org.springframework.data.domain.Sort;
 
 @Data
 @Schema(description = "${docs.dto.page-request}")
@@ -18,13 +17,13 @@ public class PageRequestDto {
     private final String sortBy;
 
     @Schema(description = "${docs.dto.page-request.sortDir}")
-    private final Sort.Direction sortDir;
+    private final String sortDir;
 
-    public PageRequestDto(Integer page, Integer size, String sortBy, Sort.Direction sortDir) {
+    public PageRequestDto(Integer page, Integer size, String sortBy, String sortDir) {
         this.page = validOrDefaultPage(page);
         this.size = validOrDefaultSize(size);
         this.sortBy = validOrDefaultSortBy(sortBy);
-        this.sortDir = sortDir;
+        this.sortDir = validOrDefaultSortDir(sortDir);
     }
 
     private Integer validOrDefaultPage(Integer page) {
@@ -48,6 +47,15 @@ public class PageRequestDto {
             return null;
         } else {
             return sortBy;
+        }
+    }
+
+    private String validOrDefaultSortDir(String sortDir) {
+        if (sortDir == null || sortDir.isBlank()) {
+            return null;
+        } else {
+            final var lower = sortDir.toLowerCase();
+            return lower.equals("asc") || lower.equals("desc") ? lower : null;
         }
     }
 }

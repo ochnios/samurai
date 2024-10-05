@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Badge,
   Burger,
   Code,
   Group,
@@ -10,45 +11,64 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconMoon, IconSun, IconUserCircle } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useAppSelector } from "../../hooks/useAppSelector.ts";
+import { Role } from "../../model/api/User.ts";
 import classes from "./Header.module.css";
 
 interface HeaderProps {
-  title: string;
   opened: boolean;
   setOpened: (state: boolean) => void;
+  title: string;
 }
 
-export default function Header({ title, opened, setOpened }: HeaderProps) {
-  const [toggled, { toggle }] = useDisclosure(opened);
+export default function Header(props: HeaderProps) {
+  const location = useLocation();
+  const [toggled, { toggle }] = useDisclosure(props.opened);
   const { colorScheme, setColorScheme } = useMantineColorScheme({
     keepTransitions: true,
   });
+  const auth = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (props.opened) {
+      toggle();
+      props.setOpened(!toggled);
+    }
+  }, [location, auth]);
+
   return (
     <Group h="100%" px="sm" py="sm" justify="space-between">
       <Burger
         opened={toggled}
         onClick={() => {
           toggle();
-          setOpened(!toggled);
+          props.setOpened(!toggled);
         }}
         hiddenFrom="sm"
         size="sm"
       />
       <Group justify="space-between" gap="xs">
-        <Image src="/logo_medium.png" h="35px" fit="contain" />
-        <Title order={3}>DocsNinja</Title>
+        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+          <Group justify="space-between" gap="xs">
+            <Image src="/logo_medium.png" h="35px" fit="contain" />
+            <Title order={3}>DocsNinja</Title>
+          </Group>
+        </Link>
         <Code fw={700} visibleFrom="sm" mb="-5px">
-          v0.0.0
+          v1.0.1
         </Code>
-        <Title className={classes.title} order={2} visibleFrom={"sm"}>
-          {title}
+        <Title order={2} ml={85} visibleFrom="sm">
+          {props.title}
         </Title>
       </Group>
       <Group justify="space-between" gap="xs">
+        {auth.user?.role == Role.Admin && <Badge size="xs">ADMIN</Badge>}
+        {auth.user?.role == Role.Mod && <Badge size="xs">MODERATOR</Badge>}
         <Link className={classes.actionIcon} to="/account">
           <Text size="sm" fw={500} fz="md" visibleFrom="sm" mr="xs">
-            Username
+            {`${auth.user?.firstname} ${auth.user?.lastname}`}
           </Text>
           <IconUserCircle className={classes.icon} stroke={1.5} size={26} />
         </Link>
@@ -58,7 +78,7 @@ export default function Header({ title, opened, setOpened }: HeaderProps) {
             setColorScheme(colorScheme === "light" ? "dark" : "light")
           }
           variant="transparent"
-          aria-label="Toggle color scheme"
+          aria-label="Przełącz motyw"
         >
           {colorScheme === "dark" && <IconSun stroke={1.5} size={26} />}
           {colorScheme === "light" && <IconMoon stroke={1.5} size={26} />}

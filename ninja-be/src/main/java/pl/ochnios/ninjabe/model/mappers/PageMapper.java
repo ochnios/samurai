@@ -26,9 +26,9 @@ public interface PageMapper {
         return PageRequest.of(pageRequestDto.getPage(), pageRequestDto.getSize(), sort);
     }
 
-    default Sort map(String sortBy, Sort.Direction sortDir) {
+    default Sort map(String sortBy, String sortDir) {
         if (sortBy != null && sortDir != null) {
-            return Sort.by(sortDir, sortBy);
+            return Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         } else {
             return Sort.unsorted();
         }

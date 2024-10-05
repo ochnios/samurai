@@ -1,30 +1,27 @@
-import { Center, Loader, Stack } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
+import { Center, Loader, Stack, Text } from "@mantine/core";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useAppDispatch } from "../../../hooks.ts";
+import { Link, useParams } from "react-router-dom";
+import { useAppDispatch } from "../../../hooks/useAppDispatch.ts";
+import { useAppSelector } from "../../../hooks/useAppSelector.ts";
 import { fetchConversations } from "../../../reducers/conversationsSlice.ts";
 import { RootState } from "../../../store.ts";
+import { showErrorMessage } from "../../../utils.ts";
 import Summary from "./Summary.tsx";
 
 export default function Conversations() {
+  const { id } = useParams();
   const dispatch = useAppDispatch();
-  const conversations = useSelector((state: RootState) => state.conversations);
+  const conversations = useAppSelector(
+    (state: RootState) => state.conversations,
+  );
 
   useEffect(() => {
     dispatch(fetchConversations());
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
-    if (conversations.errors) {
-      console.error(conversations.errors);
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "Failed to fetch conversations",
-      });
-    }
-  }, [conversations]);
+    if (conversations.errors) showErrorMessage("Failed to fetch conversations");
+  }, [conversations.errors]);
 
   return (
     <Stack align="stretch" justify="flex-start" gap="xs" pr="md">
@@ -32,10 +29,27 @@ export default function Conversations() {
         <Center>
           <Loader />
         </Center>
-      ) : (
+      ) : conversations.conversations.length > 0 ? (
         conversations.conversations.map((_, index) => (
-          <Summary key={index} summary={_} />
+          <Summary
+            key={index}
+            id={_.id}
+            summary={_.summary}
+            active={_.id === id}
+          />
         ))
+      ) : (
+        <Center>
+          <Text size="sm">
+            Such empty here! Let's start{" "}
+            <Link
+              to="conversations/new"
+              style={{ color: "var(--mantine-color-anchor)" }}
+            >
+              new chat
+            </Link>
+          </Text>
+        </Center>
       )}
     </Stack>
   );

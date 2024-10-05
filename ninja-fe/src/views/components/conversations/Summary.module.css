@@ -1,4 +1,6 @@
-.conversationInput {
+.summaryInput {
+
+    border-radius: calc(0.3125rem * var(--mantine-scale));
 
     [data-disabled], :disabled, input {
         background-color: inherit;
@@ -11,3 +13,4 @@
         cursor: text !important;
     }
 }
+

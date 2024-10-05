@@ -29,6 +29,18 @@ axios.interceptors.response.use(
   },
 );
 
+axios.interceptors.request.use(
+  (config) => {
+    if (config.method?.toLowerCase() === "patch") {
+      config.headers["Content-Type"] = "application/json-patch+json";
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
 export default function App() {
   return (
     <Provider store={store}>

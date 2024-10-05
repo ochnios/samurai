@@ -1,7 +1,8 @@
 import { Container } from "@mantine/core";
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate, useOutletContext } from "react-router-dom";
+
+import { useAppSelector } from "../../hooks/useAppSelector.ts";
 import { RootState } from "../../store.ts";
 
 interface PageProps {
@@ -15,7 +16,7 @@ interface OutletContext {
 
 export default function PageWrapper(props: PageProps) {
   const navigate = useNavigate();
-  const auth = useSelector((state: RootState) => state.auth);
+  const auth = useAppSelector((state: RootState) => state.auth);
   const { setTitle } = useOutletContext<OutletContext>();
 
   useEffect(() => {
