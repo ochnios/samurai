@@ -6,9 +6,7 @@ import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
 
-@Mapper(
-        componentModel = "spring",
-        uses = {MessageMapper.class})
+@Mapper(uses = {MessageMapper.class})
 public interface ConversationMapper {
 
     @Mapping(target = "username", source = "user.username")

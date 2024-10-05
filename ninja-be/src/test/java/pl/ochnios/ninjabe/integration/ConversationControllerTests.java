@@ -1,5 +1,20 @@
 package pl.ochnios.ninjabe.integration;
 
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.ninjabe.TestUtils.asJsonString;
+import static pl.ochnios.ninjabe.TestUtils.asParamsMap;
+import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
+
+import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,22 +35,6 @@ import pl.ochnios.ninjabe.model.seeders.UserSeeder;
 import pl.ochnios.ninjabe.repositories.impl.ConversationCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.MessageCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.UserCrudRepository;
-
-import java.util.Set;
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.ninjabe.TestUtils.asJsonString;
-import static pl.ochnios.ninjabe.TestUtils.asParamsMap;
-import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -196,6 +195,24 @@ public class ConversationControllerTests {
             final var tooLongSummary = generateTooLongString(33);
             final var patch = new JsonPatchDto("replace", "/summary", tooLongSummary);
             test_validation(patch, "summary must have at most");
+        }
+
+        @Test
+        public void patch_conversation_not_patchable_field_400() throws Exception {
+            final var patch = new JsonPatchDto("replace", "/username", "johndoe");
+            test_validation(patch, "'username' is not patchable");
+        }
+
+        @Test
+        public void patch_conversation_not_existing_field_400() throws Exception {
+            final var patch = new JsonPatchDto("add", "/owner", "johndoe");
+            test_validation(patch, "'owner' does not exist in");
+        }
+
+        @Test
+        public void patch_conversation_not_patchable_400() throws Exception {
+            final var patch = new JsonPatchDto("replace", "/username", "johndoe");
+            test_validation(patch, "'username' is not patchable");
         }
 
         private void test_validation(JsonPatchDto jsonPatchDto, String expectedError) throws Exception {
