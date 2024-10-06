@@ -1,5 +1,4 @@
 import { Divider, Grid, Image, Loader, ScrollArea, Stack } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { validate } from "uuid";
@@ -15,6 +14,7 @@ import {
   addConversationSummary,
   setActiveConversation,
 } from "../../reducers/conversationsSlice.ts";
+import { showErrorMessage } from "../../utils.ts";
 import ChatInput from "../components/chat/ChatInput.tsx";
 import ChatMessage from "../components/chat/ChatMessage.tsx";
 import classes from "./ChatPage.module.css";
@@ -49,11 +49,7 @@ export default function ChatPage() {
           else setMessages([]);
         })
         .catch(() => {
-          notifications.show({
-            color: "red",
-            title: "Error",
-            message: "Failed to fetch selected conversation",
-          });
+          showErrorMessage("Failed to fetch selected conversation");
           navigate("/conversations/new");
         })
         .finally(() => setLoading(false));
@@ -96,7 +92,7 @@ export default function ChatPage() {
           dispatch(
             addConversationSummary({
               id: response.conversationId,
-              summary: "New conversation",
+              summary: response.summary!,
             }),
           );
         }
@@ -107,11 +103,7 @@ export default function ChatPage() {
           type: MessageType.ASSISTANT,
           status: MessageStatus.ERROR,
         };
-        notifications.show({
-          color: "red",
-          title: "Error",
-          message: "Failed to send the message",
-        });
+        showErrorMessage("Failed to send the message");
       }
 
       setMessages((prevMessages) => [

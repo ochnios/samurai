@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -14,8 +15,12 @@ import java.util.stream.Collectors;
 public interface PageMapper {
 
     default <T, DTO> PageDto<DTO> map(Page<T> page, Function<T, DTO> mapper) {
-        final var dtos = page.getContent().stream().map(mapper).collect(Collectors.toList());
-        return new PageDto<>(dtos, page.getNumber(), page.getTotalElements(), page.getTotalPages());
+        if(page == null) {
+            return new PageDto<>(List.of(), 0, 0, 0);
+        } else {
+            final var dtos = page.getContent().stream().map(mapper).collect(Collectors.toList());
+            return new PageDto<>(dtos, page.getNumber(), page.getTotalElements(), page.getTotalPages());
+        }
     }
 
     default PageRequest map(PageRequestDto pageRequestDto) {

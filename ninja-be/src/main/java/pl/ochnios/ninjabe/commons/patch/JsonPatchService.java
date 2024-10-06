@@ -5,7 +5,9 @@ import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;
 import java.lang.reflect.Field;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.json.JsonException;
 import javax.json.JsonPatch;
@@ -50,8 +52,8 @@ public class JsonPatchService {
     }
 
     private void validateJsonPatch(PatchDto toBePatched, JsonPatch jsonPatch) {
-        final var fields = Arrays.stream(toBePatched.getClass().getDeclaredFields())
-                .collect(Collectors.toMap(Field::getName, field -> field));
+        final var fields =
+                getAllFields(toBePatched.getClass()).stream().collect(Collectors.toMap(Field::getName, field -> field));
         final var operations = jsonPatch.toJsonArray();
 
         for (var operation : operations) {
@@ -71,6 +73,15 @@ public class JsonPatchService {
                 throw new ValidationException("Field '" + field.getName() + "' is not patchable");
             }
         }
+    }
+
+    public static List<Field> getAllFields(Class<?> clazz) {
+        List<Field> fields = new ArrayList<>();
+        while (clazz != null) {
+            Collections.addAll(fields, clazz.getDeclaredFields());
+            clazz = clazz.getSuperclass();
+        }
+        return fields;
     }
 
     private void validatePatchDto(PatchDto patchDto) {

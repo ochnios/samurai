@@ -84,7 +84,7 @@ public class ConversationControllerTests {
 
         @Test
         public void get_summaries_200() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(CONVERSATIONS_URI);
+            final var requestBuilder = MockMvcRequestBuilders.get(CONVERSATIONS_URI + "/summaries");
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -108,7 +108,7 @@ public class ConversationControllerTests {
 
             final var pageRequest = new PageRequestDto(1, 1, "summary", "asc");
             final var requestBuilder =
-                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(pageRequest));
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI + "/summaries").params(asParamsMap(pageRequest));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(1)))
@@ -124,7 +124,7 @@ public class ConversationControllerTests {
         public void get_summaries_2nd_page_empty_200() throws Exception {
             final var pageRequest = new PageRequestDto(1, 1, null, null);
             final var requestBuilder =
-                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(pageRequest));
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI + "/summaries").params(asParamsMap(pageRequest));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(1)))
@@ -140,7 +140,6 @@ public class ConversationControllerTests {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(conversationId.toString())))
                     .andExpect(jsonPath("$.summary", is(conversationSummary)))
-                    .andExpect(jsonPath("$.username", is("user")))
                     .andExpect(jsonPath("$.createdAt", is(not(blankOrNullString()))));
         }
 
@@ -167,7 +166,6 @@ public class ConversationControllerTests {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(conversationId.toString())))
                     .andExpect(jsonPath("$.summary", is(patch.getValue())))
-                    .andExpect(jsonPath("$.username", is("user")))
                     .andExpect(jsonPath("$.createdAt", is(not(blankOrNullString()))));
         }
 
@@ -198,20 +196,14 @@ public class ConversationControllerTests {
 
         @Test
         public void patch_conversation_not_patchable_field_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/username", "johndoe");
-            test_validation(patch, "'username' is not patchable");
+            final var patch = new JsonPatchDto("replace", "/id", UUID.nameUUIDFromBytes("fake".getBytes()));
+            test_validation(patch, "'id' is not patchable");
         }
 
         @Test
         public void patch_conversation_not_existing_field_400() throws Exception {
             final var patch = new JsonPatchDto("add", "/owner", "johndoe");
             test_validation(patch, "'owner' does not exist in");
-        }
-
-        @Test
-        public void patch_conversation_not_patchable_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/username", "johndoe");
-            test_validation(patch, "'username' is not patchable");
         }
 
         private void test_validation(JsonPatchDto jsonPatchDto, String expectedError) throws Exception {
@@ -245,5 +237,19 @@ public class ConversationControllerTests {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.errors[0]", containsString("Not found")));
         }
+    }
+
+    @Nested
+    @DisplayName("Search forbidden")
+    @WithMockUser(username = "user")
+    class SearchForbidden {
+        // TODO write search tests
+    }
+
+    @Nested
+    @DisplayName("Search")
+    @WithMockUser(username = "mod")
+    class Search {
+        // TODO write search tests
     }
 }

@@ -14,6 +14,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import pl.ochnios.ninjabe.model.dtos.conversation.ConversationCriteria;
+import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDetailsDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
@@ -27,6 +29,14 @@ public interface ConversationApi {
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_400)
     ResponseEntity<PageDto<ConversationSummaryDto>> getSummaries(@ParameterObject PageRequestDto pageRequestDto);
+
+    @Operation(
+            summary = "${docs.ctrl.conversation.getConversations}",
+            description = "${docs.ctrl.conversation.getConversations.desc}")
+    @ApiResponse(responseCode = HTTP_200)
+    @ApiResponse(responseCode = HTTP_400)
+    ResponseEntity<PageDto<ConversationDetailsDto>> getConversations(
+            @ParameterObject ConversationCriteria criteria, @ParameterObject PageRequestDto pageRequestDto);
 
     @Operation(summary = "${docs.ctrl.conversation.get}")
     @ApiResponse(responseCode = HTTP_200)

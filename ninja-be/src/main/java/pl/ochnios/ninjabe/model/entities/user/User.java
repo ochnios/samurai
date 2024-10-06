@@ -110,4 +110,12 @@ public class User implements UserDetails {
     public int hashCode() {
         return Objects.hashCode(username);
     }
+
+    public boolean hasAdminRole() {
+        return this.role.equals(Role.Admin);
+    }
+
+    public boolean hasModRole() {
+        return this.role.equals(Role.Mod);
+    }
 }

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { ConversationSummary } from "../model/api/ConversationSummary.ts";
+import { ConversationSummary } from "../model/api/Conversation.ts";
 import { PageRequestImpl, SortDir } from "../model/api/PageRequest.ts";
 import { fetchConversationsSummaries } from "../model/service/conversationService.ts";
 
@@ -37,6 +37,7 @@ const conversationsSlice = createSlice({
       const summary: ConversationSummary = {
         id: action.payload.id,
         summary: action.payload.summary,
+        createdAt: new Date().toISOString(),
       };
       state.conversations = [summary, ...state.conversations];
     },

@@ -1,6 +1,5 @@
 import axios from "axios";
-import { Conversation } from "../api/Conversation.ts";
-import { ConversationSummary } from "../api/ConversationSummary.ts";
+import { Conversation, ConversationSummary } from "../api/Conversation.ts";
 import { Page } from "../api/Page.ts";
 import { PageRequest } from "../api/PageRequest.ts";
 import { Patch } from "../api/Patch.ts";
@@ -24,7 +23,9 @@ export const fetchConversationsSummaries = async (
 ): Promise<Page<ConversationSummary>> => {
   const pageRequestParams = pageRequest.getUrl();
   return await axios
-    .get<Page<ConversationSummary>>(`${conversationsUrl}?${pageRequestParams}`)
+    .get<Page<ConversationSummary>>(
+      `${conversationsUrl}/summaries?${pageRequestParams}`,
+    )
     .then((response) => response.data)
     .catch((error) => {
       console.error(error);
