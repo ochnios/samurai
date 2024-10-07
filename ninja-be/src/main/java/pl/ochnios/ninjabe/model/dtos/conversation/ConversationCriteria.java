@@ -1,9 +1,11 @@
 package pl.ochnios.ninjabe.model.dtos.conversation;
 
 import java.time.Instant;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class ConversationCriteria {
 
     private String globalSearch;
@@ -14,4 +16,5 @@ public class ConversationCriteria {
     private String summary;
     private String userFirstname;
     private String userLastname;
+    private Boolean deleted;
 }

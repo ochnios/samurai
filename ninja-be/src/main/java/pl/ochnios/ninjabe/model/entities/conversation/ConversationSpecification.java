@@ -1,11 +1,10 @@
 package pl.ochnios.ninjabe.model.entities.conversation;
 
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.domain.Specification;
-import pl.ochnios.ninjabe.model.dtos.conversation.ConversationCriteria;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+import pl.ochnios.ninjabe.model.dtos.conversation.ConversationCriteria;
 
 public class ConversationSpecification {
 
@@ -49,14 +48,18 @@ public class ConversationSpecification {
 
             if (criteria.getUserFirstname() != null) {
                 predicates.add(builder.like(
-                        builder.lower(root.join("user").get("firstName")),
+                        builder.lower(root.join("user").get("firstname")),
                         "%" + criteria.getUserFirstname().toLowerCase() + "%"));
             }
 
             if (criteria.getUserLastname() != null) {
                 predicates.add(builder.like(
-                        builder.lower(root.join("user").get("lastName")),
+                        builder.lower(root.join("user").get("lastname")),
                         "%" + criteria.getUserLastname().toLowerCase() + "%"));
+            }
+
+            if (criteria.getDeleted() != null) {
+                predicates.add(builder.equal(root.get("deleted"), criteria.getDeleted()));
             }
 
             return builder.and(predicates.toArray(new Predicate[0]));

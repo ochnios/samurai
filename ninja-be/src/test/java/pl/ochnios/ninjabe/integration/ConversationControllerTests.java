@@ -12,6 +12,9 @@ import static pl.ochnios.ninjabe.TestUtils.asJsonString;
 import static pl.ochnios.ninjabe.TestUtils.asParamsMap;
 import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,12 +31,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.ochnios.ninjabe.commons.AppConstants;
 import pl.ochnios.ninjabe.commons.patch.JsonPatchDto;
+import pl.ochnios.ninjabe.model.dtos.conversation.ConversationCriteria;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.model.entities.conversation.Conversation;
+import pl.ochnios.ninjabe.model.entities.conversation.MessageEntity;
 import pl.ochnios.ninjabe.model.seeders.ConversationSeeder;
 import pl.ochnios.ninjabe.model.seeders.UserSeeder;
 import pl.ochnios.ninjabe.repositories.impl.ConversationCrudRepository;
-import pl.ochnios.ninjabe.repositories.impl.MessageCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.UserCrudRepository;
 
 @SpringBootTest
@@ -56,10 +61,8 @@ public class ConversationControllerTests {
     @Autowired
     private ConversationCrudRepository conversationCrudRepository;
 
-    @Autowired
-    private MessageCrudRepository messageCrudRepository;
-
     private final UUID conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
+    private final String conversationSummary = "New conversation";
 
     @BeforeAll
     public void setup() {
@@ -70,7 +73,6 @@ public class ConversationControllerTests {
     @BeforeEach
     public void beforeEach() {
         conversationCrudRepository.deleteAll();
-        messageCrudRepository.deleteAll();
         conversationSeeder.seed();
     }
 
@@ -78,9 +80,6 @@ public class ConversationControllerTests {
     @DisplayName("Get")
     @WithMockUser(username = "user")
     class Get {
-
-        private final UUID conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
-        private final String conversationSummary = "New conversation";
 
         @Test
         public void get_summaries_200() throws Exception {
@@ -243,13 +242,256 @@ public class ConversationControllerTests {
     @DisplayName("Search forbidden")
     @WithMockUser(username = "user")
     class SearchForbidden {
-        // TODO write search tests
+        @Test
+        public void get_conversations_403() throws Exception {
+            final var requestBuilder = MockMvcRequestBuilders.get(CONVERSATIONS_URI);
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.errors[0]", containsString("Access Denied")));
+        }
     }
 
     @Nested
     @DisplayName("Search")
-    @WithMockUser(username = "mod")
+    @WithMockUser(username = "mod", roles = "MOD")
     class Search {
-        // TODO write search tests
+
+        private Conversation userConv;
+        private Conversation modConv;
+        private Conversation adminConv;
+
+        @BeforeAll
+        public void beforeAll() {
+            userConv = createConversation("Some user conversation", "user");
+            modConv = createConversation("Some mod conversation", "mod");
+            adminConv = createConversation("Some admin conversation", "admin");
+        }
+
+        @BeforeEach
+        public void beforeEach() {
+            conversationCrudRepository.deleteAll();
+            conversationCrudRepository.saveAll(List.of(userConv, modConv, adminConv));
+        }
+
+        @Test
+        public void search_no_filter() throws Exception {
+            final var requestBuilder = MockMvcRequestBuilders.get(CONVERSATIONS_URI);
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(3)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(3)));
+        }
+
+        @Test
+        public void search_summary_filter() throws Exception {
+            final var searchCriteria =
+                    ConversationCriteria.builder().summary("user").build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(1)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(1)))
+                    .andExpect(jsonPath("$.items[0].id", is(userConv.getId().toString())))
+                    .andExpect(jsonPath("$.items[0].summary", is(userConv.getSummary())));
+        }
+
+        @Test
+        public void search_by_user_firstname() throws Exception {
+            final var searchCriteria =
+                    ConversationCriteria.builder().userFirstname("John").build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(3)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(3)));
+        }
+
+        @Test
+        public void search_by_user_lastname() throws Exception {
+            final var searchCriteria = ConversationCriteria.builder()
+                    .userLastname(userConv.getUser().getLastname())
+                    .build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(1)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(1)))
+                    .andExpect(jsonPath("$.items[0].id", is(userConv.getId().toString())))
+                    .andExpect(jsonPath(
+                            "$.items[0].user.lastname", is(userConv.getUser().getLastname())));
+        }
+
+        @Test
+        public void search_by_deleted() throws Exception {
+            userConv.setDeleted(true);
+            conversationCrudRepository.save(userConv);
+
+            final var searchCriteria =
+                    ConversationCriteria.builder().deleted(true).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(1)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(1)))
+                    .andExpect(jsonPath("$.items[0].id", is(userConv.getId().toString())))
+                    .andExpect(jsonPath("$.items[0].deleted", is(true)));
+        }
+
+        @Test
+        public void search_by_min_message_count_no_results() throws Exception {
+            final var searchCriteria =
+                    ConversationCriteria.builder().minMessageCount(1).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(0)))
+                    .andExpect(jsonPath("$.totalPages", is(0)))
+                    .andExpect(jsonPath("$.items", hasSize(0)));
+        }
+
+        @Test
+        public void search_by_min_message_count_all_results() throws Exception {
+            final var searchCriteria =
+                    ConversationCriteria.builder().minMessageCount(0).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(3)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(3)));
+        }
+
+        @Test
+        public void search_by_max_message_count_no_results() throws Exception {
+            userConv.setMessages(createMessages(userConv));
+            modConv.setMessages(createMessages(modConv));
+            adminConv.setMessages(createMessages(adminConv));
+            conversationCrudRepository.saveAll(List.of(userConv, modConv, adminConv));
+
+            final var searchCriteria =
+                    ConversationCriteria.builder().maxMessageCount(1).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(0)))
+                    .andExpect(jsonPath("$.totalPages", is(0)))
+                    .andExpect(jsonPath("$.items", hasSize(0)));
+        }
+
+        @Test
+        public void search_by_max_message_count_all_results() throws Exception {
+            final var searchCriteria =
+                    ConversationCriteria.builder().maxMessageCount(10).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(3)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(3)));
+        }
+
+        @Test
+        public void search_by_min_created_at_no_results() throws Exception {
+            final var searchCriteria =
+                    ConversationCriteria.builder().minCreatedAt(Instant.now()).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(0)))
+                    .andExpect(jsonPath("$.totalPages", is(0)))
+                    .andExpect(jsonPath("$.items", hasSize(0)));
+        }
+
+        @Test
+        public void search_by_min_created_at_all_results() throws Exception {
+            final var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
+            final var searchCriteria =
+                    ConversationCriteria.builder().minCreatedAt(oneHourEarlier).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(3)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(3)));
+        }
+
+        @Test
+        public void search_by_max_created_at_no_results() throws Exception {
+            final var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
+            final var searchCriteria =
+                    ConversationCriteria.builder().maxCreatedAt(oneHourEarlier).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(0)))
+                    .andExpect(jsonPath("$.totalPages", is(0)))
+                    .andExpect(jsonPath("$.items", hasSize(0)));
+        }
+
+        @Test
+        public void search_by_max_created_at_all_results() throws Exception {
+            final var searchCriteria =
+                    ConversationCriteria.builder().maxCreatedAt(Instant.now()).build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(3)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(3)));
+        }
+
+        private Conversation createConversation(String summary, String username) {
+            final var conversationId = UUID.nameUUIDFromBytes(summary.getBytes());
+            final var user = userCrudRepository.findByUsername(username);
+            return Conversation.builder()
+                    .id(conversationId)
+                    .user(user.orElseThrow(() -> new RuntimeException("User " + username + " not found")))
+                    .summary(summary)
+                    .build();
+        }
+
+        private List<MessageEntity> createMessages(Conversation conversation) {
+            final var userMessage = MessageEntity.builder()
+                    .conversation(conversation)
+                    .content("Hello!")
+                    .type(MessageType.USER)
+                    .build();
+            final var assistantMessage = MessageEntity.builder()
+                    .conversation(conversation)
+                    .content("Hi!")
+                    .type(MessageType.ASSISTANT)
+                    .build();
+            return List.of(userMessage, assistantMessage);
+        }
     }
 }

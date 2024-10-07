@@ -17,4 +17,7 @@ public class ConversationDetailsDto extends ConversationSummaryDto {
 
     @Schema(description = "${docs.dto.conversation.messageCount}")
     private int messageCount;
+
+    @Schema(description = "${docs.dto.conversation.deleted}")
+    private boolean deleted;
 }

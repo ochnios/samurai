@@ -1,15 +1,17 @@
 package pl.ochnios.ninjabe.model.dtos.conversation;
 
-import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.ochnios.ninjabe.commons.patch.NotPatchable;
+
+import java.time.Instant;
+import java.util.UUID;
+
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 
 @Data
 @AllArgsConstructor
@@ -29,5 +31,5 @@ public class ConversationSummaryDto {
 
     @NotPatchable
     @Schema(description = "${docs.dto.conversation.createdAt}", accessMode = READ_ONLY)
-    private String createdAt;
+    private Instant createdAt;
 }
