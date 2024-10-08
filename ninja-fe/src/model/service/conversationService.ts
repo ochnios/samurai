@@ -1,5 +1,11 @@
 import axios from "axios";
-import { Conversation, ConversationSummary } from "../api/Conversation.ts";
+import { mergeParameters } from "../../utils.ts";
+import {
+  Conversation,
+  ConversationCriteria,
+  ConversationDetails,
+  ConversationSummary,
+} from "../api/Conversation.ts";
 import { Page } from "../api/Page.ts";
 import { PageRequest } from "../api/PageRequest.ts";
 import { Patch } from "../api/Patch.ts";
@@ -22,10 +28,9 @@ export const fetchConversationsSummaries = async (
   pageRequest: PageRequest,
 ): Promise<Page<ConversationSummary>> => {
   const pageRequestParams = pageRequest.getUrl();
+  const params = mergeParameters(pageRequestParams);
   return await axios
-    .get<Page<ConversationSummary>>(
-      `${conversationsUrl}/summaries?${pageRequestParams}`,
-    )
+    .get<Page<ConversationSummary>>(`${conversationsUrl}/summaries${params}`)
     .then((response) => response.data)
     .catch((error) => {
       console.error(error);
@@ -33,6 +38,21 @@ export const fetchConversationsSummaries = async (
     });
 };
 
+export const fetchConversations = async (
+  criteria: ConversationCriteria,
+  pageRequest: PageRequest,
+): Promise<Page<ConversationDetails>> => {
+  const criteriaParams = criteria.getUrl();
+  const pageRequestParams = pageRequest.getUrl();
+  const params = mergeParameters(criteriaParams, pageRequestParams);
+  return await axios
+    .get<Page<ConversationDetails>>(`${conversationsUrl}${params}`)
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
+};
 export const patchConversation = async (
   conversationId: string,
   patch: Patch[],

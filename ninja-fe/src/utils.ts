@@ -15,3 +15,11 @@ export function showErrorMessage(message: string) {
     message: message,
   });
 }
+
+export function mergeParameters(...args: string[]): string {
+  if (!args.length || args.some((s) => s === "")) {
+    return "";
+  }
+  const merged = args.join("&");
+  return `?${merged}`;
+}

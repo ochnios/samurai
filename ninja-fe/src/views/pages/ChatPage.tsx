@@ -116,11 +116,8 @@ export default function ChatPage() {
   return (
     <>
       <Grid className={classes.grid}>
-        <Grid.Col span={{ base: 12, lg: 1, xl: 2 }} p={0}></Grid.Col>
-        <Grid.Col
-          span={{ base: 12, lg: 10, xl: 8 }}
-          className={classes.messages}
-        >
+        <Grid.Col span={{ base: 12, lg: 1 }} p={0}></Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 10 }} className={classes.messages}>
           <ScrollArea
             h="calc(100dvh - 180px)"
             viewportRef={viewport}
@@ -161,7 +158,7 @@ export default function ChatPage() {
           <Divider my="sm"></Divider>
           <ChatInput submitMessage={(value) => submitMessage(value)} />
         </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 1, xl: 2 }} p={0}></Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 1 }} p={0}></Grid.Col>
       </Grid>
     </>
   );

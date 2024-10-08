@@ -1,13 +1,16 @@
 import { Container } from "@mantine/core";
 import React, { useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-
-import { useAppSelector } from "../../hooks/useAppSelector.ts";
-import { RootState } from "../../store.ts";
+import { useAuth } from "../../hooks/useAuth.ts";
+import { useIsAdmin } from "../../hooks/useIsAdmin.ts";
+import { useIsMod } from "../../hooks/useIsMod.ts";
+import { Role } from "../../model/api/User.ts";
+import { showErrorMessage } from "../../utils.ts";
 
 interface PageProps {
   title?: string;
   content?: React.ReactNode;
+  access?: Role;
 }
 
 interface OutletContext {
@@ -15,17 +18,29 @@ interface OutletContext {
 }
 
 export default function PageWrapper(props: PageProps) {
-  const navigate = useNavigate();
-  const auth = useAppSelector((state: RootState) => state.auth);
   const { setTitle } = useOutletContext<OutletContext>();
+  const navigate = useNavigate();
+  const auth = useAuth();
+  const isAdmin = useIsAdmin();
+  const isMod = useIsMod();
 
   useEffect(() => {
     if (!auth.authenticated) navigate("/login");
-  }, [auth.authenticated]);
+  }, [auth]);
 
   useEffect(() => {
     setTitle(props.title);
   }, [props.title]);
+
+  useEffect(() => {
+    if (
+      (!isMod && props.access === Role.Mod) ||
+      (!isAdmin && props.access === Role.Admin)
+    ) {
+      showErrorMessage("You don't have access to this page!");
+      navigate("/login");
+    }
+  }, [navigate, props.access, auth]);
 
   return (
     <Container fluid m={0} p={0} pt="sm" h="calc(100dvh - 92px)">

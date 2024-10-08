@@ -6,28 +6,32 @@ import {
   IconLogout,
   IconMessagePlus,
   IconMessages,
-  IconRobot,
   IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
 
 import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
+import { useIsMod } from "../../hooks/useIsMod.ts";
 import { logout } from "../../reducers/authSlice.ts";
 import Conversations from "../components/conversations/Conversations.tsx";
 import NavLink from "../components/navigation/NavLink.tsx";
 import classes from "./Navigation.module.css";
 
-const data = [
-  { link: "/documents", label: "Documents", icon: IconFile },
-  { link: "/statistics", label: "Statistics", icon: IconChartBar },
-  { link: "/models", label: "Models", icon: IconRobot },
+const modLinks = [
   { link: "/users", label: "Users", icon: IconUsers },
+  { link: "/statistics", label: "Statistics", icon: IconChartBar },
+  { link: "/conversations/all", label: "Conversations", icon: IconMessagePlus },
+];
+
+const links = [
+  { link: "/documents", label: "Documents", icon: IconFile },
   { link: "/conversations/new", label: "New chat", icon: IconMessagePlus },
 ];
 
 export default function Navigation() {
   const { ref, height } = useElementSize();
   const dispatch = useAppDispatch();
+  const isMod = useIsMod();
 
   const handleLogout = (e: any) => {
     e.preventDefault();
@@ -37,7 +41,13 @@ export default function Navigation() {
   return (
     <Box className={classes.navbar}>
       <Box className={classes.links}>
-        {data.map((item) => (
+        {isMod &&
+          modLinks.map((item) => (
+            <NavLink link={item.link} icon={item.icon} key={item.link}>
+              {item.label}
+            </NavLink>
+          ))}
+        {links.map((item) => (
           <NavLink link={item.link} icon={item.icon} key={item.link}>
             {item.label}
           </NavLink>

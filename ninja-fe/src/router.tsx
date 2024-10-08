@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import { Role } from "./model/api/User.ts";
 import { Layout } from "./views/layout/Layout.tsx";
 import ChatPage from "./views/pages/ChatPage.tsx";
+import ConversationsPage from "./views/pages/ConversationsPage.tsx";
 import DummyPage from "./views/pages/DummyPage.tsx";
 import LoginPage from "./views/pages/LoginPage.tsx";
 import PageWrapper from "./views/pages/PageWrapper.tsx";
@@ -18,24 +20,38 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "assistants",
-        element: <PageWrapper title="Assistants" content={<DummyPage />} />,
+        path: "users",
+        element: (
+          <PageWrapper
+            title="Users"
+            content={<DummyPage />}
+            access={Role.Mod}
+          />
+        ),
+      },
+      {
+        path: "statistics",
+        element: (
+          <PageWrapper
+            title="Statistics"
+            content={<DummyPage />}
+            access={Role.Mod}
+          />
+        ),
+      },
+      {
+        path: "conversations/all",
+        element: (
+          <PageWrapper
+            title="Conversations"
+            content={<ConversationsPage />}
+            access={Role.Mod}
+          />
+        ),
       },
       {
         path: "documents",
         element: <PageWrapper title="Documents" content={<DummyPage />} />,
-      },
-      {
-        path: "statistics",
-        element: <PageWrapper title="Statistics" content={<DummyPage />} />,
-      },
-      {
-        path: "models",
-        element: <PageWrapper title="Models" content={<DummyPage />} />,
-      },
-      {
-        path: "users",
-        element: <PageWrapper title="Users" content={<DummyPage />} />,
       },
       {
         path: "conversations/:id",

@@ -13,7 +13,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconMoon, IconSun, IconUserCircle } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAppSelector } from "../../hooks/useAppSelector.ts";
+import { useAuth } from "../../hooks/useAuth.ts";
 import { Role } from "../../model/api/User.ts";
 import classes from "./Header.module.css";
 
@@ -29,7 +29,7 @@ export default function Header(props: HeaderProps) {
   const { colorScheme, setColorScheme } = useMantineColorScheme({
     keepTransitions: true,
   });
-  const auth = useAppSelector((state) => state.auth);
+  const auth = useAuth();
 
   useEffect(() => {
     if (props.opened) {
@@ -57,7 +57,7 @@ export default function Header(props: HeaderProps) {
           </Group>
         </Link>
         <Code fw={700} visibleFrom="sm" mb="-5px">
-          v1.0.1
+          v0.0.1
         </Code>
         <Title order={2} ml={85} visibleFrom="sm">
           {props.title}

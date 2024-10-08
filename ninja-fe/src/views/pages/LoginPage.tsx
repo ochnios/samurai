@@ -15,18 +15,17 @@ import { notifications } from "@mantine/notifications";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
-import { useAppSelector } from "../../hooks/useAppSelector.ts";
+import { useAuth } from "../../hooks/useAuth.ts";
 import { Login } from "../../model/api/Login.ts";
 import { authenticate } from "../../reducers/authSlice.ts";
 import { resetConversationList } from "../../reducers/conversationsSlice.ts";
-import { RootState } from "../../store.ts";
 import { showNotImplementedMessage } from "../../utils.ts";
 
 export default function LoginPage() {
   useDocumentTitle("Sign in | DocsNinja");
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const auth = useAppSelector((state: RootState) => state.auth);
+  const auth = useAuth();
 
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
