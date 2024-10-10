@@ -48,18 +48,18 @@ public class ConversationService {
 
     @Transactional(readOnly = true)
     public PageDto<ConversationSummaryDto> getSummariesPage(User user, PageRequestDto pageRequestDto) {
-        final var pageRequest = pageMapper.map(pageRequestDto);
+        final var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
         final var conversationsPage = conversationRepository.findAllByUser(user, pageRequest);
-        return pageMapper.map(conversationsPage, conversationMapper::mapToSummary);
+        return pageMapper.validOrDefaultSort(conversationsPage, conversationMapper::mapToSummary);
     }
 
     @Transactional(readOnly = true)
     public PageDto<ConversationDetailsDto> getDetailsPage(
             ConversationCriteria criteria, PageRequestDto pageRequestDto) {
-        final var pageRequest = pageMapper.map(pageRequestDto);
+        final var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
         final var specification = ConversationSpecification.create(criteria);
         final var conversationsPage = conversationRepository.findAllIncludingDeleted(specification, pageRequest);
-        return pageMapper.map(conversationsPage, conversationMapper::mapToDetails);
+        return pageMapper.validOrDefaultSort(conversationsPage, conversationMapper::mapToDetails);
     }
 
     @Transactional
@@ -76,7 +76,7 @@ public class ConversationService {
 
         final var conversation = conversationRepository.findByUserAndId(user, conversationId);
         final var messages = messageMapper.map(conversation, messageDtos);
-        conversation.getMessages().addAll(messages);
+        conversation.addMessages(messages);
         conversationRepository.save(conversation);
         log.info("Messages for conversation {} saved", conversationId);
     }

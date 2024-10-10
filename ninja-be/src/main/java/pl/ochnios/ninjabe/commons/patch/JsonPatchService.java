@@ -13,14 +13,12 @@ import javax.json.JsonException;
 import javax.json.JsonPatch;
 import javax.json.JsonStructure;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.ochnios.ninjabe.commons.exceptions.JsonPatchException;
 import pl.ochnios.ninjabe.commons.exceptions.ValidationException;
 import pl.ochnios.ninjabe.model.dtos.PatchDto;
 import pl.ochnios.ninjabe.model.entities.PatchableEntity;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JsonPatchService {

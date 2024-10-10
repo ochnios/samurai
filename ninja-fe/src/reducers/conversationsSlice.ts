@@ -21,7 +21,12 @@ export const fetchConversations = createAsyncThunk(
   "fetchConversations",
   async () => {
     // TODO Add "Load more" button in the future
-    const pageRequest = new PageRequestImpl(0, 100, "createdAt", SortDir.DESC);
+    const pageRequest = new PageRequestImpl(
+      0,
+      100,
+      ["createdAt"],
+      [SortDir.DESC],
+    );
     return fetchConversationsSummaries(pageRequest);
   },
 );

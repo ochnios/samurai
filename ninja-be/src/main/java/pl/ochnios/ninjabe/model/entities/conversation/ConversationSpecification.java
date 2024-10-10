@@ -13,23 +13,23 @@ public class ConversationSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             if (criteria.getGlobalSearch() != null) {
-                String globalSearch = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
-                final var summaryPredicate = builder.like(builder.lower(root.get("summary")), globalSearch);
-                final var firstNamePredicate =
-                        builder.like(builder.lower(root.join("user").get("firstname")), globalSearch);
-                final var lastNamePredicate =
-                        builder.like(builder.lower(root.join("user").get("lastname")), globalSearch);
-                predicates.add(builder.or(summaryPredicate, firstNamePredicate, lastNamePredicate));
+                String globalSearchPattern = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
+                final var summaryPredicate = builder.like(builder.lower(root.get("summary")), globalSearchPattern);
+                String fullNamePattern = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
+                final var fullNamePredicate = builder.like(
+                        builder.lower(builder.concat(
+                                builder.concat(root.join("user").get("lastname"), " "),
+                                root.join("user").get("firstname"))),
+                        fullNamePattern);
+                predicates.add(builder.or(summaryPredicate, fullNamePredicate));
             }
 
             if (criteria.getMinMessageCount() != null) {
-                predicates.add(builder.greaterThanOrEqualTo(
-                        builder.size(root.get("messages")), criteria.getMinMessageCount()));
+                predicates.add(builder.greaterThanOrEqualTo(root.get("messageCount"), criteria.getMinMessageCount()));
             }
 
             if (criteria.getMaxMessageCount() != null) {
-                predicates.add(
-                        builder.lessThanOrEqualTo(builder.size(root.get("messages")), criteria.getMaxMessageCount()));
+                predicates.add(builder.lessThanOrEqualTo(root.get("messageCount"), criteria.getMaxMessageCount()));
             }
 
             if (criteria.getMinCreatedAt() != null) {
@@ -46,16 +46,14 @@ public class ConversationSpecification {
                         "%" + criteria.getSummary().toLowerCase() + "%"));
             }
 
-            if (criteria.getUserFirstname() != null) {
-                predicates.add(builder.like(
-                        builder.lower(root.join("user").get("firstname")),
-                        "%" + criteria.getUserFirstname().toLowerCase() + "%"));
-            }
-
-            if (criteria.getUserLastname() != null) {
-                predicates.add(builder.like(
-                        builder.lower(root.join("user").get("lastname")),
-                        "%" + criteria.getUserLastname().toLowerCase() + "%"));
+            if (criteria.getUserFullName() != null) {
+                String fullNamePattern = "%" + criteria.getUserFullName().toLowerCase() + "%";
+                final var fullNamePredicate = builder.like(
+                        builder.lower(builder.concat(
+                                builder.concat(root.join("user").get("lastname"), " "),
+                                root.join("user").get("firstname"))),
+                        fullNamePattern);
+                predicates.add(fullNamePredicate);
             }
 
             if (criteria.getDeleted() != null) {

@@ -28,7 +28,7 @@ public class ConversationSeeder implements DataSeeder {
                 .user(user)
                 .summary("New conversation")
                 .build();
-        conversation.setMessages(createMessages(conversation));
+        conversation.addMessages(createMessages(conversation));
         final var savedConversation = conversationRepository.save(conversation);
 
         log.info("Created conversation: {}", savedConversation);

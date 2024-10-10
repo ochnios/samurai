@@ -18,7 +18,6 @@ public class ConversationCriteria {
     private Instant minCreatedAt;
     private Instant maxCreatedAt;
     private String summary;
-    private String userFirstname;
-    private String userLastname;
+    private String userFullName;
     private Boolean deleted;
 }

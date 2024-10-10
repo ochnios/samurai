@@ -1,9 +1,6 @@
 package pl.ochnios.ninjabe.model.mappers;
 
-import java.util.List;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDetailsDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationDto;
 import pl.ochnios.ninjabe.model.dtos.conversation.ConversationSummaryDto;
@@ -16,11 +13,5 @@ public interface ConversationMapper {
 
     ConversationSummaryDto mapToSummary(Conversation conversation);
 
-    @Mapping(target = "messageCount", source = "messages", qualifiedByName = "mapListSize")
     ConversationDetailsDto mapToDetails(Conversation conversation);
-
-    @Named("mapListSize")
-    default int mapListSize(List<?> items) {
-        return items == null ? 0 : items.size();
-    }
 }

@@ -3,6 +3,9 @@ import { IconEye } from "@tabler/icons-react";
 import {
   MantineReactTable,
   MRT_ColumnDef,
+  MRT_ColumnFiltersState,
+  MRT_PaginationState,
+  MRT_SortingState,
   useMantineReactTable,
 } from "mantine-react-table";
 import { useEffect, useMemo, useState } from "react";
@@ -16,40 +19,66 @@ import { PageRequestImpl } from "../../model/api/PageRequest.ts";
 import { User } from "../../model/api/User.ts";
 import { fetchConversations } from "../../model/service/conversationService.ts";
 import { showErrorMessage } from "../../utils.ts";
+import HighlightedText from "../components/table/HiglightedText.tsx";
 
 export default function ConversationsPage() {
+  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+    [],
+  );
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState<MRT_PaginationState>({
+    pageIndex: 0,
+    pageSize: 5,
+  });
+  const [sorting, setSorting] = useState<MRT_SortingState>([]);
   const [loading, setLoading] = useState(false);
-  const [conversations, setConversations] =
-    useState<Page<ConversationDetails>>();
+  const [page, setPage] = useState<Page<ConversationDetails>>();
 
   useEffect(() => {
     setLoading(true);
-    const criteria = new ConversationCriteriaImpl({});
-    const pageRequest = new PageRequestImpl();
+
+    const processedSorting = sorting.flatMap((s) =>
+      s.id == "user"
+        ? [
+            { id: "user.lastname", desc: s.desc },
+            { id: "user.firstname", desc: s.desc },
+          ]
+        : [s],
+    );
+
+    console.log(globalFilter);
+    const criteria = ConversationCriteriaImpl.of(globalFilter, columnFilters);
+    const pageRequest = PageRequestImpl.of(pagination, processedSorting);
+
     fetchConversations(criteria, pageRequest)
-      .then((response) => setConversations(response))
+      .then((response) => setPage(response))
       .catch(() => {
         showErrorMessage("Failed to fetch conversations");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [columnFilters, globalFilter, pagination, sorting]);
 
   const columns = useMemo<MRT_ColumnDef<ConversationDetails>[]>(
     () => [
       {
-        accessorKey: "deleted",
-        header: "Deleted",
-        enableEditing: false,
-        accessorFn: (row) => (row.deleted ? "Yes" : "No"),
-        filterVariant: "select",
-        mantineFilterSelectProps: {
-          data: ["Yes", "No"],
-        },
-      },
-      {
         accessorKey: "summary",
         header: "Summary",
         enableEditing: false,
+      },
+      {
+        accessorKey: "user",
+        header: "User",
+        enableEditing: false,
+        Cell: ({ cell }) => (
+          <HighlightedText
+            text={`${cell.getValue<User>().lastname} ${cell.getValue<User>().firstname}`}
+            phrase={
+              globalFilter
+                ? globalFilter
+                : (columnFilters.find((e) => e.id == "user")?.value as string)
+            }
+          />
+        ),
       },
       {
         accessorKey: "messageCount",
@@ -59,21 +88,17 @@ export default function ConversationsPage() {
         filterFn: "betweenInclusive",
       },
       {
-        accessorKey: "user",
-        header: "User",
+        accessorKey: "deleted",
+        header: "Deleted",
         enableEditing: false,
-        filterVariant: "multi-select",
+        accessorFn: (row) => (row.deleted ? "Yes" : "No"),
+        filterVariant: "select",
         mantineFilterSelectProps: {
           data: [
-            ...new Set(
-              conversations?.items.map(
-                (c) => `${c.user.firstname} ${c.user.lastname}`,
-              ),
-            ),
+            { label: "Yes", value: "true" },
+            { label: "No", value: "false" },
           ],
         },
-        Cell: ({ cell }) =>
-          `${cell.getValue<User>().firstname} ${cell.getValue<User>().lastname}`,
       },
       {
         accessorKey: "createdAt",
@@ -87,21 +112,18 @@ export default function ConversationsPage() {
             .toLocaleTimeString()}`,
       },
     ],
-    [conversations],
+    [page],
   );
 
   const table = useMantineReactTable({
     columns: columns,
-    data: conversations?.items ?? [],
+    data: page?.items ?? [],
     editDisplayMode: "row",
     enableEditing: true,
-    enableMultiSort: true,
     renderRowActions: ({ row }) => (
       <Flex gap="md">
         <Tooltip label="Preview">
-          <Link
-            to={`/conversations/${conversations?.items[row.index].id}?preview=1`}
-          >
+          <Link to={`/conversations/${page?.items[row.index].id}?preview=1`}>
             <ActionIcon>
               <IconEye />
             </ActionIcon>
@@ -109,8 +131,20 @@ export default function ConversationsPage() {
         </Tooltip>
       </Flex>
     ),
+    manualFiltering: true,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    manualPagination: true,
+    onPaginationChange: setPagination,
+    rowCount: page?.totalElements,
+    manualSorting: true,
+    onSortingChange: setSorting,
     state: {
       isLoading: loading,
+      columnFilters: columnFilters,
+      globalFilter: globalFilter,
+      pagination: pagination,
+      sorting: sorting,
     },
   });
 

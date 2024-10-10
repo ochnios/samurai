@@ -25,20 +25,17 @@ export default function PageWrapper(props: PageProps) {
   const isMod = useIsMod();
 
   useEffect(() => {
-    if (!auth.authenticated) navigate("/login");
-  }, [auth]);
-
-  useEffect(() => {
     setTitle(props.title);
   }, [props.title]);
 
   useEffect(() => {
-    if (
+    if (!auth.authenticated) {
+      navigate("/login");
+    } else if (
       (!isMod && props.access === Role.Mod) ||
       (!isAdmin && props.access === Role.Admin)
     ) {
       showErrorMessage("You don't have access to this page!");
-      navigate("/login");
     }
   }, [navigate, props.access, auth]);
 

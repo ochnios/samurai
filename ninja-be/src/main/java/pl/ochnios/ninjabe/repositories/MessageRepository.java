@@ -7,6 +7,4 @@ import pl.ochnios.ninjabe.model.entities.conversation.MessageEntity;
 public interface MessageRepository {
 
     List<MessageEntity> findAllByConversationId(UUID conversationId);
-
-    MessageEntity save(MessageEntity messageEntity);
 }

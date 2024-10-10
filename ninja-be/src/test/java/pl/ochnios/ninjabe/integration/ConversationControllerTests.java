@@ -105,7 +105,7 @@ public class ConversationControllerTests {
                     .build();
             conversationCrudRepository.save(conversation);
 
-            final var pageRequest = new PageRequestDto(1, 1, "summary", "asc");
+            final var pageRequest = new PageRequestDto(1, 1, List.of("summary"), List.of("asc"));
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI + "/summaries").params(asParamsMap(pageRequest));
             mockMvc.perform(requestBuilder)
@@ -263,8 +263,11 @@ public class ConversationControllerTests {
         @BeforeAll
         public void beforeAll() {
             userConv = createConversation("Some user conversation", "user");
+            userConv.addMessages(createMessages(userConv));
             modConv = createConversation("Some mod conversation", "mod");
+            modConv.addMessages(createMessages(modConv));
             adminConv = createConversation("Some admin conversation", "admin");
+            adminConv.addMessages(createMessages(adminConv));
         }
 
         @BeforeEach
@@ -303,7 +306,7 @@ public class ConversationControllerTests {
         @Test
         public void search_by_user_firstname() throws Exception {
             final var searchCriteria =
-                    ConversationCriteria.builder().userFirstname("John").build();
+                    ConversationCriteria.builder().userFullName("John").build();
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
@@ -317,7 +320,7 @@ public class ConversationControllerTests {
         @Test
         public void search_by_user_lastname() throws Exception {
             final var searchCriteria = ConversationCriteria.builder()
-                    .userLastname(userConv.getUser().getLastname())
+                    .userFullName(userConv.getUser().getLastname())
                     .build();
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
@@ -330,6 +333,27 @@ public class ConversationControllerTests {
                     .andExpect(jsonPath("$.items[0].id", is(userConv.getId().toString())))
                     .andExpect(jsonPath(
                             "$.items[0].user.lastname", is(userConv.getUser().getLastname())));
+        }
+
+        @Test
+        public void search_by_user_fullName() throws Exception {
+            final var searchCriteria = ConversationCriteria.builder()
+                    .userFullName(userConv.getUser().getLastname() + " "
+                            + userConv.getUser().getFirstname())
+                    .build();
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.totalElements", is(1)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.items", hasSize(1)))
+                    .andExpect(jsonPath("$.items[0].id", is(userConv.getId().toString())))
+                    .andExpect(jsonPath(
+                            "$.items[0].user.lastname", is(userConv.getUser().getLastname())))
+                    .andExpect(jsonPath(
+                            "$.items[0].user.firstname", is(userConv.getUser().getFirstname())));
         }
 
         @Test
@@ -354,7 +378,7 @@ public class ConversationControllerTests {
         @Test
         public void search_by_min_message_count_no_results() throws Exception {
             final var searchCriteria =
-                    ConversationCriteria.builder().minMessageCount(1).build();
+                    ConversationCriteria.builder().minMessageCount(3).build();
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
@@ -368,7 +392,7 @@ public class ConversationControllerTests {
         @Test
         public void search_by_min_message_count_all_results() throws Exception {
             final var searchCriteria =
-                    ConversationCriteria.builder().minMessageCount(0).build();
+                    ConversationCriteria.builder().minMessageCount(1).build();
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
@@ -381,11 +405,6 @@ public class ConversationControllerTests {
 
         @Test
         public void search_by_max_message_count_no_results() throws Exception {
-            userConv.setMessages(createMessages(userConv));
-            modConv.setMessages(createMessages(modConv));
-            adminConv.setMessages(createMessages(adminConv));
-            conversationCrudRepository.saveAll(List.of(userConv, modConv, adminConv));
-
             final var searchCriteria =
                     ConversationCriteria.builder().maxMessageCount(1).build();
             final var requestBuilder =
@@ -401,7 +420,7 @@ public class ConversationControllerTests {
         @Test
         public void search_by_max_message_count_all_results() throws Exception {
             final var searchCriteria =
-                    ConversationCriteria.builder().maxMessageCount(10).build();
+                    ConversationCriteria.builder().maxMessageCount(3).build();
             final var requestBuilder =
                     MockMvcRequestBuilders.get(CONVERSATIONS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)

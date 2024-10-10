@@ -26,7 +26,13 @@ public class TestUtils {
             try {
                 Object value = field.get(dto);
                 if (value != null) {
-                    params.add(field.getName(), value.toString());
+                    if (value instanceof Iterable<?> iterableValue) {
+                        for (var param : iterableValue) {
+                            params.add(field.getName(), param.toString());
+                        }
+                    } else {
+                        params.add(field.getName(), value.toString());
+                    }
                 }
             } catch (IllegalAccessException ex) {
                 throw new RuntimeException(ex.getMessage());

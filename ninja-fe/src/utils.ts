@@ -16,10 +16,11 @@ export function showErrorMessage(message: string) {
   });
 }
 
-export function mergeParameters(...args: string[]): string {
-  if (!args.length || args.some((s) => s === "")) {
+export function mergeParameters(...params: string[]): string {
+  const notEmptyParams = params.filter((s) => s != "");
+  if (!notEmptyParams.length) {
     return "";
   }
-  const merged = args.join("&");
+  const merged = notEmptyParams.join("&");
   return `?${merged}`;
 }
