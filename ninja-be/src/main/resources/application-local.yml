@@ -64,6 +64,9 @@ logging:
               BasicBinder: TRACE
 
 custom:
+  loader:
+    enabled: true
+    bulk: true
   allowed-origins: http://localhost:5173,localhost
   jwt:
     passphrase: ${JWT_PASSPHRASE}

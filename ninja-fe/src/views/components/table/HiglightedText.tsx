@@ -20,5 +20,5 @@ export default function HighlightedText(props: HighlightedTextProps) {
       );
     }
   }
-  return <Text>{props.text}</Text>;
+  return <>{props.text}</>;
 }

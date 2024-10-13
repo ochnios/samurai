@@ -52,7 +52,6 @@ export class ConversationCriteriaImpl implements ConversationCriteria {
     const criteria = new ConversationCriteriaImpl();
     if (globalFilter) {
       criteria.globalSearch = globalFilter;
-      return criteria;
     }
 
     const messageCountFilter = columnFilters.find(
