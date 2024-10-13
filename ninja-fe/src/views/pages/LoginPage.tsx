@@ -32,8 +32,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (auth.loading) return;
-    else if (auth.authenticated) navigate("/");
-    else if (auth.errors) {
+    else if (auth.authenticated) {
+      navigate(auth.redirectionUrl ?? "/");
+    } else if (auth.errors) {
       notifications.show({
         color: "red",
         title: "Error",

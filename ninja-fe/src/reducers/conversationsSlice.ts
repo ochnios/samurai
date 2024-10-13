@@ -12,7 +12,7 @@ interface ConversationsState {
   errors?: string;
 }
 
-const initialState: ConversationsState = {
+export const initialState: ConversationsState = {
   currentId: undefined,
   conversations: [] as ConversationSummary[],
   loading: false,

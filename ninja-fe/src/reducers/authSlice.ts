@@ -7,6 +7,7 @@ interface AuthState {
   authenticated: boolean;
   user?: User;
   loading: boolean;
+  redirectionUrl?: string;
   errors?: string;
 }
 
@@ -14,6 +15,7 @@ export const initialState: AuthState = {
   authenticated: false,
   user: undefined,
   loading: false,
+  redirectionUrl: undefined,
   errors: undefined,
 };
 
@@ -28,7 +30,13 @@ const authSlice = createSlice({
   initialState: initialState,
   reducers: {
     unauthenticate: () => {
-      return { ...initialState, authenticated: false };
+      return {
+        ...initialState,
+        authenticated: false,
+      };
+    },
+    setRedirectionUrl: (state, action) => {
+      return { ...state, redirectionUrl: action.payload };
     },
   },
   extraReducers: (builder) => {
@@ -62,6 +70,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { unauthenticate } = authSlice.actions;
+export const { unauthenticate, setRedirectionUrl } = authSlice.actions;
 
 export default authSlice.reducer;
