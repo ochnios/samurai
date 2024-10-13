@@ -8,11 +8,17 @@ import lombok.Data;
 import pl.ochnios.ninjabe.model.entities.user.Role;
 
 @Data
-@Schema(name = "UserDto", description = "${docs.dto.user}")
+@Schema(description = "${docs.dto.user}")
 public class UserDto {
 
     @Schema(description = "${docs.dto.user.username}", accessMode = AccessMode.READ_ONLY)
     private final String username;
+
+    @Schema(description = "${docs.dto.user.firstname}")
+    private final String firstname;
+
+    @Schema(description = "${docs.dto.user.lastname}")
+    private final String lastname;
 
     @Schema(description = "${docs.dto.user.email}", accessMode = READ_ONLY)
     private final String email;

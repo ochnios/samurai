@@ -1,60 +1,86 @@
 import { Flex, TextInput } from "@mantine/core";
 import { IconCheck, IconEdit, IconTrash, IconX } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { ConversationSummary } from "../../../model/api/ConversationSummary.ts";
-import { renameConversation } from "../../../reducers/conversationsSlice.ts";
-import { RootState } from "../../../store.ts";
-import classes from "./Conversations.module.css";
+
+import { useAppDispatch } from "../../../hooks/useAppDispatch.ts";
+import { Patch } from "../../../model/api/patch/Patch.ts";
+import {
+  deleteConversation,
+  patchConversation,
+  validateSummary,
+} from "../../../model/service/conversationService.ts";
+import {
+  editConversationSummary,
+  removeConversation,
+} from "../../../reducers/conversationsSlice.ts";
+import { showErrorMessage } from "../../../utils.ts";
+import classes from "./Summary.module.css";
 
 interface SummaryProps {
-  summary: ConversationSummary;
+  id: string;
+  summary: string;
+  active: boolean;
 }
 
 export default function Summary(props: SummaryProps) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
-  const dispatch = useDispatch();
-  const conversations = useSelector((state: RootState) => state.conversations);
+  const dispatch = useAppDispatch();
   const [editMode, setEditMode] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    inputRef.current!.value = props.summary.summary;
+    inputRef.current!.value = props.summary;
     setEditMode(false);
     setDeleteMode(false);
-  }, [conversations.currentId]);
+    setError("");
+  }, [props.summary]);
 
   useEffect(() => {}, [editMode, deleteMode]);
 
-  const isActive = (conversationId: string) => {
-    return conversations.currentId === conversationId;
-  };
-
-  const submitChange = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+  const submitChange = (e: any) => {
+    setError("");
     e.preventDefault();
     if (editMode) {
-      // TODO submit edit summary operation
-      dispatch(
-        renameConversation({
-          id: props.summary.id,
-          newSummary: inputRef.current!.value,
-        }),
-      );
-      setEditMode(false);
+      const error = validateSummary(inputRef.current!.value);
+      if (error) {
+        setError(error);
+        return;
+      }
+
+      const patch = Patch.replace("/summary", inputRef.current!.value);
+
+      patchConversation(props.id, patch)
+        .then(() =>
+          dispatch(
+            editConversationSummary({
+              id: props.id,
+              summary: inputRef.current!.value,
+            }),
+          ),
+        )
+        .catch(() => showErrorMessage("Failed to change conversation summary"))
+        .finally(() => setEditMode(false));
     }
     if (deleteMode) {
-      // TODO submit delete conversation operation
-      setDeleteMode(false);
+      deleteConversation(props.id)
+        .then(() => {
+          dispatch(removeConversation(props.id));
+          if (props.active) navigate("/conversations/new");
+        })
+        .catch(() => showErrorMessage("Failed to delete conversation"))
+        .finally(() => setDeleteMode(false));
     }
   };
 
   const cancelChange = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     e.preventDefault();
     if (editMode) {
-      inputRef.current!.value = props.summary.summary;
+      inputRef.current!.value = props.summary;
       setEditMode(false);
+      setError("");
     }
     if (deleteMode) {
       setDeleteMode(false);
@@ -62,54 +88,64 @@ export default function Summary(props: SummaryProps) {
   };
 
   return (
-    <TextInput
-      ref={inputRef}
-      type="text"
-      size="sm"
-      defaultValue={props.summary.summary}
-      readOnly={!(isActive(props.summary.id) && editMode)}
-      rightSectionWidth={50}
-      rightSection={
-        isActive(props.summary.id) &&
-        (!editMode && !deleteMode ? (
-          <Flex>
-            <IconEdit
-              size={20}
-              cursor="pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                setEditMode(true);
-              }}
-            />
-            <IconTrash
-              size={20}
-              cursor="pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                setDeleteMode(true);
-              }}
-            />
-          </Flex>
-        ) : (
-          <Flex>
-            <IconCheck
-              size={20}
-              cursor="pointer"
-              onClick={(e) => submitChange(e)}
-            />
-            <IconX
-              size={20}
-              cursor="pointer"
-              onClick={(e) => cancelChange(e)}
-            />
-          </Flex>
-        ))
-      }
-      className={classes.conversationInput}
-      onClick={(e) => {
-        e.preventDefault();
-        navigate(`/conversations/${props.summary.id}`);
-      }}
-    />
+    <form onSubmit={(e) => submitChange(e)}>
+      <TextInput
+        className={classes.summaryInput}
+        ref={inputRef}
+        type="text"
+        size="sm"
+        bd={
+          props.active && !editMode && !error
+            ? "1px solid var(--mantine-primary-color-filled)"
+            : "none"
+        }
+        defaultValue={props.summary}
+        readOnly={!(props.active && editMode)}
+        rightSectionWidth={50}
+        rightSection={
+          props.active &&
+          (!editMode && !deleteMode ? (
+            <Flex>
+              <IconEdit
+                size={20}
+                cursor="pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setEditMode(true);
+                }}
+              />
+              <IconTrash
+                size={20}
+                cursor="pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setDeleteMode(true);
+                }}
+              />
+            </Flex>
+          ) : (
+            <Flex>
+              <IconCheck
+                size={20}
+                cursor="pointer"
+                onClick={(e) => submitChange(e)}
+                color="green"
+              />
+              <IconX
+                size={20}
+                cursor="pointer"
+                onClick={(e) => cancelChange(e)}
+                color="red"
+              />
+            </Flex>
+          ))
+        }
+        onClick={(e) => {
+          e.preventDefault();
+          navigate(`/conversations/${props.id}`);
+        }}
+        error={error}
+      />
+    </form>
   );
 }

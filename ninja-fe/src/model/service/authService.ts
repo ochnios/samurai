@@ -1,6 +1,6 @@
 import axios from "axios";
-import { Login } from "../api/Login.ts";
-import { User } from "../api/User.ts";
+import { Login } from "../api/auth/Login.ts";
+import { User } from "../api/user/User.ts";
 
 const authUrl = "/auth";
 

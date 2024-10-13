@@ -1,5 +1,7 @@
 import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
+import "mantine-react-table/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import axios from "axios";
@@ -26,6 +28,18 @@ axios.interceptors.response.use(
       console.error("401 Unauthorized:", error);
     }
     return Promise.reject(error.response?.data);
+  },
+);
+
+axios.interceptors.request.use(
+  (config) => {
+    if (config.method?.toLowerCase() === "patch") {
+      config.headers["Content-Type"] = "application/json-patch+json";
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   },
 );
 

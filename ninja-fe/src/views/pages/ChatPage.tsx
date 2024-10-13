@@ -1,20 +1,18 @@
 import { Divider, Grid, Image, Loader, ScrollArea, Stack } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { validate } from "uuid";
-import {
-  Message,
-  MessageStatus,
-  MessageType,
-} from "../../model/api/Message.ts";
+import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
+import { Message } from "../../model/api/message/Message.ts";
+import { MessageStatus } from "../../model/api/message/MessageStatus.ts";
+import { MessageType } from "../../model/api/message/MessageType.ts";
 import { sendMessage } from "../../model/service/chatService.ts";
 import { fetchConversation } from "../../model/service/conversationService.ts";
 import {
   addConversationSummary,
   setActiveConversation,
 } from "../../reducers/conversationsSlice.ts";
+import { showErrorMessage } from "../../utils.ts";
 import ChatInput from "../components/chat/ChatInput.tsx";
 import ChatMessage from "../components/chat/ChatMessage.tsx";
 import classes from "./ChatPage.module.css";
@@ -22,7 +20,7 @@ import classes from "./ChatPage.module.css";
 export default function ChatPage() {
   const viewport = useRef<HTMLDivElement>(null);
   const { id } = useParams();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState("");
@@ -49,11 +47,7 @@ export default function ChatPage() {
           else setMessages([]);
         })
         .catch(() => {
-          notifications.show({
-            color: "red",
-            title: "Error",
-            message: "Failed to fetch selected conversation",
-          });
+          showErrorMessage("Failed to fetch selected conversation");
           navigate("/conversations/new");
         })
         .finally(() => setLoading(false));
@@ -96,7 +90,7 @@ export default function ChatPage() {
           dispatch(
             addConversationSummary({
               id: response.conversationId,
-              summary: "New conversation",
+              summary: response.summary!,
             }),
           );
         }
@@ -107,11 +101,7 @@ export default function ChatPage() {
           type: MessageType.ASSISTANT,
           status: MessageStatus.ERROR,
         };
-        notifications.show({
-          color: "red",
-          title: "Error",
-          message: "Failed to send the message",
-        });
+        showErrorMessage("Failed to send the message");
       }
 
       setMessages((prevMessages) => [
@@ -124,11 +114,8 @@ export default function ChatPage() {
   return (
     <>
       <Grid className={classes.grid}>
-        <Grid.Col span={{ base: 12, lg: 1, xl: 2 }} p={0}></Grid.Col>
-        <Grid.Col
-          span={{ base: 12, lg: 10, xl: 8 }}
-          className={classes.messages}
-        >
+        <Grid.Col span={{ base: 12, lg: 1 }} p={0}></Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 10 }} className={classes.messages}>
           <ScrollArea
             h="calc(100dvh - 180px)"
             viewportRef={viewport}
@@ -169,7 +156,7 @@ export default function ChatPage() {
           <Divider my="sm"></Divider>
           <ChatInput submitMessage={(value) => submitMessage(value)} />
         </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 1, xl: 2 }} p={0}></Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 1 }} p={0}></Grid.Col>
       </Grid>
     </>
   );

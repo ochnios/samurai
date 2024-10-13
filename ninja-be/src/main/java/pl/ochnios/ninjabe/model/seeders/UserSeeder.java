@@ -19,15 +19,17 @@ public class UserSeeder implements DataSeeder {
 
     @Override
     public void seed() {
-        createUser("user", Role.User);
-        createUser("mod", Role.Mod);
-        createUser("admin", Role.Admin);
+        createUser("user", "John", "User", Role.User);
+        createUser("mod", "John", "Mod", Role.Mod);
+        createUser("admin", "John", "Admin", Role.Admin);
     }
 
-    private void createUser(String username, Role role) {
+    private void createUser(String username, String firstname, String lastname, Role role) {
         if (!userRepository.existsByUsername(username)) {
             final var user = User.builder()
                     .username(username)
+                    .firstname(firstname)
+                    .lastname(lastname)
                     .email(username + "@users.com")
                     .password(passwordEncoder.encode(username))
                     .role(role)

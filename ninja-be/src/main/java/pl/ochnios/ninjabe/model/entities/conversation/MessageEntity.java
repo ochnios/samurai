@@ -50,9 +50,10 @@ public class MessageEntity implements AppEntity {
     @Enumerated(value = EnumType.STRING)
     private MessageType type;
 
+    @Builder.Default
     @CreationTimestamp
     @Column(updatable = false)
-    private Instant createdAt;
+    private Instant createdAt = Instant.now();
 
     @Builder.Default
     @ColumnDefault(value = "0")

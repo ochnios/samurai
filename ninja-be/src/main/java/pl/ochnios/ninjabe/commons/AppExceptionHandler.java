@@ -6,6 +6,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -51,6 +52,11 @@ public class AppExceptionHandler {
     public ResponseEntity<AppError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         final var errors = processFieldErrors(ex.getFieldErrors());
         return logAndGetResponse(ex, HttpStatus.BAD_REQUEST, errors);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<AppError> handleAuthorizationException(Exception ex) {
+        return logAndGetResponse(ex, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(AuthenticationException.class)

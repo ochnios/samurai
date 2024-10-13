@@ -25,21 +25,23 @@ public class ChatService {
         final var conversationDto = getConversation(user, chatRequestDto);
         final var springMessages = getSpringMessages(conversationDto);
 
-        final var completion = chatClientProvider
+        final var chatResponse = chatClientProvider
                 .getChatClient()
                 .prompt()
                 .system("You are a helpful assistant") // TODO from app configuration
                 .messages(springMessages)
                 .user(chatRequestDto.getQuestion())
-                .call();
+                .call()
+                .chatResponse();
 
+        final var completion = chatResponse.getResult().getOutput().getContent();
         final var userMessage = MessageDto.user(chatRequestDto.getQuestion());
-        final var assistantMessage = MessageDto.assistant(completion.content());
+        final var assistantMessage = MessageDto.assistant(completion);
         final var messages = List.of(userMessage, assistantMessage);
         conversationService.saveMessages(user, conversationDto.getId(), messages);
 
         log.info("Completion for conversation {} created", conversationDto.getId());
-        return new ChatResponseDto(conversationDto.getId(), completion.content());
+        return getChatResponse(chatRequestDto, conversationDto, completion);
     }
 
     private ConversationDto getConversation(User user, ChatRequestDto chatRequestDto) {
@@ -55,6 +57,15 @@ public class ChatService {
         return conversationDto.getMessages().stream()
                 .map(messageMapper::mapToSpringMessage)
                 .toList();
+    }
+
+    private ChatResponseDto getChatResponse(
+            ChatRequestDto chatRequestDto, ConversationDto conversationDto, String completion) {
+        if (chatRequestDto.getConversationId() == null) {
+            return new ChatResponseDto(conversationDto.getId(), conversationDto.getSummary(), completion);
+        } else {
+            return new ChatResponseDto(conversationDto.getId(), null, completion);
+        }
     }
 
     private String generateSummary(String question) {

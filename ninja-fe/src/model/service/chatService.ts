@@ -1,6 +1,6 @@
 import axios from "axios";
-import { ChatRequest } from "../api/ChatRequest.ts";
-import { ChatResponse } from "../api/ChatResponse.ts";
+import { ChatRequest } from "../api/chat/ChatRequest.ts";
+import { ChatResponse } from "../api/chat/ChatResponse.ts";
 
 const chatUrl = "/chat";
 

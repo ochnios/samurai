@@ -17,9 +17,4 @@ public class MessageRepositoryImpl implements MessageRepository {
     public List<MessageEntity> findAllByConversationId(UUID conversationId) {
         return messageCrudRepository.findAllByConversationIdAndDeleted(conversationId, false);
     }
-
-    @Override
-    public MessageEntity save(MessageEntity messageEntity) {
-        return messageCrudRepository.save(messageEntity);
-    }
 }

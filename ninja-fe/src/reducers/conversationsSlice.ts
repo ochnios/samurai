@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { ConversationSummary } from "../model/api/ConversationSummary.ts";
-import { PageRequestImpl, SortDir } from "../model/api/PageRequest.ts";
+
+import { ConversationSummary } from "../model/api/conversation/ConversationSummary.ts";
+import { SortDir } from "../model/api/page/PageRequest.ts";
+import { PageRequestImpl } from "../model/api/page/PageRequestImpl.ts";
 import { fetchConversationsSummaries } from "../model/service/conversationService.ts";
 
 interface ConversationsState {
@@ -21,7 +23,12 @@ export const fetchConversations = createAsyncThunk(
   "fetchConversations",
   async () => {
     // TODO Add "Load more" button in the future
-    const pageRequest = new PageRequestImpl(0, 100, "createdAt", SortDir.DESC);
+    const pageRequest = new PageRequestImpl(
+      0,
+      100,
+      ["createdAt"],
+      [SortDir.DESC],
+    );
     return fetchConversationsSummaries(pageRequest);
   },
 );
@@ -37,17 +44,23 @@ const conversationsSlice = createSlice({
       const summary: ConversationSummary = {
         id: action.payload.id,
         summary: action.payload.summary,
+        createdAt: new Date().toISOString(),
       };
       state.conversations = [summary, ...state.conversations];
     },
-    renameConversation: (state, action) => {
-      state.conversations = state.conversations.map((conversation) =>
-        conversation.id === action.payload.id
-          ? { ...conversation, summary: action.payload.newSummary }
-          : conversation,
+    editConversationSummary: (state, action) => {
+      state.conversations = state.conversations.map((summary) =>
+        summary.id === action.payload.id
+          ? { ...summary, summary: action.payload.summary }
+          : summary,
       );
     },
-    resetConversations: () => {
+    removeConversation: (state, action) => {
+      state.conversations = state.conversations.filter(
+        (summary) => summary.id != action.payload,
+      );
+    },
+    resetConversationList: () => {
       return initialState;
     },
   },
@@ -72,8 +85,9 @@ const conversationsSlice = createSlice({
 export const {
   setActiveConversation,
   addConversationSummary,
-  renameConversation,
-  resetConversations,
+  editConversationSummary,
+  removeConversation,
+  resetConversationList,
 } = conversationsSlice.actions;
 
 export default conversationsSlice.reducer;

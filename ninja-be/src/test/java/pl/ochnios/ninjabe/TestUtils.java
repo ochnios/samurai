@@ -5,7 +5,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 
 public class TestUtils {
 
@@ -19,12 +18,26 @@ public class TestUtils {
         }
     }
 
-    public static MultiValueMap<String, String> asParamsMap(PageRequestDto pageRequest) {
+    public static MultiValueMap<String, String> asParamsMap(Object dto) {
         final var params = new LinkedMultiValueMap<String, String>();
-        addIfPresent(params, "page", pageRequest.getPage());
-        addIfPresent(params, "size", pageRequest.getSize());
-        addIfPresent(params, "sortBy", pageRequest.getSortBy());
-        addIfPresent(params, "sortDir", pageRequest.getSortDir());
+        final var fields = dto.getClass().getDeclaredFields();
+        for (var field : fields) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(dto);
+                if (value != null) {
+                    if (value instanceof Iterable<?> iterableValue) {
+                        for (var param : iterableValue) {
+                            params.add(field.getName(), param.toString());
+                        }
+                    } else {
+                        params.add(field.getName(), value.toString());
+                    }
+                }
+            } catch (IllegalAccessException ex) {
+                throw new RuntimeException(ex.getMessage());
+            }
+        }
         return params;
     }
 

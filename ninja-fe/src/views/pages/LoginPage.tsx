@@ -13,20 +13,19 @@ import {
 import { useDocumentTitle } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../hooks.ts";
-import { Login } from "../../model/api/Login.ts";
+import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
+import { useAuth } from "../../hooks/useAuth.ts";
+import { Login } from "../../model/api/auth/Login.ts";
 import { authenticate } from "../../reducers/authSlice.ts";
-import { resetConversations } from "../../reducers/conversationsSlice.ts";
-import { RootState } from "../../store.ts";
+import { resetConversationList } from "../../reducers/conversationsSlice.ts";
 import { showNotImplementedMessage } from "../../utils.ts";
 
 export default function LoginPage() {
   useDocumentTitle("Sign in | DocsNinja");
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const auth = useSelector((state: RootState) => state.auth);
+  const auth = useAuth();
 
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -49,7 +48,7 @@ export default function LoginPage() {
       username: usernameRef.current!.value,
       password: passwordRef.current!.value,
     };
-    dispatch(resetConversations());
+    dispatch(resetConversationList());
     dispatch(authenticate(login));
   };
 
@@ -58,11 +57,7 @@ export default function LoginPage() {
       <Title ta="center">Welcome back!</Title>
       <Text c="dimmed" size="sm" ta="center" mt={5}>
         Do not have an account yet?{" "}
-        <Anchor
-          size="sm"
-          component="button"
-          onClick={showNotImplementedMessage}
-        >
+        <Anchor size="sm" onClick={showNotImplementedMessage}>
           Create account
         </Anchor>
       </Text>
@@ -82,11 +77,7 @@ export default function LoginPage() {
             mt="md"
           />
           <Group justify="space-between" mt="lg">
-            <Anchor
-              component="button"
-              size="sm"
-              onClick={showNotImplementedMessage}
-            >
+            <Anchor size="sm" onClick={showNotImplementedMessage}>
               Forgot password?
             </Anchor>
             <Checkbox label="Remember me" />
