@@ -9,11 +9,9 @@ import {
   Text,
 } from "@mantine/core";
 import { IconUserCircle } from "@tabler/icons-react";
-import {
-  Message,
-  MessageStatus,
-  MessageType,
-} from "../../../model/api/Message.ts";
+import { Message } from "../../../model/api/message/Message.ts";
+import { MessageStatus } from "../../../model/api/message/MessageStatus.ts";
+import { MessageType } from "../../../model/api/message/MessageType.ts";
 
 export default function ChatMessage(props: Message) {
   return (

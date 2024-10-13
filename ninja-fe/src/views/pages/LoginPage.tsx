@@ -16,7 +16,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
 import { useAuth } from "../../hooks/useAuth.ts";
-import { Login } from "../../model/api/Login.ts";
+import { Login } from "../../model/api/auth/Login.ts";
 import { authenticate } from "../../reducers/authSlice.ts";
 import { resetConversationList } from "../../reducers/conversationsSlice.ts";
 import { showNotImplementedMessage } from "../../utils.ts";

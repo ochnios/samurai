@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { ConversationSummary } from "../model/api/Conversation.ts";
-import { PageRequestImpl, SortDir } from "../model/api/PageRequest.ts";
+
+import { ConversationSummary } from "../model/api/conversation/ConversationSummary.ts";
+import { SortDir } from "../model/api/page/PageRequest.ts";
+import { PageRequestImpl } from "../model/api/page/PageRequestImpl.ts";
 import { fetchConversationsSummaries } from "../model/service/conversationService.ts";
 
 interface ConversationsState {

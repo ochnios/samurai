@@ -1,14 +1,12 @@
 import axios from "axios";
 import { mergeParameters } from "../../utils.ts";
-import {
-  Conversation,
-  ConversationCriteria,
-  ConversationDetails,
-  ConversationSummary,
-} from "../api/Conversation.ts";
-import { Page } from "../api/Page.ts";
-import { PageRequest } from "../api/PageRequest.ts";
-import { Patch } from "../api/Patch.ts";
+import { Conversation } from "../api/conversation/Conversation.ts";
+import { ConversationCriteria } from "../api/conversation/ConversationCriteria.ts";
+import { ConversationDetails } from "../api/conversation/ConversationDetails.ts";
+import { ConversationSummary } from "../api/conversation/ConversationSummary.ts";
+import { Page } from "../api/page/Page.ts";
+import { PageRequest } from "../api/page/PageRequest.ts";
+import { Patch } from "../api/patch/Patch.ts";
 
 const conversationsUrl = "/conversations";
 

@@ -4,7 +4,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth.ts";
 import { useIsAdmin } from "../../hooks/useIsAdmin.ts";
 import { useIsMod } from "../../hooks/useIsMod.ts";
-import { Role } from "../../model/api/User.ts";
+import { Role } from "../../model/api/user/Role.ts";
 import { showErrorMessage } from "../../utils.ts";
 
 interface PageProps {

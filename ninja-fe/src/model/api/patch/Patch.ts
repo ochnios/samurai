@@ -1,8 +1,4 @@
-export interface PatchOperation {
-  op: string;
-  path: string;
-  value?: unknown;
-}
+import { PatchOperation } from "./PatchOperation.ts";
 
 export class Patch {
   static add(path: string, value: unknown): PatchOperation[] {

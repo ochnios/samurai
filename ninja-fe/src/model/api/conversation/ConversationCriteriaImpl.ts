@@ -1,35 +1,5 @@
 import { MRT_ColumnFiltersState } from "mantine-react-table";
-import { Message } from "./Message.ts";
-import { User } from "./User.ts";
-
-export interface ConversationSummary {
-  id: string;
-  summary: string;
-  createdAt: string;
-}
-
-export interface Conversation extends ConversationSummary {
-  messages: Message[];
-}
-
-export interface ConversationDetails extends ConversationSummary {
-  user: User;
-  messageCount: number;
-  deleted: boolean;
-}
-
-export interface ConversationCriteria {
-  globalSearch?: string;
-  minMessageCount?: number;
-  maxMessageCount?: number;
-  minCreatedAt?: string;
-  maxCreatedAt?: string;
-  summary?: string;
-  userFullName?: string;
-  deleted?: boolean;
-
-  getUrl(): string;
-}
+import { ConversationCriteria } from "./ConversationCriteria.ts";
 
 export class ConversationCriteriaImpl implements ConversationCriteria {
   globalSearch?: string;

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "../../../hooks/useAppDispatch.ts";
-import { Patch } from "../../../model/api/Patch.ts";
+import { Patch } from "../../../model/api/patch/Patch.ts";
 import {
   deleteConversation,
   patchConversation,

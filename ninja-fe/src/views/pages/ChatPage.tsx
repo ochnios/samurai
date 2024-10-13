@@ -3,11 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { validate } from "uuid";
 import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
-import {
-  Message,
-  MessageStatus,
-  MessageType,
-} from "../../model/api/Message.ts";
+import { Message } from "../../model/api/message/Message.ts";
+import { MessageStatus } from "../../model/api/message/MessageStatus.ts";
+import { MessageType } from "../../model/api/message/MessageType.ts";
 import { sendMessage } from "../../model/service/chatService.ts";
 import { fetchConversation } from "../../model/service/conversationService.ts";
 import {

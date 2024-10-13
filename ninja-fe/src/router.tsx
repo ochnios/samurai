@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { Role } from "./model/api/User.ts";
+import { Role } from "./model/api/user/Role.ts";
 import { Layout } from "./views/layout/Layout.tsx";
 import ChatPage from "./views/pages/ChatPage.tsx";
 import ConversationsPage from "./views/pages/ConversationsPage.tsx";

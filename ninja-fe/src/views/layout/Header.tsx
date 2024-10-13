@@ -14,7 +14,7 @@ import { IconMoon, IconSun, IconUserCircle } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth.ts";
-import { Role } from "../../model/api/User.ts";
+import { Role } from "../../model/api/user/Role.ts";
 import classes from "./Header.module.css";
 
 interface HeaderProps {

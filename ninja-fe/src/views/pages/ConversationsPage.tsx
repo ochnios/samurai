@@ -10,13 +10,13 @@ import {
 } from "mantine-react-table";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  ConversationCriteriaImpl,
-  ConversationDetails,
-} from "../../model/api/Conversation.ts";
-import { Page } from "../../model/api/Page.ts";
-import { PageRequestImpl } from "../../model/api/PageRequest.ts";
-import { User } from "../../model/api/User.ts";
+
+import { ConversationCriteriaImpl } from "../../model/api/conversation/ConversationCriteriaImpl.ts";
+import { ConversationDetails } from "../../model/api/conversation/ConversationDetails.ts";
+import { Page } from "../../model/api/page/Page.ts";
+
+import { PageRequestImpl } from "../../model/api/page/PageRequestImpl.ts";
+import { User } from "../../model/api/user/User.ts";
 import { fetchConversations } from "../../model/service/conversationService.ts";
 import { showErrorMessage } from "../../utils.ts";
 import HighlightedText from "../components/table/HiglightedText.tsx";

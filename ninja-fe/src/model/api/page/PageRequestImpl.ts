@@ -1,18 +1,5 @@
 import { MRT_PaginationState, MRT_SortingState } from "mantine-react-table";
-
-export interface PageRequest {
-  page?: number;
-  size?: number;
-  sortBy?: string[];
-  sortDir?: SortDir[];
-
-  getUrl(): string;
-}
-
-export enum SortDir {
-  ASC = "asc",
-  DESC = "desc",
-}
+import { PageRequest, SortDir } from "./PageRequest.ts";
 
 export class PageRequestImpl implements PageRequest {
   page?: number;

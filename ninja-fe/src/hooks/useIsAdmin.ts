@@ -1,4 +1,4 @@
-import { Role } from "../model/api/User";
+import { Role } from "../model/api/user/Role.ts";
 import { useAppSelector } from "./useAppSelector.ts";
 
 export function useIsAdmin() {
