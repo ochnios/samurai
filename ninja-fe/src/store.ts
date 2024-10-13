@@ -1,12 +1,32 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./reducers/authSlice.ts";
-import conversationsReducer from "./reducers/conversationsSlice.ts";
+import authReducer, {
+  initialState as authInitialState,
+} from "./reducers/authSlice.ts";
+import conversationsReducer, {
+  initialState as conversationsInitialState,
+} from "./reducers/conversationsSlice.ts";
+
+const reduxState = JSON.parse(localStorage.getItem("redux_state") || "null");
+const authState = reduxState?.auth
+  ? { errors: undefined, ...reduxState.auth }
+  : authInitialState;
+
+const preloadedState = {
+  auth: authState,
+  conversations: conversationsInitialState,
+};
 
 const store = configureStore({
   reducer: {
     conversations: conversationsReducer,
     auth: authReducer,
   },
+  preloadedState: preloadedState,
+});
+
+store.subscribe(() => {
+  const { auth } = store.getState();
+  localStorage.setItem("redux_state", JSON.stringify({ auth }));
 });
 
 export default store;

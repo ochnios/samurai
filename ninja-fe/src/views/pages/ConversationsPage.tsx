@@ -46,7 +46,6 @@ export default function ConversationsPage() {
         : [s],
     );
 
-    console.log(globalFilter);
     const criteria = ConversationCriteriaImpl.of(globalFilter, columnFilters);
     const pageRequest = PageRequestImpl.of(pagination, processedSorting);
 
