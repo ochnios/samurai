@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { ConversationSummary } from "../model/api/conversation/ConversationSummary.ts";
+import { EmptyCriteria } from "../model/api/page/EmptyCriteria.ts";
 import { SortDir } from "../model/api/page/PageRequest.ts";
 import { PageRequestImpl } from "../model/api/page/PageRequestImpl.ts";
 import { fetchConversationsSummaries } from "../model/service/conversationService.ts";
@@ -24,6 +25,7 @@ export const fetchConversations = createAsyncThunk(
   async () => {
     // TODO Add "Load more" button in the future
     const pageRequest = new PageRequestImpl(
+      new EmptyCriteria(),
       0,
       100,
       ["createdAt"],

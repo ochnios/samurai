@@ -16,7 +16,7 @@ export function showErrorMessage(message: string) {
   });
 }
 
-export function mergeParameters(...params: string[]): string {
+export function normalizePostfix(...params: string[]): string {
   const notEmptyParams = params.filter((s) => s != "");
   if (!notEmptyParams.length) {
     return "";

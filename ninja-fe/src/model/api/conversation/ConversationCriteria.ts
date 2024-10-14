@@ -1,4 +1,6 @@
-export interface ConversationCriteria {
+import { SearchCriteria } from "../page/SearchCriteria.ts";
+
+export interface ConversationCriteria extends SearchCriteria {
   globalSearch?: string;
   minMessageCount?: number;
   maxMessageCount?: number;
@@ -7,6 +9,4 @@ export interface ConversationCriteria {
   summary?: string;
   userFullName?: string;
   deleted?: boolean;
-
-  getUrl(): string;
 }
