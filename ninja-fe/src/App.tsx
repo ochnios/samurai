@@ -8,7 +8,7 @@ import axios from "axios";
 import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
 import config from "./config.ts";
-import { setRedirectionUrl, unauthenticate } from "./reducers/authSlice.ts";
+import { unauthenticate } from "./reducers/authSlice.ts";
 import router from "./router.tsx";
 import store from "./store.ts";
 import { theme } from "./theme";
@@ -25,7 +25,6 @@ axios.interceptors.response.use(
   function (error) {
     if (error.response?.status === 401) {
       store.dispatch(unauthenticate());
-      store.dispatch(setRedirectionUrl(window.location.pathname));
       console.error("401 Unauthorized:", error);
     }
     return Promise.reject(error.response?.data);

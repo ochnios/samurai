@@ -8,7 +8,7 @@ import conversationsReducer, {
 
 const reduxState = JSON.parse(localStorage.getItem("redux_state") || "null");
 const authState = reduxState?.auth
-  ? { errors: undefined, ...reduxState.auth }
+  ? { ...reduxState.auth, errors: undefined }
   : authInitialState;
 
 const preloadedState = {
