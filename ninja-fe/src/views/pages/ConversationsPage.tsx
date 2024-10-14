@@ -3,59 +3,54 @@ import { IconEye } from "@tabler/icons-react";
 import {
   MantineReactTable,
   MRT_ColumnDef,
-  MRT_ColumnFiltersState,
-  MRT_PaginationState,
-  MRT_SortingState,
   useMantineReactTable,
 } from "mantine-react-table";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-
-import { ConversationCriteriaImpl } from "../../model/api/conversation/ConversationCriteriaImpl.ts";
+import { useTableFilters } from "../../hooks/table/useTableFilters.ts";
+import { useTableState } from "../../hooks/table/useTableState.ts";
 import { ConversationDetails } from "../../model/api/conversation/ConversationDetails.ts";
 import { Page } from "../../model/api/page/Page.ts";
-
-import { PageRequestImpl } from "../../model/api/page/PageRequestImpl.ts";
 import { User } from "../../model/api/user/User.ts";
-import { fetchConversations } from "../../model/service/conversationService.ts";
+import {
+  createPageRequest,
+  fetchConversations,
+} from "../../model/service/conversationService.ts";
 import { showErrorMessage } from "../../utils.ts";
 import HighlightedText from "../components/table/HiglightedText.tsx";
 
+// createPageRequest?
+
 export default function ConversationsPage() {
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-    [],
-  );
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [pagination, setPagination] = useState<MRT_PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
-  });
-  const [sorting, setSorting] = useState<MRT_SortingState>([]);
+  const tableState = useTableState("conversations");
+  const tableFilters = useTableFilters();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<Page<ConversationDetails>>();
+  const [pageRequest, setPageRequest] = useState(
+    createPageRequest(tableState, tableFilters),
+  );
+
+  useEffect(() => {
+    const newPageRequest = createPageRequest(tableState, tableFilters);
+    if (pageRequest.getUrlParams() != newPageRequest.getUrlParams()) {
+      setPageRequest(newPageRequest);
+    }
+  }, [
+    tableState.pagination,
+    tableState.sorting,
+    tableFilters.columnFilters,
+    tableFilters.globalFilter,
+  ]);
 
   useEffect(() => {
     setLoading(true);
-
-    const processedSorting = sorting.flatMap((s) =>
-      s.id == "user"
-        ? [
-            { id: "user.lastname", desc: s.desc },
-            { id: "user.firstname", desc: s.desc },
-          ]
-        : [s],
-    );
-
-    const criteria = ConversationCriteriaImpl.of(globalFilter, columnFilters);
-    const pageRequest = PageRequestImpl.of(pagination, processedSorting);
-
-    fetchConversations(criteria, pageRequest)
+    fetchConversations(pageRequest)
       .then((response) => setPage(response))
       .catch(() => {
         showErrorMessage("Failed to fetch conversations");
       })
       .finally(() => setLoading(false));
-  }, [columnFilters, globalFilter, pagination, sorting]);
+  }, [pageRequest]);
 
   const columns = useMemo<MRT_ColumnDef<ConversationDetails>[]>(
     () => [
@@ -72,9 +67,10 @@ export default function ConversationsPage() {
           <HighlightedText
             text={`${cell.getValue<User>().lastname} ${cell.getValue<User>().firstname}`}
             phrase={
-              globalFilter
-                ? globalFilter
-                : (columnFilters.find((e) => e.id == "user")?.value as string)
+              tableFilters.globalFilter
+                ? tableFilters.globalFilter
+                : (tableFilters.columnFilters.find((e) => e.id == "user")
+                    ?.value as string)
             }
           />
         ),
@@ -130,20 +126,24 @@ export default function ConversationsPage() {
         </Tooltip>
       </Flex>
     ),
-    manualFiltering: true,
-    onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
+    onColumnVisibilityChange: tableState.setColumnVisibility,
+    onDensityChange: tableState.setRowDensity,
     manualPagination: true,
-    onPaginationChange: setPagination,
+    onPaginationChange: tableState.setPagination,
     rowCount: page?.totalElements,
     manualSorting: true,
-    onSortingChange: setSorting,
+    onSortingChange: tableState.setSorting,
+    manualFiltering: true,
+    onColumnFiltersChange: tableFilters.setColumnFilters,
+    onGlobalFilterChange: tableFilters.setGlobalFilter,
     state: {
       isLoading: loading,
-      columnFilters: columnFilters,
-      globalFilter: globalFilter,
-      pagination: pagination,
-      sorting: sorting,
+      columnVisibility: tableState.columnVisibility,
+      density: tableState.rowDensity,
+      pagination: tableState.pagination,
+      sorting: tableState.sorting,
+      columnFilters: tableFilters.columnFilters,
+      globalFilter: tableFilters.globalFilter,
     },
   });
 

@@ -59,7 +59,7 @@ export class ConversationCriteriaImpl implements ConversationCriteria {
     return criteria;
   }
 
-  getUrl(): string {
+  getUrlParams(): string {
     const params = new URLSearchParams();
     if (this.globalSearch) params.append("globalSearch", this.globalSearch);
     if (this.minMessageCount !== undefined)
