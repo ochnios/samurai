@@ -13,7 +13,7 @@ import {
 import { useDocumentTitle } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useNavigationType } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
 import { useAuth } from "../../hooks/useAuth.ts";
 import { Login } from "../../model/api/auth/Login.ts";
@@ -24,6 +24,7 @@ import { showNotImplementedMessage } from "../../utils.ts";
 export default function LoginPage() {
   useDocumentTitle("Sign in | DocsNinja");
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const dispatch = useAppDispatch();
   const auth = useAuth();
 
@@ -31,9 +32,17 @@ export default function LoginPage() {
   const passwordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    notifications.clean();
+  }, []);
+
+  useEffect(() => {
     if (auth.loading) return;
     else if (auth.authenticated) {
-      navigate(auth.redirectionUrl ?? "/");
+      if (navigationType === "POP") {
+        navigate("/");
+      } else {
+        navigate(-1);
+      }
     } else if (auth.errors) {
       notifications.show({
         color: "red",

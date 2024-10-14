@@ -1,12 +1,10 @@
 import { Container } from "@mantine/core";
 import React, { useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
 import { useAuth } from "../../hooks/useAuth.ts";
 import { useIsAdmin } from "../../hooks/useIsAdmin.ts";
 import { useIsMod } from "../../hooks/useIsMod.ts";
 import { Role } from "../../model/api/user/Role.ts";
-import { setRedirectionUrl } from "../../reducers/authSlice.ts";
 import { showErrorMessage } from "../../utils.ts";
 
 interface PageProps {
@@ -21,15 +19,10 @@ interface OutletContext {
 
 export default function PageWrapper(props: PageProps) {
   const { setTitle } = useOutletContext<OutletContext>();
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const auth = useAuth();
   const isAdmin = useIsAdmin();
   const isMod = useIsMod();
-
-  useEffect(() => {
-    dispatch(setRedirectionUrl(undefined));
-  }, []);
 
   useEffect(() => {
     setTitle(props.title);
