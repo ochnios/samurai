@@ -93,6 +93,7 @@ export default function ChatPage() {
               summary: response.summary!,
             }),
           );
+          navigate(`/conversations/${response.conversationId}`);
         }
       } else {
         answerMessage = {
