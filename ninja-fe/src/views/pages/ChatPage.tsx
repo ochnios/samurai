@@ -1,6 +1,15 @@
-import { Divider, Grid, Image, Loader, ScrollArea, Stack } from "@mantine/core";
+import {
+  Box,
+  Divider,
+  Grid,
+  Image,
+  Loader,
+  ScrollArea,
+  Stack,
+} from "@mantine/core";
+import { useElementSize } from "@mantine/hooks";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { validate } from "uuid";
 import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
 import { Message } from "../../model/api/message/Message.ts";
@@ -19,7 +28,11 @@ import classes from "./ChatPage.module.css";
 
 export default function ChatPage() {
   const viewport = useRef<HTMLDivElement>(null);
+  const { ref, height } = useElementSize();
+
   const { id } = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -114,11 +127,11 @@ export default function ChatPage() {
 
   return (
     <>
-      <Grid className={classes.grid}>
+      <Grid>
         <Grid.Col span={{ base: 12, lg: 1 }} p={0}></Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 10 }} className={classes.messages}>
+        <Grid.Col span={{ base: 12, lg: 10 }} p={0}>
           <ScrollArea
-            h="calc(100dvh - 180px)"
+            h={window.innerHeight - height - 120}
             viewportRef={viewport}
             className={classes.scrollArea}
           >
@@ -155,7 +168,12 @@ export default function ChatPage() {
             )}
           </ScrollArea>
           <Divider my="sm"></Divider>
-          <ChatInput submitMessage={(value) => submitMessage(value)} />
+          <Box ref={ref}>
+            <ChatInput
+              disabled={queryParams.get("preview") === "1"}
+              submitMessage={(value) => submitMessage(value)}
+            />
+          </Box>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 1 }} p={0}></Grid.Col>
       </Grid>

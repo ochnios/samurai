@@ -1,26 +1,3 @@
-.grid, .grid > * {
-    height: 100%;
-}
-
-.conversations {
-    min-height: 100%;
-    padding: 0 var(--mantine-spacing-md);
-    border-left: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-}
-
-.messages {
-    position: relative;
-    padding: 0 var(--mantine-spacing-md);
-}
-
-.input {
-    padding: inherit;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-}
-
 .scrollArea > div > div {
     height: 100%;
 }

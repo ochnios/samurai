@@ -40,7 +40,7 @@ export default function PageWrapper(props: PageProps) {
   }, [navigate, props.access, auth]);
 
   return (
-    <Container fluid m={0} p={0} pt="sm" h="calc(100dvh - 92px)">
+    <Container fluid m={0} p={0} pt="sm">
       {props.content}
     </Container>
   );
