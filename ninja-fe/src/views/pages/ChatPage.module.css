@@ -1,3 +1,7 @@
 .scrollArea > div > div {
     height: 100%;
 }
+
+.scrollArea pre {
+    white-space: pre-wrap;
+}

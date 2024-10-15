@@ -23,7 +23,7 @@ import {
 } from "../../reducers/conversationsSlice.ts";
 import { showErrorMessage } from "../../utils.ts";
 import ChatInput from "../components/chat/ChatInput.tsx";
-import ChatMessage from "../components/chat/ChatMessage.tsx";
+import ChatMessage from "../components/chat/message/ChatMessage.tsx";
 import classes from "./ChatPage.module.css";
 
 export default function ChatPage() {
@@ -73,11 +73,14 @@ export default function ChatPage() {
 
   const submitMessage = (content: string) => {
     const userMessage: Message = {
+      id: messages.length.toString(),
       content: content,
       type: MessageType.USER,
     };
 
     const answerPlaceholder: Message = {
+      id: "placeholder",
+      content: "placeholder",
       type: MessageType.ASSISTANT,
       status: MessageStatus.LOADING,
     };
@@ -95,6 +98,7 @@ export default function ChatPage() {
       let answerMessage: Message;
       if (response) {
         answerMessage = {
+          id: response.messageId,
           content: response.completion,
           type: MessageType.ASSISTANT,
         };
@@ -110,6 +114,7 @@ export default function ChatPage() {
         }
       } else {
         answerMessage = {
+          id: "error",
           content:
             "Sorry, I am not able to answer your question right now but I am working to fix it",
           type: MessageType.ASSISTANT,
@@ -127,7 +132,7 @@ export default function ChatPage() {
 
   return (
     <>
-      <Grid>
+      <Grid p={0}>
         <Grid.Col span={{ base: 12, lg: 1 }} p={0}></Grid.Col>
         <Grid.Col span={{ base: 12, lg: 10 }} p={0}>
           <ScrollArea
@@ -144,12 +149,7 @@ export default function ChatPage() {
                 mb="lg"
               >
                 {messages.map((message, index) => (
-                  <ChatMessage
-                    key={index}
-                    content={message.content}
-                    type={message.type}
-                    status={message.status}
-                  />
+                  <ChatMessage key={index} {...message} />
                 ))}
               </Stack>
             ) : (

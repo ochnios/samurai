@@ -1,7 +1,6 @@
 package pl.ochnios.ninjabe.services;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
@@ -71,14 +70,13 @@ public class ConversationService {
     }
 
     @Transactional
-    public void saveMessages(User user, UUID conversationId, List<MessageDto> messageDtos) {
-        if (messageDtos == null || messageDtos.isEmpty()) return;
-
+    public MessageDto saveMessage(User user, UUID conversationId, MessageDto messageDto) {
         final var conversation = conversationRepository.findByUserAndId(user, conversationId);
-        final var messages = messageMapper.map(conversation, messageDtos);
-        conversation.addMessages(messages);
-        conversationRepository.save(conversation);
-        log.info("Messages for conversation {} saved", conversationId);
+        final var message = messageMapper.map(conversation, messageDto);
+        conversation.addMessage(message);
+        final var savedConversation = conversationRepository.save(conversation);
+        log.info("Message for conversation {} saved", conversationId);
+        return messageMapper.map(savedConversation.getMessages().getLast());
     }
 
     @Transactional
