@@ -15,3 +15,7 @@ export const sendMessage = async (
       throw error;
     });
 };
+
+export const validateChatMessage = (message?: string) => {
+  return message && message.trim().length >= 3;
+};

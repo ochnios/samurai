@@ -25,6 +25,9 @@ public class ChatService {
         final var conversationDto = getConversation(user, chatRequestDto);
         final var springMessages = getSpringMessages(conversationDto);
 
+        final var userMessage = MessageDto.user(chatRequestDto.getQuestion());
+        conversationService.saveMessage(user, conversationDto.getId(), userMessage);
+
         final var chatResponse = chatClientProvider
                 .getChatClient()
                 .prompt()
@@ -35,13 +38,12 @@ public class ChatService {
                 .chatResponse();
 
         final var completion = chatResponse.getResult().getOutput().getContent();
-        final var userMessage = MessageDto.user(chatRequestDto.getQuestion());
         final var assistantMessage = MessageDto.assistant(completion);
-        final var messages = List.of(userMessage, assistantMessage);
-        conversationService.saveMessages(user, conversationDto.getId(), messages);
+        final var savedAssistantMessage =
+                conversationService.saveMessage(user, conversationDto.getId(), assistantMessage);
 
         log.info("Completion for conversation {} created", conversationDto.getId());
-        return getChatResponse(chatRequestDto, conversationDto, completion);
+        return getChatResponse(conversationDto, savedAssistantMessage);
     }
 
     private ConversationDto getConversation(User user, ChatRequestDto chatRequestDto) {
@@ -59,13 +61,13 @@ public class ChatService {
                 .toList();
     }
 
-    private ChatResponseDto getChatResponse(
-            ChatRequestDto chatRequestDto, ConversationDto conversationDto, String completion) {
-        if (chatRequestDto.getConversationId() == null) {
-            return new ChatResponseDto(conversationDto.getId(), conversationDto.getSummary(), completion);
-        } else {
-            return new ChatResponseDto(conversationDto.getId(), null, completion);
-        }
+    private ChatResponseDto getChatResponse(ConversationDto conversationDto, MessageDto messageDto) {
+        return ChatResponseDto.builder()
+                .conversationId(conversationDto.getId())
+                .messageId(messageDto.getId())
+                .summary(conversationDto.getMessages().isEmpty() ? conversationDto.getSummary() : null)
+                .completion(messageDto.getContent())
+                .build();
     }
 
     private String generateSummary(String question) {
