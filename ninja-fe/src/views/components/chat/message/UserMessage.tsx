@@ -8,9 +8,7 @@ export default function UserMessage(props: Message) {
     <Stack w="100%" align="flex-end" justify="center">
       <Flex gap="xs" align="flex-start" maw="80%">
         <Alert variant="filled" radius="lg" p="xs">
-          <Box c="white">
-            <FormattedText markdown={props.content} />
-          </Box>
+          <FormattedText markdown={props.content} />
         </Alert>
         <Box>
           <IconUserCircle
