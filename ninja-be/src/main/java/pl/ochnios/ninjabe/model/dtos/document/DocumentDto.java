@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import pl.ochnios.ninjabe.commons.patch.NotPatchable;
 import pl.ochnios.ninjabe.model.dtos.PatchDto;
+import pl.ochnios.ninjabe.model.dtos.file.FileDto;
 import pl.ochnios.ninjabe.model.dtos.user.UserDto;
 import pl.ochnios.ninjabe.model.entities.document.DocumentStatus;
 

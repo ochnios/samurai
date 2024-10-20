@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import pl.ochnios.ninjabe.model.mappers.ChatOptionsMapper;
 import pl.ochnios.ninjabe.model.mappers.ConversationMapper;
 import pl.ochnios.ninjabe.model.mappers.DocumentMapper;
+import pl.ochnios.ninjabe.model.mappers.FileMapper;
 import pl.ochnios.ninjabe.model.mappers.MessageMapper;
 import pl.ochnios.ninjabe.model.mappers.PageMapper;
 import pl.ochnios.ninjabe.model.mappers.UserMapper;
@@ -36,6 +37,11 @@ public class MapperConf {
     @Bean
     public ChatOptionsMapper chatOptionsMapper() {
         return Mappers.getMapper(ChatOptionsMapper.class);
+    }
+
+    @Bean
+    public FileMapper fileMapper() {
+        return Mappers.getMapper(FileMapper.class);
     }
 
     @Bean

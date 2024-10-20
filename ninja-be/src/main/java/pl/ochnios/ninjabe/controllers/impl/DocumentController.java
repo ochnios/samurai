@@ -1,7 +1,11 @@
 package pl.ochnios.ninjabe.controllers.impl;
 
 import jakarta.validation.Valid;
+import java.util.UUID;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,9 +27,6 @@ import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.services.DocumentService;
 import pl.ochnios.ninjabe.services.security.AuthService;
-
-import javax.json.JsonPatch;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,6 +60,16 @@ public class DocumentController implements DocumentApi {
     public ResponseEntity<DocumentDto> getDocument(@PathVariable UUID documentId) {
         final var document = documentService.getDocument(documentId);
         return ResponseEntity.ok(document);
+    }
+
+    @PreAuthorize("hasRole('MOD')")
+    @GetMapping("/{documentId}/download")
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable UUID documentId) {
+        final var documentFile = documentService.getDocumentFile(documentId);
+        final var headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", documentFile.getName());
+        return new ResponseEntity<>(documentFile.getContent(), headers, HttpStatus.OK);
     }
 
     @Override

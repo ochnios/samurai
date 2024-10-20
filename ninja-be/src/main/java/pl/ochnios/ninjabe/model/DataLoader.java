@@ -8,6 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import pl.ochnios.ninjabe.model.seeders.BulkSeeder;
 import pl.ochnios.ninjabe.model.seeders.ConversationSeeder;
+import pl.ochnios.ninjabe.model.seeders.DocumentSeeder;
 import pl.ochnios.ninjabe.model.seeders.UserSeeder;
 
 @Component
@@ -17,6 +18,7 @@ public class DataLoader implements ApplicationRunner {
 
     private final UserSeeder userSeeder;
     private final ConversationSeeder conversationSeeder;
+    private final DocumentSeeder documentSeeder;
     private final BulkSeeder bulkSeeder;
 
     @Value("${custom.loader.enabled}")
@@ -31,6 +33,7 @@ public class DataLoader implements ApplicationRunner {
             log.info("Started loading data");
             userSeeder.seed();
             conversationSeeder.seed();
+            documentSeeder.seed();
             if (bulkEnabled) {
                 bulkSeeder.seed();
             }

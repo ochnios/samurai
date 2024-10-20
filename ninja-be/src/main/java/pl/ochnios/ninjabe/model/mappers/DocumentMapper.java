@@ -6,17 +6,17 @@ import pl.ochnios.ninjabe.model.dtos.document.DocumentUploadDto;
 import pl.ochnios.ninjabe.model.entities.document.DocumentEntity;
 import pl.ochnios.ninjabe.model.entities.user.User;
 
-@Mapper
+@Mapper(uses = {UserMapper.class})
 public interface DocumentMapper {
 
     DocumentDto map(DocumentEntity documentEntity);
 
     default DocumentEntity map(User uploader, DocumentUploadDto documentUploadDto) {
-        final var documentEntity = new DocumentEntity(documentUploadDto.getFile());
-        return documentEntity.toBuilder()
+        return DocumentEntity.builder()
+                .multipartFile(documentUploadDto.getFile())
                 .uploader(uploader)
-                .title(documentEntity.getTitle())
-                .description(documentEntity.getDescription())
+                .title(documentUploadDto.getTitle())
+                .description(documentUploadDto.getDescription())
                 .build();
     }
 }

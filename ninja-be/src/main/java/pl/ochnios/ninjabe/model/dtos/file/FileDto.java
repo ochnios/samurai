@@ -1,4 +1,4 @@
-package pl.ochnios.ninjabe.model.dtos.document;
+package pl.ochnios.ninjabe.model.dtos.file;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
@@ -11,7 +11,7 @@ import pl.ochnios.ninjabe.commons.patch.NotPatchable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "${docs.dto.file}")
-public abstract class FileDto {
+public class FileDto {
 
     @NotPatchable
     @Schema(description = "${docs.dto.file.id}")

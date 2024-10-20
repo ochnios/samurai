@@ -1,7 +1,5 @@
 package pl.ochnios.ninjabe.model.entities.document;
 
-import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,15 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.mapstruct.factory.Mappers;
@@ -27,15 +23,22 @@ import org.springframework.web.multipart.MultipartFile;
 import pl.ochnios.ninjabe.model.dtos.PatchDto;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentDto;
 import pl.ochnios.ninjabe.model.entities.PatchableEntity;
+import pl.ochnios.ninjabe.model.entities.file.FileEntity;
 import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.DocumentMapper;
+
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
+
+import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
+@SuperBuilder
 @ToString(callSuper = true)
 @Entity
 @Table(name = "documents")

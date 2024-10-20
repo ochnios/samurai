@@ -10,11 +10,13 @@ import pl.ochnios.ninjabe.commons.patch.JsonPatchService;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentCriteria;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentDto;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentUploadDto;
+import pl.ochnios.ninjabe.model.dtos.file.FileDownloadDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.model.entities.document.DocumentSpecification;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.DocumentMapper;
+import pl.ochnios.ninjabe.model.mappers.FileMapper;
 import pl.ochnios.ninjabe.model.mappers.PageMapper;
 import pl.ochnios.ninjabe.repositories.DocumentRepository;
 
@@ -26,12 +28,19 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final JsonPatchService patchService;
     private final PageMapper pageMapper;
+    private final FileMapper fileMapper;
     private final DocumentMapper documentMapper;
 
     @Transactional(readOnly = true)
     public DocumentDto getDocument(UUID documentId) {
         final var document = documentRepository.findById(documentId);
         return documentMapper.map(document);
+    }
+
+    @Transactional(readOnly = true)
+    public FileDownloadDto getDocumentFile(UUID documentId) {
+        final var document = documentRepository.findById(documentId);
+        return fileMapper.mapToDownloadDto(document);
     }
 
     @Transactional(readOnly = true)
@@ -44,6 +53,7 @@ public class DocumentService {
 
     @Transactional
     public DocumentDto saveDocument(User user, DocumentUploadDto documentUploadDto) {
+        // TODO auto generating document summary if requested
         final var document = documentMapper.map(user, documentUploadDto);
         final var savedDocument = documentRepository.save(document);
         log.info("Document {} saved", savedDocument.getId());
