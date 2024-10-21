@@ -1,5 +1,9 @@
 package pl.ochnios.ninjabe.model.entities.document;
 
+import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.ACTIVE;
+import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.INACTIVE;
+import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +13,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +26,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.mapstruct.factory.Mappers;
-import org.springframework.web.multipart.MultipartFile;
 import pl.ochnios.ninjabe.model.dtos.PatchDto;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentDto;
 import pl.ochnios.ninjabe.model.entities.PatchableEntity;
@@ -27,12 +33,6 @@ import pl.ochnios.ninjabe.model.entities.file.FileEntity;
 import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.DocumentMapper;
-
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
-
-import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED;
 
 @Getter
 @Setter
@@ -43,10 +43,6 @@ import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED
 @Entity
 @Table(name = "documents")
 public class DocumentEntity extends FileEntity implements PatchableEntity {
-
-    public DocumentEntity(MultipartFile multipartFile) {
-        super(multipartFile);
-    }
 
     @Id
     @CustomUuidGenerator
@@ -71,6 +67,7 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private DocumentStatus status = UPLOADED;
 
     @Override
@@ -96,5 +93,25 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
         final var documentPatchDto = (DocumentDto) patchDto;
         title = documentPatchDto.getTitle();
         description = documentPatchDto.getDescription();
+        validateStatusChange(status, documentPatchDto.getStatus());
+        status = documentPatchDto.getStatus();
+    }
+
+    private void validateStatusChange(DocumentStatus current, DocumentStatus requested) {
+        if (current.equals(requested)) {
+            return;
+        }
+
+        if (requested == null) {
+            throw new InvalidDocumentStatusException("Document status must not be null");
+        }
+
+        if (!requested.equals(ACTIVE) && !requested.equals(INACTIVE)) {
+            throw new InvalidDocumentStatusException("Status '" + requested.name() + "' cannot be assigned manually");
+        }
+
+        if (!current.equals(ACTIVE) && !current.equals(INACTIVE)) {
+            throw new InvalidDocumentStatusException("Status '" + current.name() + "' cannot be changed manually");
+        }
     }
 }

@@ -1,8 +1,5 @@
 package pl.ochnios.ninjabe.model.seeders;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -11,6 +8,10 @@ import pl.ochnios.ninjabe.commons.exceptions.ApplicationException;
 import pl.ochnios.ninjabe.model.entities.document.DocumentEntity;
 import pl.ochnios.ninjabe.repositories.DocumentRepository;
 import pl.ochnios.ninjabe.repositories.UserRepository;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,8 +23,8 @@ public class DocumentSeeder implements DataSeeder {
 
     @Override
     public void seed() {
-        createDocument("Sample PDF file", "admin", "files/sample.pdf");
-        createDocument("Sample DOCX file", "mod", "files/sample.docx");
+        createDocument("Sample PDF", "admin", "files/sample.pdf");
+        createDocument("Sample DOCX", "mod", "files/sample.docx");
     }
 
     private void createDocument(String title, String username, String filepath) {

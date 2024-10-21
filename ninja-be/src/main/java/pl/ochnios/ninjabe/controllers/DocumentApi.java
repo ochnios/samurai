@@ -42,6 +42,11 @@ public interface DocumentApi {
     @ApiResponse(responseCode = HTTP_404)
     ResponseEntity<DocumentDto> getDocument(@PathVariable UUID documentId);
 
+    @Operation(summary = "${docs.ctrl.document.download}")
+    @ApiResponse(responseCode = HTTP_200)
+    @ApiResponse(responseCode = HTTP_404)
+    ResponseEntity<byte[]> downloadDocument(@PathVariable UUID documentId);
+
     @Operation(summary = "${docs.ctrl.document.patch}")
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_400)

@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.ochnios.ninjabe.commons.AppConstants;
@@ -42,6 +44,7 @@ import pl.ochnios.ninjabe.repositories.impl.UserCrudRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles({"local", "test"})
 public class ConversationControllerTests {
 
     private static final String CONVERSATIONS_URI = "/conversations";
@@ -74,6 +77,12 @@ public class ConversationControllerTests {
     public void beforeEach() {
         conversationCrudRepository.deleteAll();
         conversationSeeder.seed();
+    }
+
+    @AfterAll
+    public void tearDown() {
+        conversationCrudRepository.deleteAll();
+        userCrudRepository.deleteAll();
     }
 
     @Nested

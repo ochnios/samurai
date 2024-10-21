@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import pl.ochnios.ninjabe.model.seeders.BulkSeeder;
 import pl.ochnios.ninjabe.model.seeders.ConversationSeeder;
@@ -12,6 +13,7 @@ import pl.ochnios.ninjabe.model.seeders.DocumentSeeder;
 import pl.ochnios.ninjabe.model.seeders.UserSeeder;
 
 @Component
+@Profile("!test")
 @RequiredArgsConstructor
 @Slf4j
 public class DataLoader implements ApplicationRunner {

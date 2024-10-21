@@ -4,25 +4,29 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.ochnios.ninjabe.model.entities.user.Role;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "${docs.dto.user}")
 public class UserDto {
 
     @Schema(description = "${docs.dto.user.username}", accessMode = AccessMode.READ_ONLY)
-    private final String username;
+    private String username;
 
     @Schema(description = "${docs.dto.user.firstname}")
-    private final String firstname;
+    private String firstname;
 
     @Schema(description = "${docs.dto.user.lastname}")
-    private final String lastname;
+    private String lastname;
 
     @Schema(description = "${docs.dto.user.email}", accessMode = READ_ONLY)
-    private final String email;
+    private String email;
 
     @Schema(description = "${docs.dto.user.role}")
-    private final Role role;
+    private Role role;
 }

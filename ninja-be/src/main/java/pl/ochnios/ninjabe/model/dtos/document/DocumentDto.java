@@ -1,7 +1,10 @@
 package pl.ochnios.ninjabe.model.dtos.document;
 
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,6 +38,11 @@ public class DocumentDto extends FileDto implements PatchDto {
     @Size(max = 2048, message = "must have at most 2048 characters")
     private String description;
 
+    @NotNull(message = "must not be null")
     @Schema(description = "${docs.dto.document.status}")
     private DocumentStatus status;
+
+    @NotPatchable
+    @Schema(description = "${docs.dto.document.createdAt}", accessMode = READ_ONLY)
+    private String createdAt;
 }

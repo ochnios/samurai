@@ -3,6 +3,12 @@ package pl.ochnios.ninjabe.model.entities.file;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.sql.Blob;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -12,34 +18,12 @@ import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.web.multipart.MultipartFile;
 import pl.ochnios.ninjabe.commons.exceptions.ApplicationException;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URLConnection;
-import java.sql.Blob;
-
 @Getter
 @SuperBuilder
 @NoArgsConstructor
 @ToString
 @MappedSuperclass
 public abstract class FileEntity {
-
-    public FileEntity(MultipartFile multipartFile) {
-        if (multipartFile != null) {
-            try {
-                this.name = multipartFile.getOriginalFilename();
-                this.mimeType = multipartFile.getContentType();
-                this.size = multipartFile.getSize();
-                this.content = BlobProxy.generateProxy(multipartFile.getInputStream(), multipartFile.getSize());
-            } catch (IOException ex) {
-                throw new ApplicationException("Failed to read multipartFile", ex);
-            }
-        } else {
-            throw new ApplicationException("MultipartFile cannot be null");
-        }
-    }
 
     @Nationalized
     @Column(nullable = false, updatable = false)

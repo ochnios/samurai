@@ -10,6 +10,7 @@ import static pl.ochnios.ninjabe.TestUtils.asJsonString;
 import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
 
 import java.util.UUID;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,17 +21,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.ochnios.ninjabe.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.ninjabe.model.seeders.ConversationSeeder;
 import pl.ochnios.ninjabe.model.seeders.UserSeeder;
 import pl.ochnios.ninjabe.repositories.impl.ConversationCrudRepository;
-import pl.ochnios.ninjabe.repositories.impl.MessageCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.UserCrudRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles({"local", "test"})
 public class ChatControllerTests {
 
     private static final String CHAT_URL = "/chat";
@@ -50,9 +52,6 @@ public class ChatControllerTests {
     @Autowired
     private ConversationCrudRepository conversationCrudRepository;
 
-    @Autowired
-    private MessageCrudRepository messageCrudRepository;
-
     @BeforeAll
     public void setup() {
         userCrudRepository.deleteAll();
@@ -62,8 +61,13 @@ public class ChatControllerTests {
     @BeforeEach
     public void beforeEach() {
         conversationCrudRepository.deleteAll();
-        messageCrudRepository.deleteAll();
         conversationSeeder.seed();
+    }
+
+    @AfterAll
+    public void tearDown() {
+        conversationCrudRepository.deleteAll();
+        userCrudRepository.deleteAll();
     }
 
     @Nested
