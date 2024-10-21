@@ -62,7 +62,6 @@ public class DocumentController implements DocumentApi {
         return ResponseEntity.ok(document);
     }
 
-    @PreAuthorize("hasRole('MOD')")
     @GetMapping(value = "/{documentId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> downloadDocument(@PathVariable UUID documentId) {
         final var documentFile = documentService.getDocumentFile(documentId);

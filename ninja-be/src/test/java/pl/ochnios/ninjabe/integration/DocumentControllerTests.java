@@ -2,15 +2,18 @@ package pl.ochnios.ninjabe.integration;
 
 import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static pl.ochnios.ninjabe.TestUtils.asJsonString;
 import static pl.ochnios.ninjabe.TestUtils.asParamsMap;
 import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
+import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -26,6 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -97,14 +103,55 @@ public class DocumentControllerTests {
     @DisplayName("Upload")
     @WithMockUser(username = "mod", roles = "MOD")
     class Upload {
-        // TODO
+
+        private MockMultipartFile file;
+
+        @BeforeEach
+        public void beforeEach() {
+            file = new MockMultipartFile("file", "test.txt", "text/plain", "Test file content".getBytes());
+        }
+
+        @Test
+        public void upload_200() throws Exception {
+            String documentTitle = "Test document title";
+            String documentDescription = "Test document description";
+            final var requestBuilder = MockMvcRequestBuilders.multipart(DOCUMENTS_URI)
+                    .file(file)
+                    .param("title", documentTitle)
+                    .param("description", documentDescription);
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", is(not(blankOrNullString()))))
+                    .andExpect(jsonPath("$.name", is(file.getOriginalFilename())))
+                    .andExpect(jsonPath("$.size", is((int) file.getSize())))
+                    .andExpect(jsonPath("$.uploader.username", is("mod")))
+                    .andExpect(jsonPath("$.title", is(documentTitle)))
+                    .andExpect(jsonPath("$.description", is(documentDescription)))
+                    .andExpect(jsonPath("$.status", is(UPLOADED.name())))
+                    .andExpect(jsonPath("$.createdAt", is(not(emptyOrNullString()))));
+        }
+
+        // TODO test error cases
+        // TODO configure max file size
     }
 
     @Nested
     @DisplayName("Download")
-    @WithMockUser(username = "mod", roles = "MOD")
+    @WithMockUser(username = "user")
     class Download {
-        // TODO
+
+        @Test
+        public void download_by_id_200() throws Exception {
+            final var requestBuilder =
+                    MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + samplePDF.getId() + "/download");
+            mockMvc.perform(requestBuilder)
+                    .andExpect(header().string(
+                                    HttpHeaders.CONTENT_DISPOSITION,
+                                    "form-data; name=\"attachment\"; filename=\"" + samplePDF.getName() + "\""))
+                    .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                    .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, Long.toString(samplePDF.getSize())));
+        }
     }
 
     @Nested
@@ -199,7 +246,8 @@ public class DocumentControllerTests {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
                     .andExpect(jsonPath("$.title", is(patch.getValue())))
-                    .andExpect(jsonPath("$.createdAt", is(not(blankOrNullString()))));
+                    .andExpect(
+                            jsonPath("$.createdAt", is(samplePDF.getCreatedAt().toString())));
         }
 
         @Test
@@ -237,7 +285,8 @@ public class DocumentControllerTests {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
                     .andExpect(jsonPath("$.description", is(patch.getValue())))
-                    .andExpect(jsonPath("$.createdAt", is(not(blankOrNullString()))));
+                    .andExpect(
+                            jsonPath("$.createdAt", is(samplePDF.getCreatedAt().toString())));
         }
 
         @Test
@@ -266,7 +315,8 @@ public class DocumentControllerTests {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
                     .andExpect(jsonPath("$.status", is(patch.getValue())))
-                    .andExpect(jsonPath("$.createdAt", is(not(blankOrNullString()))));
+                    .andExpect(
+                            jsonPath("$.createdAt", is(samplePDF.getCreatedAt().toString())));
         }
 
         @Test
@@ -282,14 +332,15 @@ public class DocumentControllerTests {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
                     .andExpect(jsonPath("$.status", is(patch.getValue())))
-                    .andExpect(jsonPath("$.createdAt", is(not(blankOrNullString()))));
+                    .andExpect(
+                            jsonPath("$.createdAt", is(samplePDF.getCreatedAt().toString())));
         }
 
         @Test
         public void patch_document_status_to_uploaded_400() throws Exception {
             samplePDF.setStatus(DocumentStatus.ACTIVE);
             documentCrudRepository.save(samplePDF);
-            final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.UPLOADED.name());
+            final var patch = new JsonPatchDto("replace", "/status", UPLOADED.name());
             test_validation(patch, "cannot be assigned manually");
         }
 
