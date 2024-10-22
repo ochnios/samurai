@@ -4,8 +4,12 @@ import java.util.UUID;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.unit.DataSize;
+import org.springframework.web.multipart.MultipartFile;
+import pl.ochnios.ninjabe.commons.exceptions.ValidationException;
 import pl.ochnios.ninjabe.commons.patch.JsonPatchService;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentCriteria;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentDto;
@@ -31,6 +35,9 @@ public class DocumentService {
     private final FileMapper fileMapper;
     private final DocumentMapper documentMapper;
 
+    @Value("${spring.servlet.multipart.max-file-size:50MB}")
+    private DataSize maxFileSize;
+
     @Transactional(readOnly = true)
     public DocumentDto getDocument(UUID documentId) {
         final var document = documentRepository.findById(documentId);
@@ -54,6 +61,7 @@ public class DocumentService {
     @Transactional
     public DocumentDto saveDocument(User user, DocumentUploadDto documentUploadDto) {
         // TODO auto generating document summary if requested
+        validateFileSize(documentUploadDto.getFile());
         final var document = documentMapper.map(user, documentUploadDto);
         final var savedDocument = documentRepository.save(document);
         log.info("Document {} saved", savedDocument.getId());
@@ -74,5 +82,11 @@ public class DocumentService {
         final var document = documentRepository.findById(documentId);
         documentRepository.delete(document);
         log.info("Document {} deleted", documentId);
+    }
+
+    private void validateFileSize(MultipartFile multipartFile) {
+        if (multipartFile.getSize() > maxFileSize.toBytes()) {
+            throw new ValidationException("File size must not be greater than " + maxFileSize);
+        }
     }
 }

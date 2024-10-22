@@ -39,6 +39,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.ochnios.ninjabe.commons.AppConstants;
 import pl.ochnios.ninjabe.commons.patch.JsonPatchDto;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentCriteria;
+import pl.ochnios.ninjabe.model.dtos.document.DocumentUploadDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.model.entities.document.DocumentEntity;
 import pl.ochnios.ninjabe.model.entities.document.DocumentStatus;
@@ -104,36 +105,84 @@ public class DocumentControllerTests {
     @WithMockUser(username = "mod", roles = "MOD")
     class Upload {
 
-        private MockMultipartFile file;
+        private DocumentUploadDto documentUploadDto;
 
         @BeforeEach
         public void beforeEach() {
-            file = new MockMultipartFile("file", "test.txt", "text/plain", "Test file content".getBytes());
+            final var file = new MockMultipartFile("file", "test.txt", "text/plain", "Test file content".getBytes());
+            documentUploadDto = new DocumentUploadDto(file, null, "Test document title", "Test document description");
         }
 
         @Test
         public void upload_200() throws Exception {
-            String documentTitle = "Test document title";
-            String documentDescription = "Test document description";
             final var requestBuilder = MockMvcRequestBuilders.multipart(DOCUMENTS_URI)
-                    .file(file)
-                    .param("title", documentTitle)
-                    .param("description", documentDescription);
+                    .file((MockMultipartFile) documentUploadDto.getFile())
+                    .param("title", documentUploadDto.getTitle())
+                    .param("description", documentUploadDto.getDescription());
 
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(not(blankOrNullString()))))
-                    .andExpect(jsonPath("$.name", is(file.getOriginalFilename())))
-                    .andExpect(jsonPath("$.size", is((int) file.getSize())))
+                    .andExpect(jsonPath("$.name", is(documentUploadDto.getFile().getOriginalFilename())))
+                    .andExpect(jsonPath(
+                            "$.size", is((int) documentUploadDto.getFile().getSize())))
                     .andExpect(jsonPath("$.uploader.username", is("mod")))
-                    .andExpect(jsonPath("$.title", is(documentTitle)))
-                    .andExpect(jsonPath("$.description", is(documentDescription)))
+                    .andExpect(jsonPath("$.title", is(documentUploadDto.getTitle())))
+                    .andExpect(jsonPath("$.description", is(documentUploadDto.getDescription())))
                     .andExpect(jsonPath("$.status", is(UPLOADED.name())))
                     .andExpect(jsonPath("$.createdAt", is(not(emptyOrNullString()))));
         }
 
-        // TODO test error cases
-        // TODO configure max file size
+        @Test
+        public void upload_file_too_big_400() throws Exception {
+            final var content = generateTooLongString(50 * 1024 * 1024 + 1);
+            final var tooBigFile = new MockMultipartFile("file", "test.txt", "text/plain", content.getBytes());
+            documentUploadDto.setFile(tooBigFile);
+            test_upload_validation(documentUploadDto, "size must not be greater than");
+        }
+
+        @Test
+        public void upload_title_too_short_400() throws Exception {
+            documentUploadDto.setTitle("Aa");
+            test_upload_validation(documentUploadDto, "must have at least 3 characters");
+        }
+
+        @Test
+        public void upload_title_too_long_400() throws Exception {
+            documentUploadDto.setTitle(generateTooLongString(256));
+            test_upload_validation(documentUploadDto, "must have at most 255 characters");
+        }
+
+        @Test
+        public void upload_title_null_400() throws Exception {
+            documentUploadDto.setTitle(null);
+            test_upload_validation(documentUploadDto, "must not be blank or null");
+        }
+
+        @Test
+        public void upload_description_too_short_400() throws Exception {
+            documentUploadDto.setDescription("Aa");
+            test_upload_validation(documentUploadDto, "must have at least 3 characters");
+        }
+
+        @Test
+        public void upload_description_too_long_400() throws Exception {
+            documentUploadDto.setDescription(generateTooLongString(2049));
+            test_upload_validation(documentUploadDto, "must have at most 2048 characters");
+        }
+
+        private void test_upload_validation(DocumentUploadDto documentUploadDto, String expectedError)
+                throws Exception {
+            final var requestBuilder = MockMvcRequestBuilders.multipart(DOCUMENTS_URI)
+                    .file((MockMultipartFile) (documentUploadDto.getFile()))
+                    .param("title", documentUploadDto.getTitle())
+                    .param("description", documentUploadDto.getDescription());
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0]", containsString(expectedError)));
+        }
+
+        // TODO test description auto generation
     }
 
     @Nested
@@ -253,26 +302,26 @@ public class DocumentControllerTests {
         @Test
         public void patch_document_title_blank_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/title", "   ");
-            test_validation(patch, "title must not be blank or null");
+            test_patch_validation(patch, "title must not be blank or null");
         }
 
         @Test
         public void patch_document_title_null_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/title", null);
-            test_validation(patch, "title must not be blank or null");
+            test_patch_validation(patch, "title must not be blank or null");
         }
 
         @Test
         public void patch_document_title_too_short_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/title", "xx");
-            test_validation(patch, "title must have at least");
+            test_patch_validation(patch, "title must have at least");
         }
 
         @Test
         public void patch_document_title_long_400() throws Exception {
             final var tooLongTitle = generateTooLongString(256);
             final var patch = new JsonPatchDto("replace", "/title", tooLongTitle);
-            test_validation(patch, "title must have at most");
+            test_patch_validation(patch, "title must have at most");
         }
 
         @Test
@@ -292,14 +341,14 @@ public class DocumentControllerTests {
         @Test
         public void patch_document_description_too_short_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/description", "xx");
-            test_validation(patch, "description must have at least");
+            test_patch_validation(patch, "description must have at least");
         }
 
         @Test
         public void patch_document_description_too_long_400() throws Exception {
             final var tooLongDescription = generateTooLongString(2049);
             final var patch = new JsonPatchDto("replace", "/description", tooLongDescription);
-            test_validation(patch, "description must have at most");
+            test_patch_validation(patch, "description must have at most");
         }
 
         @Test
@@ -341,7 +390,7 @@ public class DocumentControllerTests {
             samplePDF.setStatus(DocumentStatus.ACTIVE);
             documentCrudRepository.save(samplePDF);
             final var patch = new JsonPatchDto("replace", "/status", UPLOADED.name());
-            test_validation(patch, "cannot be assigned manually");
+            test_patch_validation(patch, "cannot be assigned manually");
         }
 
         @Test
@@ -349,34 +398,34 @@ public class DocumentControllerTests {
             samplePDF.setStatus(DocumentStatus.ACTIVE);
             documentCrudRepository.save(samplePDF);
             final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.FAILED.name());
-            test_validation(patch, "cannot be assigned manually");
+            test_patch_validation(patch, "cannot be assigned manually");
         }
 
         @Test
         public void patch_document_status_from_uploaded_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
-            test_validation(patch, "cannot be changed manually");
+            test_patch_validation(patch, "cannot be changed manually");
         }
 
         @Test
         public void patch_document_status_from_failed_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
-            test_validation(patch, "cannot be changed manually");
+            test_patch_validation(patch, "cannot be changed manually");
         }
 
         @Test
         public void patch_document_not_patchable_field_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/id", UUID.nameUUIDFromBytes("fake".getBytes()));
-            test_validation(patch, "'id' is not patchable");
+            test_patch_validation(patch, "'id' is not patchable");
         }
 
         @Test
         public void patch_document_not_existing_field_400() throws Exception {
             final var patch = new JsonPatchDto("add", "/owner", "johndoe");
-            test_validation(patch, "'owner' does not exist in");
+            test_patch_validation(patch, "'owner' does not exist in");
         }
 
-        private void test_validation(JsonPatchDto jsonPatchDto, String expectedError) throws Exception {
+        private void test_patch_validation(JsonPatchDto jsonPatchDto, String expectedError) throws Exception {
             final var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
                     .content(asJsonString(Set.of(jsonPatchDto)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
