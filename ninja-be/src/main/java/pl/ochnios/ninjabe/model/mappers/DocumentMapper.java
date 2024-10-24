@@ -11,10 +11,10 @@ public interface DocumentMapper {
 
     DocumentDto map(DocumentEntity documentEntity);
 
-    default DocumentEntity map(User uploader, DocumentUploadDto documentUploadDto) {
+    default DocumentEntity map(User user, DocumentUploadDto documentUploadDto) {
         return DocumentEntity.builder()
                 .multipartFile(documentUploadDto.getFile())
-                .uploader(uploader)
+                .user(user)
                 .title(documentUploadDto.getTitle())
                 .description(documentUploadDto.getDescription())
                 .build();

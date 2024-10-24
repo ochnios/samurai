@@ -1,9 +1,5 @@
 package pl.ochnios.ninjabe.model.entities.document;
 
-import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.ACTIVE;
-import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.INACTIVE;
-import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,9 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,6 +27,14 @@ import pl.ochnios.ninjabe.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.ninjabe.model.entities.user.User;
 import pl.ochnios.ninjabe.model.mappers.DocumentMapper;
 
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
+
+import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.ACTIVE;
+import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.ARCHIVED;
+import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -51,7 +52,7 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User uploader;
+    private User user;
 
     @Nationalized
     private String title;
@@ -106,11 +107,11 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
             throw new InvalidDocumentStatusException("Document status must not be null");
         }
 
-        if (!requested.equals(ACTIVE) && !requested.equals(INACTIVE)) {
+        if (!requested.equals(ACTIVE) && !requested.equals(ARCHIVED)) {
             throw new InvalidDocumentStatusException("Status '" + requested.name() + "' cannot be assigned manually");
         }
 
-        if (!current.equals(ACTIVE) && !current.equals(INACTIVE)) {
+        if (!current.equals(ACTIVE) && !current.equals(ARCHIVED)) {
             throw new InvalidDocumentStatusException("Status '" + current.name() + "' cannot be changed manually");
         }
     }

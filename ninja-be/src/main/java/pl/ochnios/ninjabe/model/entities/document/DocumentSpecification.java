@@ -1,10 +1,11 @@
 package pl.ochnios.ninjabe.model.entities.document;
 
 import jakarta.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentCriteria;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DocumentSpecification {
 
@@ -42,8 +43,8 @@ public class DocumentSpecification {
                 String fullNamePattern = "%" + criteria.getUserFullName().toLowerCase() + "%";
                 Predicate fullNamePredicate = builder.like(
                         builder.lower(builder.concat(
-                                builder.concat(root.join("uploader").get("lastname"), " "),
-                                root.join("uploader").get("firstname"))),
+                                builder.concat(root.join("user").get("lastname"), " "),
+                                root.join("user").get("firstname"))),
                         fullNamePattern);
                 predicates.add(fullNamePredicate);
             }

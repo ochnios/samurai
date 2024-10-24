@@ -10,7 +10,7 @@ export default function HighlightedText(props: HighlightedTextProps) {
     const index = props.text.toLowerCase().indexOf(props.phrase.toLowerCase());
     if (index !== -1) {
       return (
-        <Text>
+        <Text fz={"inherit"} span>
           {props.text.substring(0, index)}
           <Mark>
             {props.text.substring(index, index + props.phrase.length)}
@@ -20,5 +20,9 @@ export default function HighlightedText(props: HighlightedTextProps) {
       );
     }
   }
-  return <>{props.text}</>;
+  return (
+    <Text fz={"inherit"} span>
+      {props.text}
+    </Text>
+  );
 }

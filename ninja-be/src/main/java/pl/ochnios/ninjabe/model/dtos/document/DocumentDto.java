@@ -24,8 +24,8 @@ import pl.ochnios.ninjabe.model.entities.document.DocumentStatus;
 public class DocumentDto extends FileDto implements PatchDto {
 
     @NotPatchable
-    @Schema(description = "${docs.dto.document.uploader}")
-    private UserDto uploader;
+    @Schema(description = "${docs.dto.document.user}")
+    private UserDto user;
 
     @Schema(description = "${docs.dto.document.title}")
     @NotBlank(message = "must not be blank or null")

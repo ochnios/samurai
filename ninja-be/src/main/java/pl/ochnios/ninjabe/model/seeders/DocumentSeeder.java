@@ -33,7 +33,7 @@ public class DocumentSeeder implements DataSeeder {
         final var document = DocumentEntity.builder()
                 .id(UUID.nameUUIDFromBytes(title.getBytes()))
                 .file(file)
-                .uploader(user)
+                .user(user)
                 .title(title)
                 .description(title + " - " + "description")
                 .build();

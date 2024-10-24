@@ -126,7 +126,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.name", is(documentUploadDto.getFile().getOriginalFilename())))
                     .andExpect(jsonPath(
                             "$.size", is((int) documentUploadDto.getFile().getSize())))
-                    .andExpect(jsonPath("$.uploader.username", is("mod")))
+                    .andExpect(jsonPath("$.user.username", is("mod")))
                     .andExpect(jsonPath("$.title", is(documentUploadDto.getTitle())))
                     .andExpect(jsonPath("$.description", is(documentUploadDto.getDescription())))
                     .andExpect(jsonPath("$.status", is(UPLOADED.name())))
@@ -233,8 +233,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.items[0].name", is(samplePDF.getName())))
                     .andExpect(jsonPath("$.items[0].size", is((int) samplePDF.getSize())))
                     .andExpect(jsonPath(
-                            "$.items[0].uploader.username",
-                            is(samplePDF.getUploader().getUsername())))
+                            "$.items[0].user.username", is(samplePDF.getUser().getUsername())))
                     .andExpect(jsonPath("$.items[0].title", is(samplePDF.getTitle())))
                     .andExpect(jsonPath("$.items[0].description", is(samplePDF.getDescription())))
                     .andExpect(jsonPath(
@@ -263,8 +262,8 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.id", is(sampleDOCX.getId().toString())))
                     .andExpect(jsonPath("$.name", is(sampleDOCX.getName())))
                     .andExpect(jsonPath("$.size", is((int) sampleDOCX.getSize())))
-                    .andExpect(jsonPath(
-                            "$.uploader.username", is(sampleDOCX.getUploader().getUsername())))
+                    .andExpect(
+                            jsonPath("$.user.username", is(sampleDOCX.getUser().getUsername())))
                     .andExpect(jsonPath("$.title", is(sampleDOCX.getTitle())))
                     .andExpect(jsonPath("$.description", is(sampleDOCX.getDescription())))
                     .andExpect(jsonPath("$.status", is(sampleDOCX.getStatus().toString())))
@@ -353,7 +352,7 @@ public class DocumentControllerTests {
 
         @Test
         public void patch_document_status_to_active_200() throws Exception {
-            samplePDF.setStatus(DocumentStatus.INACTIVE);
+            samplePDF.setStatus(DocumentStatus.ARCHIVED);
             documentCrudRepository.save(samplePDF);
 
             final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
@@ -369,11 +368,11 @@ public class DocumentControllerTests {
         }
 
         @Test
-        public void patch_document_status_to_inactive_200() throws Exception {
+        public void patch_document_status_to_archived_200() throws Exception {
             samplePDF.setStatus(DocumentStatus.ACTIVE);
             documentCrudRepository.save(samplePDF);
 
-            final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.INACTIVE.name());
+            final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ARCHIVED.name());
             final var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
                     .content(asJsonString(Set.of(patch)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
@@ -527,7 +526,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.totalPages", is(1)))
                     .andExpect(jsonPath("$.items", hasSize(1)))
                     .andExpect(jsonPath("$.items[0].id", is(samplePDF.getId().toString())))
-                    .andExpect(jsonPath("$.items[0].uploader.lastname", is("Admin")));
+                    .andExpect(jsonPath("$.items[0].user.lastname", is("Admin")));
         }
 
         @Test
@@ -542,8 +541,8 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.totalPages", is(1)))
                     .andExpect(jsonPath("$.items", hasSize(1)))
                     .andExpect(jsonPath("$.items[0].id", is(samplePDF.getId().toString())))
-                    .andExpect(jsonPath("$.items[0].uploader.lastname", is("Admin")))
-                    .andExpect(jsonPath("$.items[0].uploader.firstname", is("John")));
+                    .andExpect(jsonPath("$.items[0].user.lastname", is("Admin")))
+                    .andExpect(jsonPath("$.items[0].user.firstname", is("John")));
         }
 
         @Test
