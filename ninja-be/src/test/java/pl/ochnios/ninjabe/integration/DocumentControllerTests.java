@@ -1,5 +1,6 @@
 package pl.ochnios.ninjabe.integration;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyOrNullString;
@@ -18,6 +19,7 @@ import static pl.ochnios.ninjabe.model.entities.document.DocumentStatus.UPLOADED
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
@@ -197,7 +199,7 @@ public class DocumentControllerTests {
             mockMvc.perform(requestBuilder)
                     .andExpect(header().string(
                                     HttpHeaders.CONTENT_DISPOSITION,
-                                    "form-data; name=\"attachment\"; filename=\"" + samplePDF.getName() + "\""))
+                                    "form-data; name=\"attachment\"; filename*=UTF-8''" + samplePDF.getName()))
                     .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
                     .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, Long.toString(samplePDF.getSize())));
         }
@@ -445,6 +447,8 @@ public class DocumentControllerTests {
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNoContent())
                     .andExpect(content().string(""));
+            final var document = documentCrudRepository.findById(samplePDF.getId());
+            assertThat(document, is(Optional.empty()));
         }
 
         @Test

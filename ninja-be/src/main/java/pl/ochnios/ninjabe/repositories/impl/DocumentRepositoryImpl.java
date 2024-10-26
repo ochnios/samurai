@@ -34,5 +34,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     }
 
     @Override
-    public void delete(DocumentEntity documentEntity) {}
+    public void delete(DocumentEntity documentEntity) {
+        documentCrudRepository.delete(documentEntity);
+    }
 }

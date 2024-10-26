@@ -1,6 +1,8 @@
 package pl.ochnios.ninjabe.controllers.impl;
 
 import jakarta.validation.Valid;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import pl.ochnios.ninjabe.controllers.DocumentApi;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentCriteria;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentDto;
 import pl.ochnios.ninjabe.model.dtos.document.DocumentUploadDto;
+import pl.ochnios.ninjabe.model.dtos.file.FileDownloadDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageDto;
 import pl.ochnios.ninjabe.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.ninjabe.services.DocumentService;
@@ -65,9 +68,7 @@ public class DocumentController implements DocumentApi {
     @GetMapping(value = "/{documentId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> downloadDocument(@PathVariable UUID documentId) {
         final var documentFile = documentService.getDocumentFile(documentId);
-        final var headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", documentFile.getName());
+        final var headers = createFileDownloadHeaders(documentFile);
         return new ResponseEntity<>(documentFile.getContent(), headers, HttpStatus.OK);
     }
 
@@ -85,5 +86,14 @@ public class DocumentController implements DocumentApi {
     public ResponseEntity<Void> deleteDocument(@PathVariable UUID documentId) {
         documentService.deleteDocument(documentId);
         return ResponseEntity.noContent().build();
+    }
+
+    private HttpHeaders createFileDownloadHeaders(FileDownloadDto file) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        String encodedFilename = "UTF-8''"
+                + URLEncoder.encode(file.getName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "form-data; name=\"attachment\"; filename*=" + encodedFilename);
+        return headers;
     }
 }
