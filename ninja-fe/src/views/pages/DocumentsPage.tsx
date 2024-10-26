@@ -20,6 +20,7 @@ import { Page } from "../../model/api/page/Page.ts";
 import { User } from "../../model/api/user/User.ts";
 import {
   createPageRequest,
+  deleteDocument,
   fetchDocuments,
   formatFileSize,
   MAX_FILE_SIZE,
@@ -65,7 +66,7 @@ export default function DocumentsPage() {
       .finally(() => setLoading(false));
   }, [pageRequest]);
 
-  function addDocument(document: DocumentUpload) {
+  function handleAddDocument(document: DocumentUpload) {
     uploadDocument(document)
       .then((response) => {
         setPage({
@@ -78,6 +79,21 @@ export default function DocumentsPage() {
       })
       .catch(() => {
         showErrorMessage("Failed to upload document");
+      });
+  }
+
+  function handleDeleteDocument(id: string) {
+    deleteDocument(id)
+      .then(() => {
+        setPage({
+          ...page,
+          items: [...page.items.filter((d) => d.id !== id)],
+          totalPages: page.totalElements - 1,
+        });
+        showInfoMessage("Document deleted successfully");
+      })
+      .catch(() => {
+        showErrorMessage("Failed to delete document");
       });
   }
 
@@ -186,8 +202,12 @@ export default function DocumentsPage() {
       <Button
         onClick={() => {
           modals.open({
-            title: <Text>Upload document</Text>,
-            children: <DocumentForm onSubmit={addDocument} />,
+            title: (
+              <Text fz="h3" fw="bold" span>
+                Upload document
+              </Text>
+            ),
+            children: <DocumentForm onSubmit={handleAddDocument} />,
             size: "xl",
           });
         }}
@@ -219,7 +239,30 @@ export default function DocumentsPage() {
               Restore
             </Menu.Item>
           )}
-          <Menu.Item color="red" leftSection={<IconTrash />}>
+          <Menu.Item
+            color="red"
+            leftSection={<IconTrash />}
+            onClick={() => {
+              modals.openConfirmModal({
+                title: (
+                  <Text fz="h3" fw="bold" span>
+                    Delete document
+                  </Text>
+                ),
+                children: (
+                  <>
+                    <Text>
+                      Are you sure? The document will be permanently deleted,
+                      this action cannot be undone
+                    </Text>
+                  </>
+                ),
+                labels: { confirm: "Delete", cancel: "Cancel" },
+                onConfirm: () => handleDeleteDocument(page.items[row.index].id),
+                size: "md",
+              });
+            }}
+          >
             Delete
           </Menu.Item>
         </>
