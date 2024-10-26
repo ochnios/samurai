@@ -2,6 +2,7 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
 import "mantine-react-table/styles.css";
+import "./custom.css";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import axios from "axios";
@@ -12,6 +13,7 @@ import { unauthenticate } from "./reducers/authSlice.ts";
 import router from "./router.tsx";
 import store from "./store.ts";
 import { theme } from "./theme";
+import { ModalsProvider } from "@mantine/modals";
 
 axios.defaults.baseURL = config.baseUrl;
 axios.defaults.withCredentials = true;
@@ -48,7 +50,9 @@ export default function App() {
     <Provider store={store}>
       <MantineProvider theme={theme}>
         <Notifications position="top-right" autoClose={10000} />
-        <RouterProvider router={router} />
+        <ModalsProvider>
+          <RouterProvider router={router} />
+        </ModalsProvider>
       </MantineProvider>
     </Provider>
   );

@@ -1,10 +1,10 @@
 import { notifications } from "@mantine/notifications";
 
-export function showNotImplementedMessage() {
+export function showInfoMessage(message: string) {
   notifications.show({
     color: "violet",
     title: "Info",
-    message: "This feature not implemented yet",
+    message: message,
   });
 }
 
@@ -14,6 +14,10 @@ export function showErrorMessage(message: string) {
     title: "Error",
     message: message,
   });
+}
+
+export function showNotImplementedMessage() {
+  showInfoMessage("This feature not implemented yet");
 }
 
 export function normalizePostfix(...params: string[]): string {

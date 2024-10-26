@@ -1,4 +1,4 @@
-import { Box, Menu, Text } from "@mantine/core";
+import { Box, Button, Menu, Text } from "@mantine/core";
 import {
   IconArchive,
   IconDownload,
@@ -22,17 +22,23 @@ import {
   createPageRequest,
   fetchDocuments,
   formatFileSize,
+  MAX_FILE_SIZE,
+  uploadDocument,
 } from "../../model/service/documentService.ts";
-import { showErrorMessage } from "../../utils.ts";
+import { showErrorMessage, showInfoMessage } from "../../utils.ts";
 import DocumentStatusBadge from "../components/document/DocumentStatusBadge.tsx";
 import HighlightedText from "../components/table/HiglightedText.tsx";
 import { Document } from "../../model/api/document/Document.ts";
+import DocumentForm from "../components/document/DocumentForm.tsx";
+import { DocumentUpload } from "../../model/api/document/DocumentUpload.ts";
+import { modals } from "@mantine/modals";
+import { EmptyPage } from "../../model/api/page/EmptyPage.ts";
 
 export default function DocumentsPage() {
   const tableState = useTableState("documents");
   const tableFilters = useTableFilters();
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState<Page<Document>>();
+  const [page, setPage] = useState<Page<Document>>(EmptyPage.of);
   const [pageRequest, setPageRequest] = useState(
     createPageRequest(tableState, tableFilters),
   );
@@ -59,6 +65,22 @@ export default function DocumentsPage() {
       .finally(() => setLoading(false));
   }, [pageRequest]);
 
+  function addDocument(document: DocumentUpload) {
+    uploadDocument(document)
+      .then((response) => {
+        setPage({
+          ...page,
+          items: [response, ...page.items],
+          totalPages: page.totalElements + 1,
+        });
+        modals.closeAll();
+        showInfoMessage("Document uploaded successfully");
+      })
+      .catch(() => {
+        showErrorMessage("Failed to upload document");
+      });
+  }
+
   const columns = useMemo<MRT_ColumnDef<Document>[]>(
     () => [
       {
@@ -83,9 +105,10 @@ export default function DocumentsPage() {
                 : (tableFilters.columnFilters.find((e) => e.id == "user")
                     ?.value as string)
             }
-            fontSize="xs"
           />
         ),
+        size: 180,
+        grow: false,
       },
       {
         accessorKey: "size",
@@ -95,11 +118,13 @@ export default function DocumentsPage() {
         filterFn: "betweenInclusive",
         Cell: ({ cell }) => formatFileSize(cell.getValue<number>()),
         mantineFilterRangeSliderProps: {
-          max: 52_428_800, // 50MB
+          max: MAX_FILE_SIZE,
           min: 0,
           step: 1000,
           label: (value) => `${value}B`,
         },
+        size: 120,
+        grow: false,
       },
       {
         accessorKey: "status",
@@ -112,6 +137,8 @@ export default function DocumentsPage() {
         Cell: ({ cell }) => (
           <DocumentStatusBadge status={cell.getValue<DocumentStatus>()} />
         ),
+        size: 140,
+        grow: false,
       },
       {
         accessorKey: "createdAt",
@@ -123,6 +150,8 @@ export default function DocumentsPage() {
           `${cell.getValue<Date>().toLocaleDateString()} ${cell
             .getValue<Date>()
             .toLocaleTimeString()}`,
+        size: 200,
+        grow: false,
       },
     ],
     [page],
@@ -130,15 +159,15 @@ export default function DocumentsPage() {
 
   const table = useMantineReactTable({
     columns: columns,
-    data: page?.items ?? [],
-    editDisplayMode: "row",
+    data: page.items,
+    layoutMode: "grid",
     enableEditing: true,
     positionActionsColumn: "last",
     onColumnVisibilityChange: tableState.setColumnVisibility,
     onDensityChange: tableState.setRowDensity,
     manualPagination: true,
     onPaginationChange: tableState.setPagination,
-    rowCount: page?.totalElements,
+    rowCount: page.totalElements,
     manualSorting: true,
     onSortingChange: tableState.setSorting,
     manualFiltering: true,
@@ -153,9 +182,22 @@ export default function DocumentsPage() {
       columnFilters: tableFilters.columnFilters,
       globalFilter: tableFilters.globalFilter,
     },
+    renderTopToolbarCustomActions: () => (
+      <Button
+        onClick={() => {
+          modals.open({
+            title: <Text>Upload document</Text>,
+            children: <DocumentForm onSubmit={addDocument} />,
+            size: "xl",
+          });
+        }}
+      >
+        Upload document
+      </Button>
+    ),
     renderRowActionMenuItems: ({ row }) => {
       const apiUrl = config.baseUrl;
-      const document = page?.items[row.index];
+      const document = page.items[row.index];
       return (
         <>
           <Menu.Item leftSection={<IconFileStack />}>View chunks</Menu.Item>
@@ -190,7 +232,7 @@ export default function DocumentsPage() {
             Description:{" "}
           </Text>
           <HighlightedText
-            text={page?.items[row.index].description}
+            text={page.items[row.index].description}
             phrase={
               tableFilters.globalFilter
                 ? tableFilters.globalFilter

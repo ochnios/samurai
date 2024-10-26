@@ -18,12 +18,13 @@ import {
 } from "../../model/service/conversationService.ts";
 import { showErrorMessage } from "../../utils.ts";
 import HighlightedText from "../components/table/HiglightedText.tsx";
+import { EmptyPage } from "../../model/api/page/EmptyPage.ts";
 
 export default function ConversationsPage() {
   const tableState = useTableState("conversations");
   const tableFilters = useTableFilters();
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState<Page<ConversationDetails>>();
+  const [page, setPage] = useState<Page<ConversationDetails>>(EmptyPage.of);
   const [pageRequest, setPageRequest] = useState(
     createPageRequest(tableState, tableFilters),
   );
@@ -55,12 +56,10 @@ export default function ConversationsPage() {
       {
         accessorKey: "summary",
         header: "Summary",
-        enableEditing: false,
       },
       {
         accessorKey: "user",
         header: "User",
-        enableEditing: false,
         Cell: ({ cell }) => (
           <HighlightedText
             text={`${cell.getValue<User>().lastname} ${cell.getValue<User>().firstname}`}
@@ -72,18 +71,20 @@ export default function ConversationsPage() {
             }
           />
         ),
+        size: 180,
+        grow: false,
       },
       {
         accessorKey: "messageCount",
         header: "Message count",
-        enableEditing: false,
         filterVariant: "range",
         filterFn: "betweenInclusive",
+        size: 120,
+        grow: false,
       },
       {
         accessorKey: "deleted",
         header: "Deleted",
-        enableEditing: false,
         accessorFn: (row) => (row.deleted ? "Yes" : "No"),
         filterVariant: "select",
         mantineFilterSelectProps: {
@@ -92,17 +93,20 @@ export default function ConversationsPage() {
             { label: "No", value: "false" },
           ],
         },
+        size: 120,
+        grow: false,
       },
       {
         accessorKey: "createdAt",
         header: "Started",
-        enableEditing: false,
         accessorFn: (row) => new Date(row.createdAt),
         filterVariant: "date-range",
         Cell: ({ cell }) =>
           `${cell.getValue<Date>().toLocaleDateString()} ${cell
             .getValue<Date>()
             .toLocaleTimeString()}`,
+        size: 200,
+        grow: false,
       },
     ],
     [page],
@@ -110,14 +114,14 @@ export default function ConversationsPage() {
 
   const table = useMantineReactTable({
     columns: columns,
-    data: page?.items ?? [],
+    data: page.items,
     enableEditing: false,
     enableRowActions: true,
     onColumnVisibilityChange: tableState.setColumnVisibility,
     onDensityChange: tableState.setRowDensity,
     manualPagination: true,
     onPaginationChange: tableState.setPagination,
-    rowCount: page?.totalElements,
+    rowCount: page.totalElements,
     manualSorting: true,
     onSortingChange: tableState.setSorting,
     manualFiltering: true,
@@ -136,7 +140,7 @@ export default function ConversationsPage() {
     renderRowActions: ({ row }) => (
       <Flex gap="md">
         <Tooltip label="Preview">
-          <Link to={`/conversations/${page?.items[row.index].id}?preview=1`}>
+          <Link to={`/conversations/${page.items[row.index].id}?preview=1`}>
             <ActionIcon>
               <IconEye />
             </ActionIcon>

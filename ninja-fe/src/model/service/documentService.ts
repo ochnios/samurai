@@ -10,6 +10,13 @@ import { PageRequest } from "../api/page/PageRequest.ts";
 import { PageRequestImpl } from "../api/page/PageRequestImpl.ts";
 import { Patch } from "../api/patch/Patch.ts";
 import { processSorting } from "./sortService.ts";
+import { DocumentUpload } from "../api/document/DocumentUpload.ts";
+
+export const MAX_FILE_SIZE = 52_428_800;
+export const MIN_TITLE_LENGTH = 3;
+export const MAX_TITLE_LENGTH = 255;
+export const MIN_DESCRIPTION_LENGTH = 3;
+export const MAX_DESCRIPTION_LENGTH = 2048;
 
 const documentsUrl = "/documents";
 
@@ -35,6 +42,21 @@ export const fetchDocuments = async (
       throw error;
     });
 };
+
+export const uploadDocument = async (
+  document: DocumentUpload,
+): Promise<Document> => {
+  return await axios
+    .post<Document>(`${documentsUrl}`, document, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
+};
+
 export const patchDocument = async (
   documentId: string,
   patch: Patch[],
