@@ -2,6 +2,7 @@ import { Box, Button, Menu, Text } from "@mantine/core";
 import {
   IconArchive,
   IconDownload,
+  IconEdit,
   IconFileStack,
   IconRestore,
   IconTrash,
@@ -24,16 +25,19 @@ import {
   fetchDocuments,
   formatFileSize,
   MAX_FILE_SIZE,
+  patchDocument,
   uploadDocument,
 } from "../../model/service/documentService.ts";
 import { showErrorMessage, showInfoMessage } from "../../utils.ts";
 import DocumentStatusBadge from "../components/document/DocumentStatusBadge.tsx";
 import HighlightedText from "../components/table/HiglightedText.tsx";
 import { Document } from "../../model/api/document/Document.ts";
-import DocumentForm from "../components/document/DocumentForm.tsx";
+import DocumentUploadForm from "../components/document/DocumentUploadForm.tsx";
 import { DocumentUpload } from "../../model/api/document/DocumentUpload.ts";
 import { modals } from "@mantine/modals";
 import { EmptyPage } from "../../model/api/page/EmptyPage.ts";
+import DocumentEditForm from "../components/document/DocumentEditForm.tsx";
+import { JsonPatch } from "../../model/api/patch/JsonPatch.ts";
 
 export default function DocumentsPage() {
   const tableState = useTableState("documents");
@@ -82,6 +86,21 @@ export default function DocumentsPage() {
       });
   }
 
+  function handleUpdateDocument(id: string, patchArray: JsonPatch) {
+    patchDocument(id, patchArray)
+      .then((response) => {
+        setPage({
+          ...page,
+          items: page.items.map((d) => (d.id != id ? d : response)),
+        });
+        modals.closeAll();
+        showInfoMessage("Changes saved successfully");
+      })
+      .catch(() => {
+        showErrorMessage("Failed to save changes");
+      });
+  }
+
   function handleDeleteDocument(id: string) {
     deleteDocument(id)
       .then(() => {
@@ -106,12 +125,10 @@ export default function DocumentsPage() {
       {
         accessorKey: "name",
         header: "Filename",
-        enableEditing: false,
       },
       {
         accessorKey: "user",
         header: "Uploaded by",
-        enableEditing: false,
         Cell: ({ cell }) => (
           <HighlightedText
             text={`${cell.getValue<User>().lastname} ${cell.getValue<User>().firstname}`}
@@ -129,7 +146,6 @@ export default function DocumentsPage() {
       {
         accessorKey: "size",
         header: "Size",
-        enableEditing: false,
         filterVariant: "range-slider",
         filterFn: "betweenInclusive",
         Cell: ({ cell }) => formatFileSize(cell.getValue<number>()),
@@ -145,7 +161,6 @@ export default function DocumentsPage() {
       {
         accessorKey: "status",
         header: "Status",
-        enableEditing: false,
         filterVariant: "select",
         mantineFilterSelectProps: {
           data: Object.values(DocumentStatus),
@@ -159,7 +174,6 @@ export default function DocumentsPage() {
       {
         accessorKey: "createdAt",
         header: "Uploaded at",
-        enableEditing: false,
         accessorFn: (row) => new Date(row.createdAt),
         filterVariant: "date-range",
         Cell: ({ cell }) =>
@@ -177,7 +191,8 @@ export default function DocumentsPage() {
     columns: columns,
     data: page.items,
     layoutMode: "grid",
-    enableEditing: true,
+    enableEditing: false,
+    enableRowActions: true,
     positionActionsColumn: "last",
     onColumnVisibilityChange: tableState.setColumnVisibility,
     onDensityChange: tableState.setRowDensity,
@@ -207,7 +222,7 @@ export default function DocumentsPage() {
                 Upload document
               </Text>
             ),
-            children: <DocumentForm onSubmit={handleAddDocument} />,
+            children: <DocumentUploadForm onSubmit={handleAddDocument} />,
             size: "xl",
           });
         }}
@@ -220,6 +235,27 @@ export default function DocumentsPage() {
       const document = page.items[row.index];
       return (
         <>
+          <Menu.Item
+            leftSection={<IconEdit />}
+            onClick={() => {
+              modals.open({
+                title: (
+                  <Text fz="h3" fw="bold" span>
+                    Edit document
+                  </Text>
+                ),
+                children: (
+                  <DocumentEditForm
+                    current={page.items[row.index]}
+                    onSubmit={handleUpdateDocument}
+                  />
+                ),
+                size: "xl",
+              });
+            }}
+          >
+            Edit
+          </Menu.Item>
           <Menu.Item leftSection={<IconFileStack />}>View chunks</Menu.Item>
           <Menu.Item
             leftSection={<IconDownload />}
@@ -250,12 +286,10 @@ export default function DocumentsPage() {
                   </Text>
                 ),
                 children: (
-                  <>
-                    <Text>
-                      Are you sure? The document will be permanently deleted,
-                      this action cannot be undone
-                    </Text>
-                  </>
+                  <Text>
+                    Are you sure? The document will be permanently deleted, this
+                    action cannot be undone
+                  </Text>
                 ),
                 labels: { confirm: "Delete", cancel: "Cancel" },
                 onConfirm: () => handleDeleteDocument(page.items[row.index].id),
@@ -269,22 +303,20 @@ export default function DocumentsPage() {
       );
     },
     renderDetailPanel: ({ row }) => (
-      <Box>
-        <Text fz="sm">
-          <Text fz="sm" fw="bold" span>
-            Description:{" "}
-          </Text>
-          <HighlightedText
-            text={page.items[row.index].description}
-            phrase={
-              tableFilters.globalFilter
-                ? tableFilters.globalFilter
-                : (tableFilters.columnFilters.find((e) => e.id == "user")
-                    ?.value as string)
-            }
-          />
+      <Text fz="sm">
+        <Text fz="sm" fw="bold" span>
+          Description:{" "}
         </Text>
-      </Box>
+        <HighlightedText
+          text={page.items[row.index].description}
+          phrase={
+            tableFilters.globalFilter
+              ? tableFilters.globalFilter
+              : (tableFilters.columnFilters.find((e) => e.id == "user")
+                  ?.value as string)
+          }
+        />
+      </Text>
     ),
   });
 

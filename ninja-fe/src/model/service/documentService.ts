@@ -8,7 +8,7 @@ import { DocumentCriteriaImpl } from "../api/document/DocumentCriteriaImpl.ts";
 import { Page } from "../api/page/Page.ts";
 import { PageRequest } from "../api/page/PageRequest.ts";
 import { PageRequestImpl } from "../api/page/PageRequestImpl.ts";
-import { Patch } from "../api/patch/Patch.ts";
+import { JsonPatch } from "../api/patch/JsonPatch.ts";
 import { processSorting } from "./sortService.ts";
 import { DocumentUpload } from "../api/document/DocumentUpload.ts";
 
@@ -59,10 +59,10 @@ export const uploadDocument = async (
 
 export const patchDocument = async (
   documentId: string,
-  patch: Patch[],
+  jsonPatch: JsonPatch,
 ): Promise<Document> => {
   return await axios
-    .patch<Document>(`${documentsUrl}/${documentId}`, patch)
+    .patch<Document>(`${documentsUrl}/${documentId}`, jsonPatch.nodes)
     .then((response) => response.data)
     .catch((error) => {
       console.error(error);
@@ -99,4 +99,26 @@ export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + " " + sizes[i];
+};
+
+export const validateFile = (value: File | null): string | null => {
+  return value && value.size < MAX_FILE_SIZE
+    ? null
+    : "File is required and should have up to 50 MB";
+};
+
+export const validateTitle = (value: string): string | null => {
+  const titleLength = value.trim().length;
+  return titleLength >= MIN_TITLE_LENGTH && titleLength < MAX_TITLE_LENGTH
+    ? null
+    : `Titles should be between ${MIN_TITLE_LENGTH} and ${MAX_TITLE_LENGTH} characters`;
+};
+
+export const validateDescription = (value: string): string | null => {
+  const descriptionLength = value.trim().length;
+  return descriptionLength == 0 ||
+    (descriptionLength >= MIN_DESCRIPTION_LENGTH &&
+      descriptionLength < MAX_DESCRIPTION_LENGTH)
+    ? null
+    : `Description should be between ${MIN_DESCRIPTION_LENGTH} and ${MAX_DESCRIPTION_LENGTH} characters`;
 };

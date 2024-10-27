@@ -11,7 +11,7 @@ import { EmptyCriteria } from "../api/page/EmptyCriteria.ts";
 import { Page } from "../api/page/Page.ts";
 import { PageRequest } from "../api/page/PageRequest.ts";
 import { PageRequestImpl } from "../api/page/PageRequestImpl.ts";
-import { Patch } from "../api/patch/Patch.ts";
+import { JsonPatch } from "../api/patch/JsonPatch.ts";
 import { processSorting } from "./sortService.ts";
 
 const conversationsUrl = "/conversations";
@@ -56,10 +56,13 @@ export const fetchConversations = async (
 
 export const patchConversation = async (
   conversationId: string,
-  patch: Patch[],
+  jsonPatch: JsonPatch,
 ): Promise<Conversation> => {
   return await axios
-    .patch<Conversation>(`${conversationsUrl}/${conversationId}`, patch)
+    .patch<Conversation>(
+      `${conversationsUrl}/${conversationId}`,
+      jsonPatch.nodes,
+    )
     .then((response) => response.data)
     .catch((error) => {
       console.error(error);
