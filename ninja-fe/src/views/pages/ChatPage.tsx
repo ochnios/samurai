@@ -136,7 +136,7 @@ export default function ChatPage() {
         <Grid.Col span={{ base: 12, lg: 1 }} p={0}></Grid.Col>
         <Grid.Col span={{ base: 12, lg: 10 }} p={0}>
           <ScrollArea
-            h={window.innerHeight - height - 120}
+            h={window.innerHeight - height - 105}
             viewportRef={viewport}
             className={classes.scrollArea}
           >

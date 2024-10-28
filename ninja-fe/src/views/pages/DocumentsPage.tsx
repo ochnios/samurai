@@ -28,7 +28,11 @@ import {
   patchDocument,
   uploadDocument,
 } from "../../model/service/documentService.ts";
-import { showErrorMessage, showInfoMessage } from "../../utils.ts";
+import {
+  defaultMantineTableContainerProps,
+  showErrorMessage,
+  showInfoMessage,
+} from "../../utils.ts";
 import DocumentStatusBadge from "../components/document/DocumentStatusBadge.tsx";
 import HighlightedText from "../components/table/HiglightedText.tsx";
 import { Document } from "../../model/api/document/Document.ts";
@@ -213,6 +217,9 @@ export default function DocumentsPage() {
       columnFilters: tableFilters.columnFilters,
       globalFilter: tableFilters.globalFilter,
     },
+    enableStickyHeader: true,
+    enableStickyFooter: true,
+    mantineTableContainerProps: defaultMantineTableContainerProps,
     renderTopToolbarCustomActions: () => (
       <Button
         onClick={() => {

@@ -1,3 +1,4 @@
+/* Custom scrollbars in tables */
 .mrt-table-container::-webkit-scrollbar-track {
     background-color: transparent;
 }
@@ -15,6 +16,7 @@
     height: 10px;
 }
 
+/* Enable line wrap in table cells */
 .mrt-table td {
     white-space: pre-wrap;
 }

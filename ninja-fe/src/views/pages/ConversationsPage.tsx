@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Flex, Tooltip } from "@mantine/core";
+import { ActionIcon, Flex, Tooltip } from "@mantine/core";
 import { IconEye } from "@tabler/icons-react";
 import {
   MantineReactTable,
@@ -16,7 +16,10 @@ import {
   createPageRequest,
   fetchConversations,
 } from "../../model/service/conversationService.ts";
-import { showErrorMessage } from "../../utils.ts";
+import {
+  defaultMantineTableContainerProps,
+  showErrorMessage,
+} from "../../utils.ts";
 import HighlightedText from "../components/table/HiglightedText.tsx";
 import { EmptyPage } from "../../model/api/page/EmptyPage.ts";
 
@@ -117,6 +120,7 @@ export default function ConversationsPage() {
     data: page.items,
     enableEditing: false,
     enableRowActions: true,
+    positionActionsColumn: "last",
     onColumnVisibilityChange: tableState.setColumnVisibility,
     onDensityChange: tableState.setRowDensity,
     manualPagination: true,
@@ -136,7 +140,9 @@ export default function ConversationsPage() {
       columnFilters: tableFilters.columnFilters,
       globalFilter: tableFilters.globalFilter,
     },
-    positionActionsColumn: "last",
+    enableStickyHeader: true,
+    enableStickyFooter: true,
+    mantineTableContainerProps: defaultMantineTableContainerProps,
     renderRowActions: ({ row }) => (
       <Flex gap="md">
         <Tooltip label="Preview">
@@ -150,9 +156,5 @@ export default function ConversationsPage() {
     ),
   });
 
-  return (
-    <Box>
-      <MantineReactTable table={table} />
-    </Box>
-  );
+  return <MantineReactTable table={table} />;
 }
