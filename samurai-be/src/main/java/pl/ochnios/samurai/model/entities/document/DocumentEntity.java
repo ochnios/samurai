@@ -1,5 +1,9 @@
 package pl.ochnios.samurai.model.entities.document;
 
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ARCHIVED;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +13,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,14 +33,6 @@ import pl.ochnios.samurai.model.entities.file.FileEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.DocumentMapper;
-
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
-
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ARCHIVED;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
 
 @Getter
 @Setter
@@ -73,10 +72,8 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof DocumentEntity that))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof DocumentEntity that)) return false;
         return Objects.equals(id, that.id);
     }
 

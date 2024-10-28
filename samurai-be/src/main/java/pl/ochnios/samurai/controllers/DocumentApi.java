@@ -26,7 +26,7 @@ import static pl.ochnios.samurai.commons.AppConstants.HTTP_404;
 @Tag(name = "${docs.ctrl.document.tag.name}", description = "${docs.ctrl.document.tag.desc}")
 public interface DocumentApi {
 
-    @Operation(summary = "${docs.ctrl.document.getDocuments}")
+    @Operation(summary = "${docs.ctrl.document.searchDocuments}")
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_400)
     ResponseEntity<PageDto<DocumentDto>> getDocuments(
