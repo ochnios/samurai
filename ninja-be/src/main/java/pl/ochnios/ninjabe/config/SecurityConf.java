@@ -52,7 +52,7 @@ public class SecurityConf {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/sw.js").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/sw.js", "/favicon.ico").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 );

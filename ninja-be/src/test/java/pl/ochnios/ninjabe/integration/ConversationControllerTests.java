@@ -1,22 +1,6 @@
 package pl.ochnios.ninjabe.integration;
 
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.ninjabe.TestUtils.asJsonString;
-import static pl.ochnios.ninjabe.TestUtils.asParamsMap;
-import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.ochnios.ninjabe.commons.AppConstants;
@@ -40,8 +25,27 @@ import pl.ochnios.ninjabe.model.seeders.UserSeeder;
 import pl.ochnios.ninjabe.repositories.impl.ConversationCrudRepository;
 import pl.ochnios.ninjabe.repositories.impl.UserCrudRepository;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.ninjabe.TestUtils.asJsonString;
+import static pl.ochnios.ninjabe.TestUtils.asParamsMap;
+import static pl.ochnios.ninjabe.TestUtils.generateTooLongString;
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles({"local", "test"})
 public class ConversationControllerTests {
 
     private static final String CONVERSATIONS_URI = "/conversations";
@@ -74,6 +78,12 @@ public class ConversationControllerTests {
     public void beforeEach() {
         conversationCrudRepository.deleteAll();
         conversationSeeder.seed();
+    }
+
+    @AfterAll
+    public void tearDown() {
+        conversationCrudRepository.deleteAll();
+        userCrudRepository.deleteAll();
     }
 
     @Nested
@@ -171,41 +181,41 @@ public class ConversationControllerTests {
         @Test
         public void patch_conversation_summary_blank_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/summary", "   ");
-            test_validation(patch, "summary must not be blank or null");
+            test_patch_validation(patch, "summary must not be blank or null");
         }
 
         @Test
         public void patch_conversation_summary_null_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/summary", null);
-            test_validation(patch, "summary must not be blank or null");
+            test_patch_validation(patch, "summary must not be blank or null");
         }
 
         @Test
         public void patch_conversation_summary_too_short_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/summary", "xx");
-            test_validation(patch, "summary must have at least");
+            test_patch_validation(patch, "summary must have at least");
         }
 
         @Test
         public void patch_conversation_summary_too_long_400() throws Exception {
             final var tooLongSummary = generateTooLongString(33);
             final var patch = new JsonPatchDto("replace", "/summary", tooLongSummary);
-            test_validation(patch, "summary must have at most");
+            test_patch_validation(patch, "summary must have at most");
         }
 
         @Test
         public void patch_conversation_not_patchable_field_400() throws Exception {
             final var patch = new JsonPatchDto("replace", "/id", UUID.nameUUIDFromBytes("fake".getBytes()));
-            test_validation(patch, "'id' is not patchable");
+            test_patch_validation(patch, "'id' is not patchable");
         }
 
         @Test
         public void patch_conversation_not_existing_field_400() throws Exception {
             final var patch = new JsonPatchDto("add", "/owner", "johndoe");
-            test_validation(patch, "'owner' does not exist in");
+            test_patch_validation(patch, "'owner' does not exist in");
         }
 
-        private void test_validation(JsonPatchDto jsonPatchDto, String expectedError) throws Exception {
+        private void test_patch_validation(JsonPatchDto jsonPatchDto, String expectedError) throws Exception {
             final var requestBuilder = MockMvcRequestBuilders.patch(CONVERSATIONS_URI + "/" + conversationId)
                     .content(asJsonString(Set.of(jsonPatchDto)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);

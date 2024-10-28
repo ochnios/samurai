@@ -3,6 +3,7 @@ import { Role } from "./model/api/user/Role.ts";
 import { Layout } from "./views/layout/Layout.tsx";
 import ChatPage from "./views/pages/ChatPage.tsx";
 import ConversationsPage from "./views/pages/ConversationsPage.tsx";
+import DocumentsPage from "./views/pages/DocumentsPage.tsx";
 import DummyPage from "./views/pages/DummyPage.tsx";
 import LoginPage from "./views/pages/LoginPage.tsx";
 import PageWrapper from "./views/pages/PageWrapper.tsx";
@@ -51,7 +52,13 @@ const router = createBrowserRouter([
       },
       {
         path: "documents",
-        element: <PageWrapper title="Documents" content={<DummyPage />} />,
+        element: (
+          <PageWrapper
+            title="Documents"
+            content={<DocumentsPage />}
+            access={Role.Mod}
+          />
+        ),
       },
       {
         path: "conversations/:id",

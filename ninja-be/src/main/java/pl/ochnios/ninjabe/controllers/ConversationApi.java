@@ -31,11 +31,11 @@ public interface ConversationApi {
     ResponseEntity<PageDto<ConversationSummaryDto>> getSummaries(@ParameterObject PageRequestDto pageRequestDto);
 
     @Operation(
-            summary = "${docs.ctrl.conversation.getConversations}",
-            description = "${docs.ctrl.conversation.getConversations.desc}")
+            summary = "${docs.ctrl.conversation.searchConversations}",
+            description = "${docs.ctrl.conversation.searchConversations.desc}")
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_400)
-    ResponseEntity<PageDto<ConversationDetailsDto>> getConversations(
+    ResponseEntity<PageDto<ConversationDetailsDto>> searchConversations(
             @ParameterObject ConversationCriteria criteria, @ParameterObject PageRequestDto pageRequestDto);
 
     @Operation(summary = "${docs.ctrl.conversation.get}")

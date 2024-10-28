@@ -1,0 +1,22 @@
+/* Custom scrollbars in tables */
+.mrt-table-container::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.mrt-table-container::-webkit-scrollbar {
+    right: 0;
+    width: 10px;
+    height: 10px;
+}
+
+.mrt-table-container::-webkit-scrollbar-thumb {
+    background-color: #999;
+    border-radius: 8px;
+    width: 10px;
+    height: 10px;
+}
+
+/* Enable line wrap in table cells */
+.mrt-table td {
+    white-space: pre-wrap;
+}

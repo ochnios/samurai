@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: ninja-be
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
   mvc:
     log-request-details: true
   datasource:
@@ -66,7 +70,7 @@ logging:
 custom:
   loader:
     enabled: true
-    bulk: true
+    bulk: false
   allowed-origins: http://localhost:5173,localhost
   jwt:
     passphrase: ${JWT_PASSPHRASE}

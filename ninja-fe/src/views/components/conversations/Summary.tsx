@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch } from "../../../hooks/useAppDispatch.ts";
-import { Patch } from "../../../model/api/patch/Patch.ts";
+import { JsonPatch } from "../../../model/api/patch/JsonPatch.ts";
 import {
   deleteConversation,
   patchConversation,
@@ -16,6 +16,7 @@ import {
 } from "../../../reducers/conversationsSlice.ts";
 import { showErrorMessage } from "../../../utils.ts";
 import classes from "./Summary.module.css";
+import { JsonPatchNodeImpl } from "../../../model/api/patch/JsonPatchNodeImpl.ts";
 
 interface SummaryProps {
   id: string;
@@ -50,9 +51,12 @@ export default function Summary(props: SummaryProps) {
         return;
       }
 
-      const patch = Patch.replace("/summary", inputRef.current!.value);
+      const patchNode = JsonPatchNodeImpl.replace(
+        "/summary",
+        inputRef.current!.value,
+      );
 
-      patchConversation(props.id, patch)
+      patchConversation(props.id, JsonPatch.of(patchNode))
         .then(() =>
           dispatch(
             editConversationSummary({

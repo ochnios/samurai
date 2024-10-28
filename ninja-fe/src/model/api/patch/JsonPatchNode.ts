@@ -1,4 +1,4 @@
-export interface PatchOperation {
+export interface JsonPatchNode {
   op: string;
   path: string;
   value?: unknown;

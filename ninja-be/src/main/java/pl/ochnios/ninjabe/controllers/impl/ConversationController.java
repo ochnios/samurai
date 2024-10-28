@@ -42,7 +42,7 @@ public class ConversationController implements ConversationApi {
     @Override
     @PreAuthorize("hasRole('MOD')")
     @GetMapping
-    public ResponseEntity<PageDto<ConversationDetailsDto>> getConversations(
+    public ResponseEntity<PageDto<ConversationDetailsDto>> searchConversations(
             ConversationCriteria conversationCriteria, PageRequestDto pageRequestDto) {
         final var detailsPage = conversationService.getDetailsPage(conversationCriteria, pageRequestDto);
         return ResponseEntity.ok(detailsPage);

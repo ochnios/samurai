@@ -19,7 +19,7 @@ import { useAuth } from "../../hooks/useAuth.ts";
 import { Login } from "../../model/api/auth/Login.ts";
 import { authenticate } from "../../reducers/authSlice.ts";
 import { resetConversationList } from "../../reducers/conversationsSlice.ts";
-import { showNotImplementedMessage } from "../../utils.ts";
+import { showErrorMessage, showNotImplementedMessage } from "../../utils.ts";
 
 export default function LoginPage() {
   useDocumentTitle("Sign in | DocsNinja");
@@ -44,11 +44,7 @@ export default function LoginPage() {
         navigate(-1);
       }
     } else if (auth.errors) {
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "Wrong username or password",
-      });
+      showErrorMessage("Wrong username or password");
     }
   }, [auth]);
 

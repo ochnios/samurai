@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static pl.ochnios.ninjabe.TestUtils.asJsonString;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.ochnios.ninjabe.model.dtos.auth.LoginDto;
@@ -27,6 +29,7 @@ import pl.ochnios.ninjabe.repositories.impl.UserCrudRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles({"local", "test"})
 public class AuthControllerTests {
 
     private static final String AUTH_URL = "/auth";
@@ -50,6 +53,11 @@ public class AuthControllerTests {
     public void setup() {
         userCrudRepository.deleteAll();
         userSeeder.seed();
+    }
+
+    @AfterAll
+    public void tearDown() {
+        userCrudRepository.deleteAll();
     }
 
     @Nested

@@ -15,12 +15,11 @@ public class ConversationSpecification {
             if (criteria.getGlobalSearch() != null) {
                 String globalSearchPattern = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
                 final var summaryPredicate = builder.like(builder.lower(root.get("summary")), globalSearchPattern);
-                String fullNamePattern = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
                 final var fullNamePredicate = builder.like(
                         builder.lower(builder.concat(
                                 builder.concat(root.join("user").get("lastname"), " "),
                                 root.join("user").get("firstname"))),
-                        fullNamePattern);
+                        globalSearchPattern);
                 predicates.add(builder.or(summaryPredicate, fullNamePredicate));
             }
 
