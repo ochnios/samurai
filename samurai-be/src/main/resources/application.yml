@@ -1,0 +1,18 @@
+application:
+  title: SamurAI
+  version: 0.0.1
+spring:
+  application:
+    name: SamurAI
+  profiles:
+    default: dev
+    active: ${SPRING_ACTIVE_PROFILE}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+    doc-expansion: none
+  api-docs:
+    resolve-schema-properties: true
+  packages-to-scan: pl.ochnios.samurai
+  default-produces-media-type: application/json
