@@ -1,0 +1,80 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mvc:
+    log-request-details: false
+  datasource:
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://localhost:1433;encrypt=false;trustServerCertificate=true;databaseName=samurai-db
+    username: samurai-be
+    password: samurai-be
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.SQLServerDialect
+    open-in-view: true
+  # Important note: Only one ChatModel have to be available in application context
+  # You can disable unused chat models using its 'enable' flag or by excluding model autoconfiguration
+  ai:
+    vectorstore:
+      qdrant:
+        host: localhost
+        port: 6334
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      embedding:
+        enabled: true
+        options:
+          model: text-embedding-3-large
+          dimensions: 3072
+      chat:
+        enabled: true
+      image:
+        enabled: false
+      audio:
+        speech:
+          enabled: false
+        transcription:
+          enabled: false
+    anthropic:
+      chat:
+        enabled: false
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+        security: DEBUG
+        ai: DEBUG
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
+custom:
+  jwt:
+    passphrase: ${JWT_PASSPHRASE}
+    expiration: 30m
+    cookie:
+      name: Authorization
+      secure: true
+      httpOnly: true
+      prefix: Bearer_
+      acceptAsHeader: false
+  # Note that both models have to be from single provider
+  chat:
+    model: gpt-4o
+  task:
+    model: gpt-4o-mini
