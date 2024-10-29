@@ -28,7 +28,7 @@ public class DocumentChunkDto implements PatchDto {
 
     @Schema(description = "${docs.dto.document.chunk.content}")
     @NotBlank(message = "must not be blank or null")
-    @Size(min = 20, message = "must have at least 50 characters")
+    @Size(min = 20, message = "must have at least 20 characters")
     @Size(max = 8192, message = "must have at most 8192 characters")
     private String content;
 
