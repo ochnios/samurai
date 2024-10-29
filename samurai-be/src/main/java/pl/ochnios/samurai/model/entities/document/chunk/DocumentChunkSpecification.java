@@ -1,11 +1,10 @@
 package pl.ochnios.samurai.model.entities.document.chunk;
 
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.domain.Specification;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkCriteria;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkCriteria;
 
 public class DocumentChunkSpecification {
 
@@ -21,7 +20,7 @@ public class DocumentChunkSpecification {
 
             if (criteria.getContent() != null) {
                 predicates.add(builder.like(
-                        builder.lower(root.get("title")),
+                        builder.lower(root.get("content")),
                         "%" + criteria.getContent().toLowerCase() + "%"));
             }
 

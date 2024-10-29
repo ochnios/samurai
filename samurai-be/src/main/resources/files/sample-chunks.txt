@@ -1,5 +1,5 @@
 # Some fancy title
-## Spis treści
+## Table of contents
 Sample document ... 1
 Ordered list ... 1
 Unoredered list ... 1
