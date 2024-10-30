@@ -22,7 +22,6 @@ public class DocumentChunkDto implements PatchDto {
     @Schema(description = "${docs.dto.document.chunk.id}")
     private UUID id;
 
-    @NotPatchable
     @Schema(description = "${docs.dto.document.chunk.position}")
     private int position;
 

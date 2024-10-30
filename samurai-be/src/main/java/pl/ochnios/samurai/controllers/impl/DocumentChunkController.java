@@ -33,37 +33,37 @@ public class DocumentChunkController implements DocumentChunkApi {
     @Override
     @PreAuthorize("hasRole('MOD')")
     @GetMapping
-    public ResponseEntity<PageDto<DocumentChunkDto>> getDocumentChunks(
+    public ResponseEntity<PageDto<DocumentChunkDto>> getChunks(
             @PathVariable UUID documentId,
             @ParameterObject DocumentChunkCriteria criteria,
             @ParameterObject PageRequestDto pageRequestDto) {
-        final var chunksPage = documentChunkService.getDocumentChunksPage(documentId, criteria, pageRequestDto);
+        final var chunksPage = documentChunkService.getChunksPage(documentId, criteria, pageRequestDto);
         return ResponseEntity.ok(chunksPage);
     }
 
     @Override
     @PreAuthorize("hasRole('MOD')")
     @PostMapping
-    public ResponseEntity<DocumentChunkDto> addDocumentChunk(
+    public ResponseEntity<DocumentChunkDto> addChunk(
             @PathVariable UUID documentId, @ModelAttribute DocumentChunkDto documentChunkDto) {
-        final var savedChunk = documentChunkService.saveDocumentChunk(documentId, documentChunkDto);
+        final var savedChunk = documentChunkService.saveChunk(documentId, documentChunkDto);
         return ResponseEntity.ok(savedChunk);
     }
 
     @Override
     @PreAuthorize("hasRole('MOD')")
     @PatchMapping(value = "/{chunkId}", consumes = AppConstants.PATCH_MEDIA_TYPE)
-    public ResponseEntity<DocumentChunkDto> patchDocumentChunk(
+    public ResponseEntity<DocumentChunkDto> patchChunk(
             @PathVariable UUID documentId, @PathVariable UUID chunkId, @RequestBody JsonPatch jsonPatch) {
-        final var patchedChunk = documentChunkService.patchDocumentChunk(documentId, chunkId, jsonPatch);
+        final var patchedChunk = documentChunkService.patchChunk(documentId, chunkId, jsonPatch);
         return ResponseEntity.ok(patchedChunk);
     }
 
     @Override
     @PreAuthorize("hasRole('MOD')")
     @DeleteMapping(value = "/{chunkId}")
-    public ResponseEntity<Void> deleteDocumentChunk(@PathVariable UUID documentId, @PathVariable UUID chunkId) {
-        documentChunkService.deleteDocumentChunk(documentId, chunkId);
+    public ResponseEntity<Void> deleteChunk(@PathVariable UUID documentId, @PathVariable UUID chunkId) {
+        documentChunkService.deleteChunk(documentId, chunkId);
         return ResponseEntity.noContent().build();
     }
 }

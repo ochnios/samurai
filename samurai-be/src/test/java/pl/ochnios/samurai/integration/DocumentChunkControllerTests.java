@@ -228,7 +228,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_min_position_no_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().minPosition(4).build();
+                    DocumentChunkCriteria.builder().minPosition(10).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -267,7 +267,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_max_position_all_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().maxPosition(4).build();
+                    DocumentChunkCriteria.builder().maxPosition(10).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())

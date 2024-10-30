@@ -10,7 +10,7 @@ import pl.ochnios.samurai.model.entities.document.chunk.DocumentChunk;
 public interface DocumentChunkCrudRepository
         extends CrudRepository<DocumentChunk, UUID>, JpaSpecificationExecutor<DocumentChunk> {
 
-    List<DocumentChunk> findAllByDocumentId(UUID documentId);
+    List<DocumentChunk> findAllByDocumentIdOrderByPositionAsc(UUID documentId);
 
     Optional<DocumentChunk> findByDocumentIdAndId(UUID documentId, UUID chunkId);
 }

@@ -28,7 +28,7 @@ public interface DocumentChunkApi {
     @Operation(summary = "${docs.ctrl.document.chunk.searchChunks}")
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_400)
-    ResponseEntity<PageDto<DocumentChunkDto>> getDocumentChunks(
+    ResponseEntity<PageDto<DocumentChunkDto>> getChunks(
             @PathVariable UUID documentId,
             @ParameterObject DocumentChunkCriteria criteria,
             @ParameterObject PageRequestDto pageRequestDto);
@@ -36,18 +36,18 @@ public interface DocumentChunkApi {
     @Operation(summary = "${docs.ctrl.document.chunk.add}")
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_400)
-    ResponseEntity<DocumentChunkDto> addDocumentChunk(
+    ResponseEntity<DocumentChunkDto> addChunk(
             @PathVariable UUID documentId, @ModelAttribute DocumentChunkDto documentChunkDto);
 
     @Operation(summary = "${docs.ctrl.document.chunk.patch}")
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_400)
     @ApiResponse(responseCode = HTTP_404)
-    ResponseEntity<DocumentChunkDto> patchDocumentChunk(
+    ResponseEntity<DocumentChunkDto> patchChunk(
             @PathVariable UUID documentId, @PathVariable UUID chunkId, @RequestBody JsonPatch jsonPatch);
 
     @Operation(summary = "${docs.ctrl.document.chunk.delete}")
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_404)
-    ResponseEntity<Void> deleteDocumentChunk(@PathVariable UUID documentId, @PathVariable UUID chunkId);
+    ResponseEntity<Void> deleteChunk(@PathVariable UUID documentId, @PathVariable UUID chunkId);
 }
