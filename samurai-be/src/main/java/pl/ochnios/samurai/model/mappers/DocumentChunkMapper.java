@@ -27,7 +27,7 @@ public interface DocumentChunkMapper {
                 .id(chunk.getId())
                 .content(chunk.getContent())
                 .documentId(chunk.getDocument().getId())
-                .documentName(chunk.getDocument().getName())
+                .documentName(chunk.getDocument().getTitle())
                 .build();
     }
 }

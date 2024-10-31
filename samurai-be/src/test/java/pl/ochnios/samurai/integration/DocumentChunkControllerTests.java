@@ -90,6 +90,14 @@ public class DocumentChunkControllerTests {
     }
 
     @Nested
+    @DisplayName("Add")
+    @WithMockUser(username = "mod", roles = "MOD")
+    class Add {
+
+        // TODO chunk add operation tests
+    }
+
+    @Nested
     @DisplayName("Patch")
     @WithMockUser(username = "mod", roles = "MOD")
     class Patch {
