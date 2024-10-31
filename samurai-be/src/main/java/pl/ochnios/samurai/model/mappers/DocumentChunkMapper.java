@@ -13,12 +13,16 @@ public interface DocumentChunkMapper {
     DocumentChunkDto map(DocumentChunk chunk);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "content", source = "chunkDto.id")
+    @Mapping(target = "position", source = "chunkDto.position")
+    @Mapping(target = "content", source = "chunkDto.content")
     @Mapping(target = "document", source = "documentEntity")
     @Mapping(target = "length", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     DocumentChunk map(DocumentChunkDto chunkDto, DocumentEntity documentEntity);
 
-    default EmbeddedChunk mapToEmbeddingChunk(DocumentChunk chunk) {
+    DocumentChunk copy(DocumentChunk chunk);
+
+    default EmbeddedChunk mapToEmbeddedChunk(DocumentChunk chunk) {
         return EmbeddedChunk.builder()
                 .id(chunk.getId())
                 .content(chunk.getContent())

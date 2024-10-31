@@ -1,9 +1,5 @@
 package pl.ochnios.samurai.services;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.StreamSupport;
-import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +16,11 @@ import pl.ochnios.samurai.model.mappers.DocumentChunkMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.DocumentChunkRepository;
 import pl.ochnios.samurai.repositories.DocumentRepository;
+
+import javax.json.JsonPatch;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service
@@ -47,28 +48,28 @@ public class DocumentChunkService {
         final var document = documentRepository.findById(documentId);
         final var chunk = chunkMapper.map(chunkDto, document);
         final var savedChunk = doAdd(documentId, chunk);
-        final var embeddingChunk = chunkMapper.mapToEmbeddingChunk(savedChunk);
+        final var embeddingChunk = chunkMapper.mapToEmbeddedChunk(savedChunk);
         embeddingService.add(embeddingChunk);
         return chunkMapper.map(savedChunk);
     }
 
     @Transactional
     public DocumentChunkDto patchChunk(UUID documentId, UUID chunkId, JsonPatch jsonPatch) {
-        final var patched = chunkRepository.findById(documentId, chunkId);
-        final var beforePatch = chunkMapper.map(patched);
+        final var chunk = chunkRepository.findById(documentId, chunkId);
+        final var patched = chunkMapper.copy(chunk);
         patchService.apply(patched, jsonPatch);
 
         DocumentChunk saved;
-        if (beforePatch.getPosition() != patched.getPosition()) {
-            saved = doMove(documentId, beforePatch.getPosition(), patched.getPosition());
+        if (chunk.getPosition() != patched.getPosition()) {
+            saved = doMove(documentId, chunk.getPosition(), patched.getPosition());
         } else {
-            saved = patched;
+            saved = chunk;
         }
 
-        if (beforePatch.getContent().equals(patched.getContent())) {
+        if (!chunk.getContent().equals(patched.getContent())) {
             saved.setContent(patched.getContent());
             saved = chunkRepository.save(saved);
-            embeddingService.update(chunkMapper.mapToEmbeddingChunk(saved));
+            embeddingService.update(chunkMapper.mapToEmbeddedChunk(saved));
         }
 
         log.info("Chunk {} patched", documentId);
@@ -80,8 +81,8 @@ public class DocumentChunkService {
         final var chunk = chunkRepository.findById(documentId, chunkId);
         chunkRepository.delete(chunk);
         reorderChunks(documentId, chunk.getPosition());
-        embeddingService.delete(chunkMapper.mapToEmbeddingChunk(chunk));
-        log.info("Chunk {} deleted", documentId);
+        embeddingService.delete(chunkMapper.mapToEmbeddedChunk(chunk));
+        log.info("Chunk {} deleted", chunkId);
     }
 
     private DocumentChunk doAdd(UUID documentId, DocumentChunk chunk) {
@@ -97,7 +98,7 @@ public class DocumentChunkService {
     }
 
     private void validateNewPosition(List<DocumentChunk> chunks, int newPosition) {
-        if (newPosition < 0 || newPosition >= chunks.size()) {
+        if (newPosition < 0 || newPosition > chunks.size()) {
             throw new ValidationException("Requested position is out of chunks range <0;" + chunks.size() + ">");
         }
     }
@@ -107,13 +108,10 @@ public class DocumentChunkService {
         validateToPosition(chunks, toPosition);
 
         final var moved = chunks.remove(fromPosition);
-        if (fromPosition < toPosition) {
-            toPosition--;
-        }
         chunks.add(toPosition, moved);
 
         int start = Math.min(fromPosition, toPosition);
-        int end = Math.max(fromPosition, toPosition);
+        int end = Math.max(fromPosition + 1, toPosition + 1);
         final var reordered = reorderChunks(chunks, start, end);
         return reordered.get(toPosition);
     }
@@ -129,8 +127,8 @@ public class DocumentChunkService {
         reorderChunks(chunks, fromPosition, chunks.size());
     }
 
-    private List<DocumentChunk> reorderChunks(List<DocumentChunk> chunks, int fromPosition, int toPosition) {
-        for (int i = fromPosition; i < toPosition; i++) {
+    private List<DocumentChunk> reorderChunks(List<DocumentChunk> chunks, int start, int end) {
+        for (int i = start; i < end; i++) {
             if (chunks.get(i).getPosition() != i) {
                 chunks.get(i).setPosition(i);
             }

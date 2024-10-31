@@ -80,6 +80,7 @@ public class DocumentChunk implements PatchableEntity {
     @Override
     public void apply(PatchDto patchDto) {
         final var chunkPatchDto = (DocumentChunkDto) patchDto;
+        position = chunkPatchDto.getPosition();
         content = chunkPatchDto.getContent();
     }
 

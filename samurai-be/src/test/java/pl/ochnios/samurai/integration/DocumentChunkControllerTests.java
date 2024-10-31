@@ -84,7 +84,7 @@ public class DocumentChunkControllerTests {
         documentSeeder.seed();
         chunkSeeder.seed();
 
-        chunks = chunkCrudRepository.findAllByDocumentId(DOCUMENT_ID).stream()
+        chunks = chunkCrudRepository.findAllByDocumentIdOrderByPositionAsc(DOCUMENT_ID).stream()
                 .sorted(Comparator.comparingInt(DocumentChunk::getPosition))
                 .toList();
     }

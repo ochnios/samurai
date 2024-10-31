@@ -1,13 +1,14 @@
 package pl.ochnios.samurai.model.entities.document.chunk;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.ai.document.ContentFormatter;
 import org.springframework.ai.document.DefaultContentFormatter;
 import org.springframework.ai.document.Document;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -15,6 +16,7 @@ public class EmbeddedChunk extends Document {
 
     public static final String DOCUMENT_ID_KEY = "doc_id";
     public static final String DOCUMENT_NAME_KEY = "doc_name";
+    public static final String DOCUMENT_CONTENT_KEY = "doc_content";
 
     public EmbeddedChunk(Document document) {
         this(document.getId(), document.getContent(), document.getMetadata());

@@ -1,6 +1,18 @@
 package pl.ochnios.samurai.services;
 
+import static io.qdrant.client.PointIdFactory.id;
+import static io.qdrant.client.VectorsFactory.vectors;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_CONTENT_KEY;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_ID_KEY;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_NAME_KEY;
+
+import io.qdrant.client.QdrantClient;
+import io.qdrant.client.ValueFactory;
+import io.qdrant.client.grpc.JsonWithInt;
+import io.qdrant.client.grpc.Points;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
@@ -16,7 +28,14 @@ import pl.ochnios.samurai.services.excpetion.EmbeddingException;
 @RequiredArgsConstructor
 public class EmbeddingService {
 
+    private final QdrantClient qdrantClient; // platform dependant!!!
     private final VectorStore vectorStore;
+
+    @Value("${spring.ai.vectorstore.qdrant.collection-name}")
+    private String collectionName;
+
+    @Value("${spring.ai.openai.embedding.options.dimensions}")
+    private Integer dimensions;
 
     @Value("${custom.search.topK:5}")
     private Integer topK;
@@ -39,9 +58,8 @@ public class EmbeddingService {
         try {
             final var springDocuments = chunks.stream().map(ch -> (Document) ch).toList();
             vectorStore.add(springDocuments);
-            log.info(
-                    "Chunks embeddings {} added",
-                    chunks.stream().map(EmbeddedChunk::getId).toList());
+            final var ids = chunks.stream().map(EmbeddedChunk::getId).toList();
+            log.info("Chunks embeddings {} added", ids);
         } catch (Exception ex) {
             throw new EmbeddingException("Failed to save chunks in vector store", ex);
         }
@@ -75,5 +93,32 @@ public class EmbeddingService {
 
     public void update(EmbeddedChunk chunk) {
         update(List.of(chunk));
+    }
+
+    public void add(EmbeddedChunk chunk, float[] embedding) {
+        if (embedding.length != dimensions) {
+            throw new EmbeddingException("Chunk dimensions mismatch, point won't be created, id=" + chunk.getId());
+        }
+
+        final var point = Points.PointStruct.newBuilder()
+                .setId(id(UUID.fromString(chunk.getId())))
+                .setVectors(vectors(embedding))
+                .putAllPayload(createPayload(chunk))
+                .build();
+
+        try {
+            qdrantClient.upsertAsync(collectionName, List.of(point));
+        } catch (Exception ex) {
+            throw new EmbeddingException("Failed to save point in vector store", ex);
+        }
+
+        log.info("Saved point: {}", chunk.getId());
+    }
+
+    private Map<String, JsonWithInt.Value> createPayload(EmbeddedChunk chunk) {
+        final var docId = ValueFactory.value(chunk.getId());
+        final var docName = ValueFactory.value(chunk.getDocumentName());
+        final var docContent = ValueFactory.value(chunk.getContent());
+        return Map.of(DOCUMENT_ID_KEY, docId, DOCUMENT_NAME_KEY, docName, DOCUMENT_CONTENT_KEY, docContent);
     }
 }

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkCriteria;
@@ -37,7 +36,7 @@ public interface DocumentChunkApi {
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_400)
     ResponseEntity<DocumentChunkDto> addChunk(
-            @PathVariable UUID documentId, @ModelAttribute DocumentChunkDto documentChunkDto);
+            @PathVariable UUID documentId, @RequestBody DocumentChunkDto documentChunkDto);
 
     @Operation(summary = "${docs.ctrl.document.chunk.patch}")
     @ApiResponse(responseCode = HTTP_200)
