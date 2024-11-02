@@ -1,10 +1,5 @@
 package pl.ochnios.samurai.model.seeders;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -12,21 +7,27 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.ochnios.samurai.commons.exceptions.ApplicationException;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
-import pl.ochnios.samurai.model.entities.document.chunk.DocumentChunk;
-import pl.ochnios.samurai.model.mappers.DocumentChunkMapper;
-import pl.ochnios.samurai.repositories.DocumentChunkRepository;
+import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
+import pl.ochnios.samurai.model.mappers.ChunkMapper;
+import pl.ochnios.samurai.repositories.ChunkRepository;
 import pl.ochnios.samurai.repositories.DocumentRepository;
 import pl.ochnios.samurai.services.EmbeddingService;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DocumentChunkSeeder implements DataSeeder {
+public class ChunkSeeder implements DataSeeder {
 
     private final EmbeddingService embeddingService;
     private final DocumentRepository documentRepository;
-    private final DocumentChunkRepository chunkRepository;
-    private final DocumentChunkMapper chunkMapper;
+    private final ChunkRepository chunkRepository;
+    private final ChunkMapper chunkMapper;
 
     @Override
     @Transactional
@@ -40,11 +41,11 @@ public class DocumentChunkSeeder implements DataSeeder {
         }
     }
 
-    private List<DocumentChunk> createChunks(DocumentEntity document, String filepath) {
+    private List<Chunk> createChunks(DocumentEntity document, String filepath) {
         final var sampleChunksContent = getFileContent(filepath).split("-----");
-        List<DocumentChunk> chunks = new ArrayList<>();
+        List<Chunk> chunks = new ArrayList<>();
         for (int i = 0; i < sampleChunksContent.length; i++) {
-            final var chunk = DocumentChunk.builder()
+            final var chunk = Chunk.builder()
                     .id(UUID.nameUUIDFromBytes((document.getName() + "_chunk_" + i).getBytes()))
                     .document(document)
                     .content(sampleChunksContent[i].trim())
@@ -57,7 +58,7 @@ public class DocumentChunkSeeder implements DataSeeder {
         return chunks;
     }
 
-    private void createEmbeddings(List<DocumentChunk> chunks, String filepath) {
+    private void createEmbeddings(List<Chunk> chunks, String filepath) {
         final var embeddings = getFileContent(filepath).split("\n");
         if (chunks.size() != embeddings.length) {
             throw new RuntimeException("Document chunks size mismatch, points won't be created");

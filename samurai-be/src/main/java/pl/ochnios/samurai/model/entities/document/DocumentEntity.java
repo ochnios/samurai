@@ -1,9 +1,5 @@
 package pl.ochnios.samurai.model.entities.document;
 
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ARCHIVED;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,11 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,11 +25,21 @@ import org.mapstruct.factory.Mappers;
 import pl.ochnios.samurai.model.dtos.PatchDto;
 import pl.ochnios.samurai.model.dtos.document.DocumentDto;
 import pl.ochnios.samurai.model.entities.PatchableEntity;
-import pl.ochnios.samurai.model.entities.document.chunk.DocumentChunk;
+import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
 import pl.ochnios.samurai.model.entities.file.FileEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.DocumentMapper;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ARCHIVED;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
 
 @Getter
 @Setter
@@ -63,7 +64,7 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
     @ToString.Exclude
     @OrderBy("position asc")
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<DocumentChunk> chunks = new ArrayList<>();
+    private List<Chunk> chunks = new ArrayList<>();
 
     @Nationalized
     private String title;

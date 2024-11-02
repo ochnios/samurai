@@ -2,15 +2,15 @@ package pl.ochnios.samurai.model.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkDto;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkDto;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
-import pl.ochnios.samurai.model.entities.document.chunk.DocumentChunk;
+import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
 import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
 
 @Mapper
-public interface DocumentChunkMapper {
+public interface ChunkMapper {
 
-    DocumentChunkDto map(DocumentChunk chunk);
+    ChunkDto map(Chunk chunk);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "position", source = "chunkDto.position")
@@ -18,11 +18,11 @@ public interface DocumentChunkMapper {
     @Mapping(target = "document", source = "documentEntity")
     @Mapping(target = "length", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    DocumentChunk map(DocumentChunkDto chunkDto, DocumentEntity documentEntity);
+    Chunk map(ChunkDto chunkDto, DocumentEntity documentEntity);
 
-    DocumentChunk copy(DocumentChunk chunk);
+    Chunk copy(Chunk chunk);
 
-    default EmbeddedChunk mapToEmbeddedChunk(DocumentChunk chunk) {
+    default EmbeddedChunk mapToEmbeddedChunk(Chunk chunk) {
         return EmbeddedChunk.builder()
                 .id(chunk.getId())
                 .content(chunk.getContent())

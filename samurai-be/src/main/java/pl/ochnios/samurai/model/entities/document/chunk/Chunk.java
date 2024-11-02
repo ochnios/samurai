@@ -7,9 +7,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,11 +18,15 @@ import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.mapstruct.factory.Mappers;
 import pl.ochnios.samurai.model.dtos.PatchDto;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkDto;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkDto;
 import pl.ochnios.samurai.model.entities.PatchableEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
-import pl.ochnios.samurai.model.mappers.DocumentChunkMapper;
+import pl.ochnios.samurai.model.mappers.ChunkMapper;
+
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -35,7 +36,7 @@ import pl.ochnios.samurai.model.mappers.DocumentChunkMapper;
 @ToString
 @Entity
 @Table(name = "chunks")
-public class DocumentChunk implements PatchableEntity {
+public class Chunk implements PatchableEntity {
 
     @Id
     @CustomUuidGenerator
@@ -62,7 +63,7 @@ public class DocumentChunk implements PatchableEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DocumentChunk that)) return false;
+        if (!(o instanceof Chunk that)) return false;
         return Objects.equals(id, that.id);
     }
 
@@ -73,13 +74,13 @@ public class DocumentChunk implements PatchableEntity {
 
     @Override
     public PatchDto getPatchDto() {
-        final var documentChunkMapper = Mappers.getMapper(DocumentChunkMapper.class);
-        return documentChunkMapper.map(this);
+        final var chunkMapper = Mappers.getMapper(ChunkMapper.class);
+        return chunkMapper.map(this);
     }
 
     @Override
     public void apply(PatchDto patchDto) {
-        final var chunkPatchDto = (DocumentChunkDto) patchDto;
+        final var chunkPatchDto = (ChunkDto) patchDto;
         position = chunkPatchDto.getPosition();
         content = chunkPatchDto.getContent();
     }
@@ -89,11 +90,11 @@ public class DocumentChunk implements PatchableEntity {
         this.length = content != null ? content.length() : 0;
     }
 
-    public static class DocumentChunkBuilder {
+    public static class ChunkBuilder {
 
         private int length = 0;
 
-        public DocumentChunkBuilder content(String content) {
+        public ChunkBuilder content(String content) {
             this.content = content;
             this.length = content != null ? content.length() : 0;
             return this;

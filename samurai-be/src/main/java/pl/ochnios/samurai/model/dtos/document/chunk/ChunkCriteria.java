@@ -1,14 +1,15 @@
 package pl.ochnios.samurai.model.dtos.document.chunk;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
+
+import java.time.Instant;
 
 @Data
 @Builder
 @Schema(description = "${docs.dto.document.chunkCriteria}")
-public class DocumentChunkCriteria {
+public class ChunkCriteria {
 
     @Schema(description = "${docs.dto.chunkCriteria.globalSearch}")
     private String globalSearch;

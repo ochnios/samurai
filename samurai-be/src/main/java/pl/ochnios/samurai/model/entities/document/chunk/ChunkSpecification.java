@@ -1,14 +1,15 @@
 package pl.ochnios.samurai.model.entities.document.chunk;
 
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkCriteria;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.data.jpa.domain.Specification;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkCriteria;
 
-public class DocumentChunkSpecification {
+public class ChunkSpecification {
 
-    public static Specification<DocumentChunk> create(DocumentChunkCriteria criteria) {
+    public static Specification<Chunk> create(ChunkCriteria criteria) {
         return (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
 

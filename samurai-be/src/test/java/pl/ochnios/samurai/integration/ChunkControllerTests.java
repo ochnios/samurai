@@ -1,17 +1,5 @@
 package pl.ochnios.samurai.integration;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.samurai.TestUtils.asParamsMap;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,19 +13,32 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkCriteria;
-import pl.ochnios.samurai.model.entities.document.chunk.DocumentChunk;
-import pl.ochnios.samurai.model.seeders.DocumentChunkSeeder;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkCriteria;
+import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
+import pl.ochnios.samurai.model.seeders.ChunkSeeder;
 import pl.ochnios.samurai.model.seeders.DocumentSeeder;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
-import pl.ochnios.samurai.repositories.impl.DocumentChunkCrudRepository;
+import pl.ochnios.samurai.repositories.impl.ChunkCrudRepository;
 import pl.ochnios.samurai.repositories.impl.DocumentCrudRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.samurai.TestUtils.asParamsMap;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles({"local", "test"})
-public class DocumentChunkControllerTests {
+public class ChunkControllerTests {
 
     private static final UUID DOCUMENT_ID = UUID.nameUUIDFromBytes("Sample PDF".getBytes());
     private static final String CHUNKS_URI = "/documents/" + DOCUMENT_ID + "/chunks";
@@ -52,7 +53,7 @@ public class DocumentChunkControllerTests {
     private DocumentSeeder documentSeeder;
 
     @Autowired
-    private DocumentChunkSeeder chunkSeeder;
+    private ChunkSeeder chunkSeeder;
 
     @Autowired
     private UserCrudRepository userCrudRepository;
@@ -61,9 +62,9 @@ public class DocumentChunkControllerTests {
     private DocumentCrudRepository documentCrudRepository;
 
     @Autowired
-    private DocumentChunkCrudRepository chunkCrudRepository;
+    private ChunkCrudRepository chunkCrudRepository;
 
-    private List<DocumentChunk> chunks;
+    private List<Chunk> chunks;
 
     @BeforeAll
     public void setup() {
@@ -85,7 +86,7 @@ public class DocumentChunkControllerTests {
         chunkSeeder.seed();
 
         chunks = chunkCrudRepository.findAllByDocumentIdOrderByPositionAsc(DOCUMENT_ID).stream()
-                .sorted(Comparator.comparingInt(DocumentChunk::getPosition))
+                .sorted(Comparator.comparingInt(Chunk::getPosition))
                 .toList();
     }
 
@@ -145,7 +146,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_content_filter() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().content("Table of contents").build();
+                    ChunkCriteria.builder().content("Table of contents").build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -163,7 +164,7 @@ public class DocumentChunkControllerTests {
 
         @Test
         public void search_by_global_filter() throws Exception {
-            final var searchCriteria = DocumentChunkCriteria.builder()
+            final var searchCriteria = ChunkCriteria.builder()
                     .globalSearch("Table of contents")
                     .build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
@@ -184,7 +185,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_min_length_no_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().minLength(1500).build();
+                    ChunkCriteria.builder().minLength(1500).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -197,7 +198,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_min_length_all_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().minLength(100).build();
+                    ChunkCriteria.builder().minLength(100).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -210,7 +211,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_max_length_no_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().maxLength(50).build();
+                    ChunkCriteria.builder().maxLength(50).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -223,7 +224,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_max_length_all_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().maxLength(5000).build();
+                    ChunkCriteria.builder().maxLength(5000).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -236,7 +237,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_min_position_no_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().minPosition(10).build();
+                    ChunkCriteria.builder().minPosition(10).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -249,7 +250,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_min_position_all_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().minPosition(0).build();
+                    ChunkCriteria.builder().minPosition(0).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -262,7 +263,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_max_position_no_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().maxPosition(-1).build();
+                    ChunkCriteria.builder().maxPosition(-1).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -275,7 +276,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_max_position_all_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().maxPosition(10).build();
+                    ChunkCriteria.builder().maxPosition(10).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -288,7 +289,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_min_updated_at_no_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().minUpdatedAt(Instant.now()).build();
+                    ChunkCriteria.builder().minUpdatedAt(Instant.now()).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -302,7 +303,7 @@ public class DocumentChunkControllerTests {
         public void search_by_min_updated_at_all_results() throws Exception {
             final var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().minUpdatedAt(oneHourEarlier).build();
+                    ChunkCriteria.builder().minUpdatedAt(oneHourEarlier).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -316,7 +317,7 @@ public class DocumentChunkControllerTests {
         public void search_by_max_updated_at_no_results() throws Exception {
             final var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().maxUpdatedAt(oneHourEarlier).build();
+                    ChunkCriteria.builder().maxUpdatedAt(oneHourEarlier).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -329,7 +330,7 @@ public class DocumentChunkControllerTests {
         @Test
         public void search_by_max_updated_at_all_results() throws Exception {
             final var searchCriteria =
-                    DocumentChunkCriteria.builder().maxUpdatedAt(Instant.now()).build();
+                    ChunkCriteria.builder().maxUpdatedAt(Instant.now()).build();
             final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())

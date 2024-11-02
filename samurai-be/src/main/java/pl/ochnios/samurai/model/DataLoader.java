@@ -8,8 +8,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import pl.ochnios.samurai.model.seeders.BulkSeeder;
+import pl.ochnios.samurai.model.seeders.ChunkSeeder;
 import pl.ochnios.samurai.model.seeders.ConversationSeeder;
-import pl.ochnios.samurai.model.seeders.DocumentChunkSeeder;
 import pl.ochnios.samurai.model.seeders.DocumentSeeder;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
 
@@ -22,7 +22,7 @@ public class DataLoader implements ApplicationRunner {
     private final UserSeeder userSeeder;
     private final ConversationSeeder conversationSeeder;
     private final DocumentSeeder documentSeeder;
-    private final DocumentChunkSeeder documentChunkSeeder;
+    private final ChunkSeeder chunkSeeder;
     private final BulkSeeder bulkSeeder;
 
     @Value("${custom.loader.enabled}")
@@ -38,7 +38,7 @@ public class DataLoader implements ApplicationRunner {
             userSeeder.seed();
             conversationSeeder.seed();
             documentSeeder.seed();
-            documentChunkSeeder.seed();
+            chunkSeeder.seed();
             if (bulkEnabled) {
                 bulkSeeder.seed();
             }

@@ -4,8 +4,8 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pl.ochnios.samurai.model.mappers.ChatOptionsMapper;
+import pl.ochnios.samurai.model.mappers.ChunkMapper;
 import pl.ochnios.samurai.model.mappers.ConversationMapper;
-import pl.ochnios.samurai.model.mappers.DocumentChunkMapper;
 import pl.ochnios.samurai.model.mappers.DocumentMapper;
 import pl.ochnios.samurai.model.mappers.FileMapper;
 import pl.ochnios.samurai.model.mappers.MessageMapper;
@@ -51,7 +51,7 @@ public class MapperConf {
     }
 
     @Bean
-    public DocumentChunkMapper documentChunkMapper() {
-        return Mappers.getMapper(DocumentChunkMapper.class);
+    public ChunkMapper chunkMapper() {
+        return Mappers.getMapper(ChunkMapper.class);
     }
 }

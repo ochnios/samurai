@@ -1,50 +1,48 @@
 package pl.ochnios.samurai.services;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.StreamSupport;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.ochnios.samurai.commons.exceptions.ValidationException;
 import pl.ochnios.samurai.commons.patch.JsonPatchService;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkCriteria;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkDto;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkCriteria;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
-import pl.ochnios.samurai.model.entities.document.chunk.DocumentChunk;
-import pl.ochnios.samurai.model.entities.document.chunk.DocumentChunkSpecification;
-import pl.ochnios.samurai.model.mappers.DocumentChunkMapper;
+import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
+import pl.ochnios.samurai.model.entities.document.chunk.ChunkSpecification;
+import pl.ochnios.samurai.model.mappers.ChunkMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
-import pl.ochnios.samurai.repositories.DocumentChunkRepository;
+import pl.ochnios.samurai.repositories.ChunkRepository;
 import pl.ochnios.samurai.repositories.DocumentRepository;
-
-import javax.json.JsonPatch;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DocumentChunkService {
+public class ChunkService {
 
     private final DocumentRepository documentRepository;
-    private final DocumentChunkRepository chunkRepository;
+    private final ChunkRepository chunkRepository;
     private final JsonPatchService patchService;
     private final EmbeddingService embeddingService;
     private final PageMapper pageMapper;
-    private final DocumentChunkMapper chunkMapper;
+    private final ChunkMapper chunkMapper;
 
     @Transactional(readOnly = true)
-    public PageDto<DocumentChunkDto> getChunksPage(
-            UUID documentId, DocumentChunkCriteria criteria, PageRequestDto pageRequestDto) {
+    public PageDto<ChunkDto> getChunksPage(UUID documentId, ChunkCriteria criteria, PageRequestDto pageRequestDto) {
         final var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
-        final var specification = DocumentChunkSpecification.create(criteria);
-        final var documentChunksPage = chunkRepository.findAll(documentId, specification, pageRequest);
-        return pageMapper.validOrDefaultSort(documentChunksPage, chunkMapper::map);
+        final var specification = ChunkSpecification.create(criteria);
+        final var chunksPage = chunkRepository.findAll(documentId, specification, pageRequest);
+        return pageMapper.validOrDefaultSort(chunksPage, chunkMapper::map);
     }
 
     @Transactional
-    public DocumentChunkDto saveChunk(UUID documentId, DocumentChunkDto chunkDto) {
+    public ChunkDto saveChunk(UUID documentId, ChunkDto chunkDto) {
         final var document = documentRepository.findById(documentId);
         final var chunk = chunkMapper.map(chunkDto, document);
         final var savedChunk = doAdd(documentId, chunk);
@@ -54,12 +52,12 @@ public class DocumentChunkService {
     }
 
     @Transactional
-    public DocumentChunkDto patchChunk(UUID documentId, UUID chunkId, JsonPatch jsonPatch) {
+    public ChunkDto patchChunk(UUID documentId, UUID chunkId, JsonPatch jsonPatch) {
         final var chunk = chunkRepository.findById(documentId, chunkId);
         final var patched = chunkMapper.copy(chunk);
         patchService.apply(patched, jsonPatch);
 
-        DocumentChunk saved;
+        Chunk saved;
         if (chunk.getPosition() != patched.getPosition()) {
             saved = doMove(documentId, chunk.getPosition(), patched.getPosition());
         } else {
@@ -85,7 +83,7 @@ public class DocumentChunkService {
         log.info("Chunk {} deleted", chunkId);
     }
 
-    private DocumentChunk doAdd(UUID documentId, DocumentChunk chunk) {
+    private Chunk doAdd(UUID documentId, Chunk chunk) {
         final var chunks = chunkRepository.findAllByDocumentIdOrdered(documentId);
         validateNewPosition(chunks, chunk.getPosition());
         if (chunk.getPosition() == chunks.size()) {
@@ -97,13 +95,13 @@ public class DocumentChunkService {
         }
     }
 
-    private void validateNewPosition(List<DocumentChunk> chunks, int newPosition) {
+    private void validateNewPosition(List<Chunk> chunks, int newPosition) {
         if (newPosition < 0 || newPosition > chunks.size()) {
             throw new ValidationException("Requested position is out of chunks range <0;" + chunks.size() + ">");
         }
     }
 
-    private DocumentChunk doMove(UUID documentId, int fromPosition, int toPosition) {
+    private Chunk doMove(UUID documentId, int fromPosition, int toPosition) {
         final var chunks = chunkRepository.findAllByDocumentIdOrdered(documentId);
         validateToPosition(chunks, toPosition);
 
@@ -116,7 +114,7 @@ public class DocumentChunkService {
         return reordered.get(toPosition);
     }
 
-    private void validateToPosition(List<DocumentChunk> chunks, int toPosition) {
+    private void validateToPosition(List<Chunk> chunks, int toPosition) {
         if (toPosition < 0 || toPosition >= chunks.size()) {
             throw new ValidationException("Requested position is out of chunks range <0;" + chunks.size() + ")");
         }
@@ -127,7 +125,7 @@ public class DocumentChunkService {
         reorderChunks(chunks, fromPosition, chunks.size());
     }
 
-    private List<DocumentChunk> reorderChunks(List<DocumentChunk> chunks, int start, int end) {
+    private List<Chunk> reorderChunks(List<Chunk> chunks, int start, int end) {
         for (int i = start; i < end; i++) {
             if (chunks.get(i).getPosition() != i) {
                 chunks.get(i).setPosition(i);

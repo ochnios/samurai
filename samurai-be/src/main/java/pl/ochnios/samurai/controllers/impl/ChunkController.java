@@ -1,8 +1,6 @@
 package pl.ochnios.samurai.controllers.impl;
 
 import jakarta.validation.Valid;
-import java.util.UUID;
-import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -16,46 +14,49 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.ochnios.samurai.commons.AppConstants;
-import pl.ochnios.samurai.controllers.DocumentChunkApi;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkCriteria;
-import pl.ochnios.samurai.model.dtos.document.chunk.DocumentChunkDto;
+import pl.ochnios.samurai.controllers.ChunkApi;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkCriteria;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
-import pl.ochnios.samurai.services.DocumentChunkService;
+import pl.ochnios.samurai.services.ChunkService;
+
+import javax.json.JsonPatch;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/documents/{documentId}/chunks")
-public class DocumentChunkController implements DocumentChunkApi {
+public class ChunkController implements ChunkApi {
 
-    private final DocumentChunkService documentChunkService;
+    private final ChunkService chunkService;
 
     @Override
     @PreAuthorize("hasRole('MOD')")
     @GetMapping
-    public ResponseEntity<PageDto<DocumentChunkDto>> getChunks(
+    public ResponseEntity<PageDto<ChunkDto>> getChunks(
             @PathVariable UUID documentId,
-            @ParameterObject DocumentChunkCriteria criteria,
+            @ParameterObject ChunkCriteria criteria,
             @ParameterObject PageRequestDto pageRequestDto) {
-        final var chunksPage = documentChunkService.getChunksPage(documentId, criteria, pageRequestDto);
+        final var chunksPage = chunkService.getChunksPage(documentId, criteria, pageRequestDto);
         return ResponseEntity.ok(chunksPage);
     }
 
     @Override
     @PreAuthorize("hasRole('MOD')")
     @PostMapping
-    public ResponseEntity<DocumentChunkDto> addChunk(
-            @PathVariable UUID documentId, @Valid @RequestBody DocumentChunkDto documentChunkDto) {
-        final var savedChunk = documentChunkService.saveChunk(documentId, documentChunkDto);
+    public ResponseEntity<ChunkDto> addChunk(
+            @PathVariable UUID documentId, @Valid @RequestBody ChunkDto chunkDto) {
+        final var savedChunk = chunkService.saveChunk(documentId, chunkDto);
         return ResponseEntity.ok(savedChunk);
     }
 
     @Override
     @PreAuthorize("hasRole('MOD')")
     @PatchMapping(value = "/{chunkId}", consumes = AppConstants.PATCH_MEDIA_TYPE)
-    public ResponseEntity<DocumentChunkDto> patchChunk(
+    public ResponseEntity<ChunkDto> patchChunk(
             @PathVariable UUID documentId, @PathVariable UUID chunkId, @RequestBody JsonPatch jsonPatch) {
-        final var patchedChunk = documentChunkService.patchChunk(documentId, chunkId, jsonPatch);
+        final var patchedChunk = chunkService.patchChunk(documentId, chunkId, jsonPatch);
         return ResponseEntity.ok(patchedChunk);
     }
 
@@ -63,7 +64,7 @@ public class DocumentChunkController implements DocumentChunkApi {
     @PreAuthorize("hasRole('MOD')")
     @DeleteMapping(value = "/{chunkId}")
     public ResponseEntity<Void> deleteChunk(@PathVariable UUID documentId, @PathVariable UUID chunkId) {
-        documentChunkService.deleteChunk(documentId, chunkId);
+        chunkService.deleteChunk(documentId, chunkId);
         return ResponseEntity.noContent().build();
     }
 }

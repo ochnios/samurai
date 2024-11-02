@@ -1,26 +1,31 @@
 package pl.ochnios.samurai.model.dtos.document.chunk;
 
-import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.ochnios.samurai.commons.patch.NotPatchable;
 import pl.ochnios.samurai.model.dtos.PatchDto;
 
+import java.util.UUID;
+
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "${docs.dto.document.chunk}")
-public class DocumentChunkDto implements PatchDto {
+public class ChunkDto implements PatchDto {
 
     @NotPatchable
     @Schema(description = "${docs.dto.document.chunk.id}")
     private UUID id;
+
+    @NotPatchable
+    @Schema(description = "${docs.dto.document.id}")
+    private UUID documentId;
 
     @Schema(description = "${docs.dto.document.chunk.position}")
     private int position;
