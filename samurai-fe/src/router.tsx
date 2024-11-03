@@ -7,6 +7,7 @@ import DocumentsPage from "./views/pages/DocumentsPage.tsx";
 import DummyPage from "./views/pages/DummyPage.tsx";
 import LoginPage from "./views/pages/LoginPage.tsx";
 import PageWrapper from "./views/pages/PageWrapper.tsx";
+import ChunksPage from "./views/pages/ChunksPage.tsx";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -56,6 +57,16 @@ const router = createBrowserRouter([
           <PageWrapper
             title="Documents"
             content={<DocumentsPage />}
+            access={Role.Mod}
+          />
+        ),
+      },
+      {
+        path: "documents/:documentId/chunks",
+        element: (
+          <PageWrapper
+            title="Chunks"
+            content={<ChunksPage />}
             access={Role.Mod}
           />
         ),

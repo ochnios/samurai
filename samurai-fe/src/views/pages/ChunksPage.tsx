@@ -1,54 +1,43 @@
 import { Box, Button, Menu, Text } from "@mantine/core";
-import {
-  IconArchive,
-  IconDownload,
-  IconEdit,
-  IconFileStack,
-  IconRestore,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import {
   MantineReactTable,
   MRT_ColumnDef,
   useMantineReactTable,
 } from "mantine-react-table";
 import { useEffect, useMemo, useState } from "react";
-import config from "../../config.ts";
 import { useTableFilters } from "../../hooks/table/useTableFilters.ts";
 import { useTableState } from "../../hooks/table/useTableState.ts";
-import { DocumentStatus } from "../../model/api/document/DocumentStatus.ts";
 import { Page } from "../../model/api/page/Page.ts";
-import { User } from "../../model/api/user/User.ts";
 import {
+  addChunk,
   createPageRequest,
-  deleteDocument,
-  fetchDocuments,
-  formatFileSize,
-  MAX_FILE_SIZE,
-  patchDocument,
-  uploadDocument,
-} from "../../model/service/documentService.ts";
+  deleteChunk,
+  fetchChunks,
+  MAX_CONTENT_LENGTH,
+  patchChunk,
+} from "../../model/service/chunkService.ts";
 import {
   defaultMantineTableContainerProps,
   showErrorMessage,
   showInfoMessage,
 } from "../../utils.ts";
-import DocumentStatusBadge from "../components/document/DocumentStatusBadge.tsx";
 import HighlightedText from "../components/table/HiglightedText.tsx";
-import { Document } from "../../model/api/document/Document.ts";
-import DocumentUploadForm from "../components/document/DocumentUploadForm.tsx";
-import { DocumentUpload } from "../../model/api/document/DocumentUpload.ts";
 import { modals } from "@mantine/modals";
 import { EmptyPage } from "../../model/api/page/EmptyPage.ts";
-import DocumentEditForm from "../components/document/DocumentEditForm.tsx";
 import { JsonPatch } from "../../model/api/patch/JsonPatch.ts";
-import { Link } from "react-router-dom";
+import ChunkEditForm from "../components/document/chunk/ChunkEditForm.tsx";
+import { useNavigate, useParams } from "react-router-dom";
+import { Chunk } from "../../model/api/document/chunk/Chunk.ts";
+import { UploadChunk } from "../../model/api/document/chunk/UploadChunk.ts";
 
-export default function DocumentsPage() {
-  const tableState = useTableState("documents");
+export default function ChunksPage() {
+  const navigate = useNavigate();
+  const { documentId } = useParams();
+  const tableState = useTableState("chunks");
   const tableFilters = useTableFilters();
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState<Page<Document>>(EmptyPage.of);
+  const [page, setPage] = useState<Page<Chunk>>(EmptyPage.of);
   const [pageRequest, setPageRequest] = useState(
     createPageRequest(tableState, tableFilters),
   );
@@ -66,17 +55,22 @@ export default function DocumentsPage() {
   ]);
 
   useEffect(() => {
+    if (!documentId) {
+      navigate("/documents");
+      return;
+    }
+
     setLoading(true);
-    fetchDocuments(pageRequest)
+    fetchChunks(documentId, pageRequest)
       .then((response) => setPage(response))
       .catch(() => {
-        showErrorMessage("Failed to fetch documents");
+        showErrorMessage("Failed to fetch chunks");
       })
       .finally(() => setLoading(false));
   }, [pageRequest]);
 
-  function handleAddDocument(document: DocumentUpload) {
-    uploadDocument(document)
+  function handleAddChunk(chunk: UploadChunk) {
+    addChunk(documentId!, chunk)
       .then((response) => {
         setPage({
           ...page,
@@ -84,15 +78,15 @@ export default function DocumentsPage() {
           totalPages: page.totalElements + 1,
         });
         modals.closeAll();
-        showInfoMessage("Document uploaded successfully");
+        showInfoMessage("Chunk uploaded successfully");
       })
       .catch(() => {
-        showErrorMessage("Failed to upload document");
+        showErrorMessage("Failed to upload chunk");
       });
   }
 
-  function handleUpdateDocument(id: string, patchArray: JsonPatch) {
-    patchDocument(id, patchArray)
+  function handleUpdateChunk(id: string, patchArray: JsonPatch) {
+    patchChunk(documentId!, id, patchArray)
       .then((response) => {
         setPage({
           ...page,
@@ -106,80 +100,63 @@ export default function DocumentsPage() {
       });
   }
 
-  function handleDeleteDocument(id: string) {
-    deleteDocument(id)
+  function handleDeleteChunk(id: string) {
+    deleteChunk(documentId!, id)
       .then(() => {
         setPage({
           ...page,
           items: [...page.items.filter((d) => d.id !== id)],
           totalPages: page.totalElements - 1,
         });
-        showInfoMessage("Document deleted successfully");
+        showInfoMessage("Chunk deleted successfully");
       })
       .catch(() => {
-        showErrorMessage("Failed to delete document");
+        showErrorMessage("Failed to delete chunk");
       });
   }
 
-  const columns = useMemo<MRT_ColumnDef<Document>[]>(
+  const columns = useMemo<MRT_ColumnDef<Chunk>[]>(
     () => [
       {
-        accessorKey: "title",
-        header: "Title",
+        accessorKey: "position",
+        header: "Position",
+        size: 120,
+        grow: false,
       },
       {
-        accessorKey: "name",
-        header: "Filename",
-      },
-      {
-        accessorKey: "user",
-        header: "Uploaded by",
+        accessorKey: "content",
+        header: "Content",
         Cell: ({ cell }) => (
           <HighlightedText
-            text={`${cell.getValue<User>().lastname} ${cell.getValue<User>().firstname}`}
+            text={cell.getValue<string>()}
             phrase={
               tableFilters.globalFilter
                 ? tableFilters.globalFilter
-                : (tableFilters.columnFilters.find((e) => e.id == "user")
+                : (tableFilters.columnFilters.find((e) => e.id == "content")
                     ?.value as string)
             }
           />
         ),
-        size: 180,
-        grow: false,
+        grow: true,
       },
       {
-        accessorKey: "size",
-        header: "Size",
+        accessorKey: "length",
+        header: "Length",
         filterVariant: "range-slider",
         filterFn: "betweenInclusive",
-        Cell: ({ cell }) => formatFileSize(cell.getValue<number>()),
         mantineFilterRangeSliderProps: {
-          max: MAX_FILE_SIZE,
+          max: MAX_CONTENT_LENGTH,
           min: 0,
-          step: 1000,
-          label: (value) => `${value}B`,
+          step: 100,
+          label: (value) => `${value} characters`,
         },
         size: 120,
         grow: false,
       },
       {
-        accessorKey: "status",
-        header: "Status",
-        filterVariant: "select",
-        mantineFilterSelectProps: {
-          data: Object.values(DocumentStatus),
-        },
-        Cell: ({ cell }) => (
-          <DocumentStatusBadge status={cell.getValue<DocumentStatus>()} />
-        ),
-        size: 140,
-        grow: false,
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Uploaded at",
-        accessorFn: (row) => new Date(row.createdAt),
+        accessorKey: "updatedAt",
+        header: "Updated at",
+        accessorFn: (row) => new Date(row.updatedAt),
         filterVariant: "date-range",
         Cell: ({ cell }) =>
           `${cell.getValue<Date>().toLocaleDateString()} ${cell
@@ -214,7 +191,7 @@ export default function DocumentsPage() {
       columnVisibility: tableState.columnVisibility,
       density: tableState.rowDensity,
       pagination: tableState.pagination,
-      sorting: tableState.sorting,
+      sorting: tableState.sorting, // createdAt is problematic
       columnFilters: tableFilters.columnFilters,
       globalFilter: tableFilters.globalFilter,
     },
@@ -227,35 +204,35 @@ export default function DocumentsPage() {
           modals.open({
             title: (
               <Text fz="h3" fw="bold" span>
-                Upload document
+                Upload chunk
               </Text>
             ),
-            children: <DocumentUploadForm onSubmit={handleAddDocument} />,
+            children: <ChunkEditForm onSubmitAdd={handleAddChunk} />,
             size: "xl",
           });
         }}
       >
-        Upload document
+        Upload chunk
       </Button>
     ),
     renderRowActionMenuItems: ({ row }) => {
-      const apiUrl = config.baseUrl;
-      const document = page.items[row.index];
+      const chunk = page.items[row.index];
       return (
         <>
+          <Menu.Item leftSection={<IconPlus />}>Add above</Menu.Item>
           <Menu.Item
             leftSection={<IconEdit />}
             onClick={() => {
               modals.open({
                 title: (
                   <Text fz="h3" fw="bold" span>
-                    Edit document
+                    Edit chunk
                   </Text>
                 ),
                 children: (
-                  <DocumentEditForm
-                    current={page.items[row.index]}
-                    onSubmit={handleUpdateDocument}
+                  <ChunkEditForm
+                    current={chunk}
+                    onSubmitPatch={handleUpdateChunk}
                   />
                 ),
                 size: "xl",
@@ -264,31 +241,7 @@ export default function DocumentsPage() {
           >
             Edit
           </Menu.Item>
-          <Menu.Item
-            leftSection={<IconFileStack />}
-            component={Link}
-            to={`/documents/${document.id}/chunks`}
-          >
-            Edit chunks
-          </Menu.Item>
-          <Menu.Item
-            leftSection={<IconDownload />}
-            component="a"
-            href={`${apiUrl}/documents/${document?.id}/download`}
-            target="_blank"
-          >
-            Download
-          </Menu.Item>
-          {document?.status === DocumentStatus.ACTIVE && (
-            <Menu.Item color="yellow" leftSection={<IconArchive />}>
-              Archive
-            </Menu.Item>
-          )}
-          {document?.status === DocumentStatus.ARCHIVED && (
-            <Menu.Item color="green" leftSection={<IconRestore />}>
-              Restore
-            </Menu.Item>
-          )}
+          <Menu.Item leftSection={<IconPlus />}>Add below chunk</Menu.Item>
           <Menu.Item
             color="red"
             leftSection={<IconTrash />}
@@ -296,17 +249,17 @@ export default function DocumentsPage() {
               modals.openConfirmModal({
                 title: (
                   <Text fz="h3" fw="bold" span>
-                    Delete document
+                    Delete chunk
                   </Text>
                 ),
                 children: (
                   <Text>
-                    Are you sure? The document will be permanently deleted, this
+                    Are you sure? The chunk will be permanently deleted, this
                     action cannot be undone
                   </Text>
                 ),
                 labels: { confirm: "Delete", cancel: "Cancel" },
-                onConfirm: () => handleDeleteDocument(document.id),
+                onConfirm: () => handleDeleteChunk(page.items[row.index].id),
                 size: "md",
               });
             }}
@@ -316,22 +269,6 @@ export default function DocumentsPage() {
         </>
       );
     },
-    renderDetailPanel: ({ row }) => (
-      <Text fz="sm">
-        <Text fz="sm" fw="bold" span>
-          Description:{" "}
-        </Text>
-        <HighlightedText
-          text={page.items[row.index].description}
-          phrase={
-            tableFilters.globalFilter
-              ? tableFilters.globalFilter
-              : (tableFilters.columnFilters.find((e) => e.id == "user")
-                  ?.value as string)
-          }
-        />
-      </Text>
-    ),
   });
 
   return (

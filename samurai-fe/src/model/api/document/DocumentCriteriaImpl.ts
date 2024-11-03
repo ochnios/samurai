@@ -73,6 +73,7 @@ export class DocumentCriteriaImpl implements DocumentCriteria {
     if (this.maxSize !== undefined) {
       params.append("maxSize", this.maxSize.toString());
     }
+    if (this.minCreatedAt) params.append("minCreatedAt", this.minCreatedAt);
     if (this.maxCreatedAt) params.append("maxCreatedAt", this.maxCreatedAt);
     if (this.userFullName) params.append("userFullName", this.userFullName);
     if (this.minCreatedAt) params.append("minCreatedAt", this.minCreatedAt);
