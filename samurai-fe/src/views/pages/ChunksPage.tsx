@@ -17,6 +17,7 @@ import { useTableState } from "../../hooks/table/useTableState.ts";
 import { Page } from "../../model/api/page/Page.ts";
 import {
   addChunk,
+  createChunkShortcut,
   createPageRequest,
   deleteChunk,
   fetchChunks,
@@ -25,10 +26,10 @@ import {
 } from "../../model/service/chunkService.ts";
 import {
   defaultMantineTableContainerProps,
+  highlightMarkdown,
   showErrorMessage,
   showInfoMessage,
 } from "../../utils.ts";
-import HighlightedText from "../components/table/HiglightedText.tsx";
 import { modals } from "@mantine/modals";
 import { EmptyPage } from "../../model/api/page/EmptyPage.ts";
 import { JsonPatch } from "../../model/api/patch/JsonPatch.ts";
@@ -37,6 +38,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Chunk } from "../../model/api/document/chunk/Chunk.ts";
 import { UploadChunk } from "../../model/api/document/chunk/UploadChunk.ts";
 import { JsonPatchNodeImpl } from "../../model/api/patch/JsonPatchNodeImpl.ts";
+import FormattedText from "../components/chat/FormattedText.tsx";
+import HighlightedText from "../components/table/HiglightedText.tsx";
 
 export default function ChunksPage() {
   const navigate = useNavigate();
@@ -132,18 +135,15 @@ export default function ChunksPage() {
       },
       {
         accessorKey: "content",
-        header: "Content",
-        Cell: ({ cell }) => (
-          <HighlightedText
-            text={cell.getValue<string>()}
-            phrase={
-              tableFilters.globalFilter
-                ? tableFilters.globalFilter
-                : (tableFilters.columnFilters.find((e) => e.id == "content")
-                    ?.value as string)
-            }
-          />
-        ),
+        header: "Shortcut",
+        Cell: ({ cell }) => {
+          const shortcut = createChunkShortcut(cell.getValue<string>());
+          const phrase = tableFilters.globalFilter
+            ? tableFilters.globalFilter
+            : (tableFilters.columnFilters.find((e) => e.id == "content")
+                ?.value as string);
+          return <HighlightedText text={shortcut} phrase={phrase} />;
+        },
         grow: true,
       },
       {
@@ -201,6 +201,9 @@ export default function ChunksPage() {
       sorting: tableState.sorting,
       columnFilters: tableFilters.columnFilters,
       globalFilter: tableFilters.globalFilter,
+    },
+    initialState: {
+      expanded: true,
     },
     enableStickyHeader: true,
     enableStickyFooter: true,
@@ -305,7 +308,7 @@ export default function ChunksPage() {
                   </Text>
                 ),
                 labels: { confirm: "Delete", cancel: "Cancel" },
-                onConfirm: () => handleDeleteChunk(page.items[row.index].id),
+                onConfirm: () => handleDeleteChunk(chunk.id),
                 size: "md",
               });
             }}
@@ -314,6 +317,14 @@ export default function ChunksPage() {
           </Menu.Item>
         </>
       );
+    },
+    renderDetailPanel: ({ row }) => {
+      const phrase = tableFilters.globalFilter
+        ? tableFilters.globalFilter
+        : (tableFilters.columnFilters.find((e) => e.id == "content")
+            ?.value as string);
+      const markdown = highlightMarkdown(page.items[row.index].content, phrase);
+      return <FormattedText markdown={markdown} />;
     },
   });
 

@@ -91,6 +91,24 @@ export const createPageRequest = (
   );
 };
 
+export const createChunkShortcut = (content: string): string => {
+  const lines = content.split("\n");
+  const title =
+    lines.length > 0
+      ? lines[0].replace(/#/g, "").replace(/\s+/g, " ").trim()
+      : "";
+  const subtitle =
+    lines.length > 1
+      ? ", " + lines[1].replace(/#/g, "").replace(/\s+/g, " ").trim()
+      : "";
+  const text =
+    lines.length > 2
+      ? ", " + lines[2].replace(/#/g, "").replace(/\s+/g, " ").trim()
+      : "";
+  const merged = title + subtitle + text;
+  return merged.length > 70 ? merged.substring(0, 70) + "..." : merged;
+};
+
 export const validatePosition = (value: number | undefined): string | null => {
   return value && value > 0 ? null : "Chunk position cannot be negative";
 };
