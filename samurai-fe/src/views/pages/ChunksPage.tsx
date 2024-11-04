@@ -1,5 +1,11 @@
 import { Box, Button, Menu, Text } from "@mantine/core";
-import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconEdit,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
 import {
   MantineReactTable,
   MRT_ColumnDef,
@@ -26,10 +32,11 @@ import HighlightedText from "../components/table/HiglightedText.tsx";
 import { modals } from "@mantine/modals";
 import { EmptyPage } from "../../model/api/page/EmptyPage.ts";
 import { JsonPatch } from "../../model/api/patch/JsonPatch.ts";
-import ChunkEditForm from "../components/document/chunk/ChunkEditForm.tsx";
+import { showChunkEditForm } from "../components/document/chunk/ChunkEditForm.tsx";
 import { useNavigate, useParams } from "react-router-dom";
 import { Chunk } from "../../model/api/document/chunk/Chunk.ts";
 import { UploadChunk } from "../../model/api/document/chunk/UploadChunk.ts";
+import { JsonPatchNodeImpl } from "../../model/api/patch/JsonPatchNodeImpl.ts";
 
 export default function ChunksPage() {
   const navigate = useNavigate();
@@ -69,14 +76,18 @@ export default function ChunksPage() {
       .finally(() => setLoading(false));
   }, [pageRequest]);
 
+  function refreshChunks() {
+    fetchChunks(documentId!, pageRequest)
+      .then((response) => setPage(response))
+      .catch(() => {
+        showErrorMessage("Failed to refresh chunks page");
+      });
+  }
+
   function handleAddChunk(chunk: UploadChunk) {
     addChunk(documentId!, chunk)
-      .then((response) => {
-        setPage({
-          ...page,
-          items: [response, ...page.items],
-          totalPages: page.totalElements + 1,
-        });
+      .then(() => {
+        refreshChunks();
         modals.closeAll();
         showInfoMessage("Chunk uploaded successfully");
       })
@@ -87,11 +98,8 @@ export default function ChunksPage() {
 
   function handleUpdateChunk(id: string, patchArray: JsonPatch) {
     patchChunk(documentId!, id, patchArray)
-      .then((response) => {
-        setPage({
-          ...page,
-          items: page.items.map((d) => (d.id != id ? d : response)),
-        });
+      .then(() => {
+        refreshChunks();
         modals.closeAll();
         showInfoMessage("Changes saved successfully");
       })
@@ -103,11 +111,7 @@ export default function ChunksPage() {
   function handleDeleteChunk(id: string) {
     deleteChunk(documentId!, id)
       .then(() => {
-        setPage({
-          ...page,
-          items: [...page.items.filter((d) => d.id !== id)],
-          totalPages: page.totalElements - 1,
-        });
+        refreshChunks();
         showInfoMessage("Chunk deleted successfully");
       })
       .catch(() => {
@@ -120,6 +124,9 @@ export default function ChunksPage() {
       {
         accessorKey: "position",
         header: "Position",
+        Cell: ({ cell }) => {
+          return cell.getValue<number>() + 1;
+        },
         size: 120,
         grow: false,
       },
@@ -191,7 +198,7 @@ export default function ChunksPage() {
       columnVisibility: tableState.columnVisibility,
       density: tableState.rowDensity,
       pagination: tableState.pagination,
-      sorting: tableState.sorting, // createdAt is problematic
+      sorting: tableState.sorting,
       columnFilters: tableFilters.columnFilters,
       globalFilter: tableFilters.globalFilter,
     },
@@ -200,48 +207,87 @@ export default function ChunksPage() {
     mantineTableContainerProps: defaultMantineTableContainerProps,
     renderTopToolbarCustomActions: () => (
       <Button
-        onClick={() => {
-          modals.open({
-            title: (
-              <Text fz="h3" fw="bold" span>
-                Upload chunk
-              </Text>
-            ),
-            children: <ChunkEditForm onSubmitAdd={handleAddChunk} />,
-            size: "xl",
-          });
-        }}
+        onClick={() =>
+          showChunkEditForm({
+            onSubmitAdd: handleAddChunk,
+            defaultPosition: page.totalElements,
+            maxPosition: page.totalElements,
+          })
+        }
       >
-        Upload chunk
+        Add chunk
       </Button>
     ),
     renderRowActionMenuItems: ({ row }) => {
       const chunk = page.items[row.index];
       return (
         <>
-          <Menu.Item leftSection={<IconPlus />}>Add above</Menu.Item>
           <Menu.Item
             leftSection={<IconEdit />}
-            onClick={() => {
-              modals.open({
-                title: (
-                  <Text fz="h3" fw="bold" span>
-                    Edit chunk
-                  </Text>
-                ),
-                children: (
-                  <ChunkEditForm
-                    current={chunk}
-                    onSubmitPatch={handleUpdateChunk}
-                  />
-                ),
-                size: "xl",
-              });
-            }}
+            onClick={() =>
+              showChunkEditForm({
+                current: chunk,
+                onSubmitPatch: handleUpdateChunk,
+                maxPosition: page.totalElements + 1,
+              })
+            }
           >
             Edit
           </Menu.Item>
-          <Menu.Item leftSection={<IconPlus />}>Add below chunk</Menu.Item>
+          {chunk.position > 0 && (
+            <Menu.Item
+              leftSection={<IconArrowUp />}
+              onClick={() =>
+                handleUpdateChunk(
+                  chunk.id,
+                  JsonPatch.of(
+                    JsonPatchNodeImpl.replace("/position", chunk.position - 1),
+                  ),
+                )
+              }
+            >
+              Move up
+            </Menu.Item>
+          )}
+          {chunk.position < page.items.length - 1 && (
+            <Menu.Item
+              leftSection={<IconArrowDown />}
+              onClick={() =>
+                handleUpdateChunk(
+                  chunk.id,
+                  JsonPatch.of(
+                    JsonPatchNodeImpl.replace("/position", chunk.position + 1),
+                  ),
+                )
+              }
+            >
+              Move down
+            </Menu.Item>
+          )}
+          <Menu.Item
+            leftSection={<IconPlus />}
+            onClick={() =>
+              showChunkEditForm({
+                onSubmitAdd: handleAddChunk,
+                defaultPosition: chunk.position,
+                maxPosition: page.totalElements + 1,
+              })
+            }
+          >
+            Add before
+          </Menu.Item>
+          <Menu.Item
+            leftSection={<IconPlus />}
+            onClick={() =>
+              showChunkEditForm({
+                onSubmitAdd: handleAddChunk,
+                defaultPosition: chunk.position + 1,
+                maxPosition: page.totalElements + 1,
+              })
+            }
+          >
+            Add after
+          </Menu.Item>
           <Menu.Item
             color="red"
             leftSection={<IconTrash />}

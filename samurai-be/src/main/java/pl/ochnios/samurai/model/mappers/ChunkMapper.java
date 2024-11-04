@@ -10,10 +10,10 @@ import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
 @Mapper
 public interface ChunkMapper {
 
+    @Mapping(target = "documentId", source = "document.id")
     ChunkDto map(Chunk chunk);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "position", source = "chunkDto.position")
     @Mapping(target = "content", source = "chunkDto.content")
     @Mapping(target = "document", source = "documentEntity")
     @Mapping(target = "length", ignore = true)

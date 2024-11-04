@@ -1,4 +1,4 @@
-import { Box, Button, NumberInput, Stack, Textarea } from "@mantine/core";
+import { Box, Button, NumberInput, Stack, Text, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import {
   validateContent,
@@ -9,17 +9,37 @@ import { showErrorMessage } from "../../../../utils.ts";
 import { Chunk } from "../../../../model/api/document/chunk/Chunk.ts";
 import { JsonPatch } from "../../../../model/api/patch/JsonPatch.ts";
 import { JsonPatchNodeImpl } from "../../../../model/api/patch/JsonPatchNodeImpl.ts";
+import { modals } from "@mantine/modals";
 
 interface ChunkEditFormProps {
   current?: Chunk;
   onSubmitPatch?: (id: string, patch: JsonPatch) => void;
   onSubmitAdd?: (chunk: UploadChunk) => void;
+  defaultPosition?: number;
+  maxPosition: number;
+}
+
+export function showChunkEditForm(props: ChunkEditFormProps) {
+  modals.open({
+    title: (
+      <Text fz="h3" fw="bold" span>
+        {props.onSubmitAdd ? "Add" : "Edit"} chunk
+      </Text>
+    ),
+    children: <ChunkEditForm {...props} />,
+    size: "xl",
+  });
 }
 
 export default function ChunkEditForm(props: ChunkEditFormProps) {
   const form = useForm({
     initialValues: {
-      position: props.current?.position,
+      position:
+        props.defaultPosition !== undefined
+          ? props.defaultPosition + 1
+          : props.current !== undefined
+            ? props.current.position + 1
+            : props.maxPosition,
       content: props.current?.content,
     },
     validate: {
@@ -41,7 +61,9 @@ export default function ChunkEditForm(props: ChunkEditFormProps) {
   const handleSubmitPatch = (values: typeof form.values) => {
     const jsonPatch = JsonPatch.empty();
     if (values.position != props.current?.position) {
-      jsonPatch.add(JsonPatchNodeImpl.replace("/position", values.position));
+      jsonPatch.add(
+        JsonPatchNodeImpl.replace("/position", values.position - 1),
+      );
     }
     if (values.content !== props.current?.content) {
       if (values.content === "") {
@@ -56,7 +78,7 @@ export default function ChunkEditForm(props: ChunkEditFormProps) {
   const handleSubmitAdd = (values: typeof form.values) => {
     const chunk = {
       content: values.content,
-      position: values.position,
+      position: values.position - 1,
     } as UploadChunk;
     props.onSubmitAdd!(chunk);
   };
@@ -80,8 +102,8 @@ export default function ChunkEditForm(props: ChunkEditFormProps) {
           <NumberInput
             label="Chunk position in document"
             placeholder="Enter chunk position"
-            min={0}
-            max={20} // TODO number of chunks
+            min={1}
+            max={props.maxPosition}
             value={form.values.position}
             onChange={(value) =>
               form.setFieldValue("position", value as number)

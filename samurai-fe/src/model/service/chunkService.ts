@@ -92,9 +92,7 @@ export const createPageRequest = (
 };
 
 export const validatePosition = (value: number | undefined): string | null => {
-  return value !== undefined && value >= 0
-    ? null
-    : "Chunk position cannot be negative";
+  return value && value > 0 ? null : "Chunk position cannot be negative";
 };
 
 export const validateContent = (value: string | undefined): string | null => {

@@ -4,6 +4,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class ChunkDto implements PatchDto {
     private UUID documentId;
 
     @Schema(description = "${docs.dto.document.chunk.position}")
+    @PositiveOrZero
     private int position;
 
     @Schema(description = "${docs.dto.document.chunk.content}")
