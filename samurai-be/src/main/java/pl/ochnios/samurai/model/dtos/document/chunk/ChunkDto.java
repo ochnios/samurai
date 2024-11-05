@@ -20,11 +20,11 @@ import pl.ochnios.samurai.model.dtos.PatchDto;
 public class ChunkDto implements PatchDto {
 
     @NotPatchable
-    @Schema(description = "${docs.dto.document.chunk.id}")
+    @Schema(description = "${docs.dto.document.chunk.id}", accessMode = READ_ONLY)
     private UUID id;
 
     @NotPatchable
-    @Schema(description = "${docs.dto.document.id}")
+    @Schema(description = "${docs.dto.document.id}", accessMode = READ_ONLY)
     private UUID documentId;
 
     @Schema(description = "${docs.dto.document.chunk.position}")
@@ -38,7 +38,7 @@ public class ChunkDto implements PatchDto {
     private String content;
 
     @NotPatchable
-    @Schema(description = "${docs.dto.document.chunk.length}")
+    @Schema(description = "${docs.dto.document.chunk.length}", accessMode = READ_ONLY)
     private int length;
 
     @NotPatchable
