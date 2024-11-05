@@ -31,6 +31,8 @@ spring:
       qdrant:
         host: localhost
         port: 6334
+        initialize-schema: true
+        collection-name: documents
     openai:
       api-key: ${OPENAI_API_KEY}
       embedding:
@@ -85,3 +87,6 @@ custom:
     model: gpt-4o
   task:
     model: gpt-4o-mini
+  search:
+    topK: 5
+    similarityThreshold: 0.5

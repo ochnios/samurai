@@ -4,6 +4,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pl.ochnios.samurai.model.mappers.ChatOptionsMapper;
+import pl.ochnios.samurai.model.mappers.ChunkMapper;
 import pl.ochnios.samurai.model.mappers.ConversationMapper;
 import pl.ochnios.samurai.model.mappers.DocumentMapper;
 import pl.ochnios.samurai.model.mappers.FileMapper;
@@ -47,5 +48,10 @@ public class MapperConf {
     @Bean
     public DocumentMapper documentMapper() {
         return Mappers.getMapper(DocumentMapper.class);
+    }
+
+    @Bean
+    public ChunkMapper chunkMapper() {
+        return Mappers.getMapper(ChunkMapper.class);
     }
 }

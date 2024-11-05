@@ -1,5 +1,6 @@
 package pl.ochnios.samurai.model.entities.document;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,6 +9,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,12 +25,15 @@ import org.mapstruct.factory.Mappers;
 import pl.ochnios.samurai.model.dtos.PatchDto;
 import pl.ochnios.samurai.model.dtos.document.DocumentDto;
 import pl.ochnios.samurai.model.entities.PatchableEntity;
+import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
 import pl.ochnios.samurai.model.entities.file.FileEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.DocumentMapper;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -54,6 +60,12 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Builder.Default
+    @ToString.Exclude
+    @OrderBy("position asc")
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Chunk> chunks = new ArrayList<>();
+
     @Nationalized
     private String title;
 
@@ -73,10 +85,8 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof DocumentEntity that))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof DocumentEntity that)) return false;
         return Objects.equals(id, that.id);
     }
 

@@ -12,7 +12,7 @@ import { Page } from "../api/page/Page.ts";
 import { PageRequest } from "../api/page/PageRequest.ts";
 import { PageRequestImpl } from "../api/page/PageRequestImpl.ts";
 import { JsonPatch } from "../api/patch/JsonPatch.ts";
-import { processSorting } from "./sortService.ts";
+import { processUserSorting } from "./sortService.ts";
 
 const conversationsUrl = "/conversations";
 
@@ -97,6 +97,6 @@ export const createPageRequest = (
       tableFilters.columnFilters,
     ),
     tableState.pagination,
-    processSorting(tableState.sorting),
+    processUserSorting(tableState.sorting),
   );
 };

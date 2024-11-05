@@ -1,4 +1,4 @@
-import { Box, Button, Menu, Text } from "@mantine/core";
+import { Button, Menu, Text } from "@mantine/core";
 import {
   IconArchive,
   IconDownload,
@@ -42,6 +42,8 @@ import { modals } from "@mantine/modals";
 import { EmptyPage } from "../../model/api/page/EmptyPage.ts";
 import DocumentEditForm from "../components/document/DocumentEditForm.tsx";
 import { JsonPatch } from "../../model/api/patch/JsonPatch.ts";
+import { Link } from "react-router-dom";
+import { JsonPatchNodeImpl } from "../../model/api/patch/JsonPatchNodeImpl.ts";
 
 export default function DocumentsPage() {
   const tableState = useTableState("documents");
@@ -90,8 +92,8 @@ export default function DocumentsPage() {
       });
   }
 
-  function handleUpdateDocument(id: string, patchArray: JsonPatch) {
-    patchDocument(id, patchArray)
+  function handleUpdateDocument(id: string, patch: JsonPatch) {
+    patchDocument(id, patch)
       .then((response) => {
         setPage({
           ...page,
@@ -263,7 +265,13 @@ export default function DocumentsPage() {
           >
             Edit
           </Menu.Item>
-          <Menu.Item leftSection={<IconFileStack />}>View chunks</Menu.Item>
+          <Menu.Item
+            leftSection={<IconFileStack />}
+            component={Link}
+            to={`/documents/${document.id}/chunks`}
+          >
+            Edit chunks
+          </Menu.Item>
           <Menu.Item
             leftSection={<IconDownload />}
             component="a"
@@ -273,12 +281,37 @@ export default function DocumentsPage() {
             Download
           </Menu.Item>
           {document?.status === DocumentStatus.ACTIVE && (
-            <Menu.Item color="yellow" leftSection={<IconArchive />}>
+            <Menu.Item
+              color="yellow"
+              leftSection={<IconArchive />}
+              onClick={() => {
+                handleUpdateDocument(
+                  document.id,
+                  JsonPatch.of(
+                    JsonPatchNodeImpl.replace(
+                      "/status",
+                      DocumentStatus.ARCHIVED,
+                    ),
+                  ),
+                );
+              }}
+            >
               Archive
             </Menu.Item>
           )}
           {document?.status === DocumentStatus.ARCHIVED && (
-            <Menu.Item color="green" leftSection={<IconRestore />}>
+            <Menu.Item
+              color="green"
+              leftSection={<IconRestore />}
+              onClick={() => {
+                handleUpdateDocument(
+                  document.id,
+                  JsonPatch.of(
+                    JsonPatchNodeImpl.replace("/status", DocumentStatus.ACTIVE),
+                  ),
+                );
+              }}
+            >
               Restore
             </Menu.Item>
           )}
@@ -299,7 +332,7 @@ export default function DocumentsPage() {
                   </Text>
                 ),
                 labels: { confirm: "Delete", cancel: "Cancel" },
-                onConfirm: () => handleDeleteDocument(page.items[row.index].id),
+                onConfirm: () => handleDeleteDocument(document.id),
                 size: "md",
               });
             }}
@@ -327,9 +360,5 @@ export default function DocumentsPage() {
     ),
   });
 
-  return (
-    <Box>
-      <MantineReactTable table={table} />
-    </Box>
-  );
+  return <MantineReactTable table={table} />;
 }

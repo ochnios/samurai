@@ -18,5 +18,10 @@
 
 /* Enable line wrap in table cells */
 .mrt-table td {
-    white-space: pre-wrap;
+    white-space: normal;
+}
+
+/* Fix popup in mdx editor displayed in modal */
+.mdxeditor-popup-container {
+    z-index: 100000 !important;
 }

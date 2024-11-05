@@ -9,9 +9,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -49,15 +46,13 @@ public class Conversation implements PatchableEntity {
     @CustomUuidGenerator
     private UUID id;
 
-    @Builder.Default
     @ToString.Exclude
     @OrderBy("createdAt asc")
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<MessageEntity> messages = new ArrayList<>();
+    private List<MessageEntity> messages;
 
-    @Builder.Default
     @Setter(AccessLevel.NONE)
-    private int messageCount = 0;
+    private int messageCount;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
@@ -78,10 +73,8 @@ public class Conversation implements PatchableEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof Conversation that))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof Conversation that)) return false;
         return Objects.equals(id, that.id);
     }
 
@@ -117,10 +110,15 @@ public class Conversation implements PatchableEntity {
         this.messageCount = this.messages.size();
     }
 
-    @PostLoad
-    @PostPersist
-    @PostUpdate
-    private void updateMessageCount() {
-        messageCount = messages != null ? messages.size() : 0;
+    public static class ConversationBuilder {
+
+        private List<MessageEntity> messages = new ArrayList<>();
+        private int messageCount = 0;
+
+        public ConversationBuilder messages(List<MessageEntity> messages) {
+            this.messages = messages;
+            this.messageCount = messages != null ? messages.size() : 0;
+            return this;
+        }
     }
 }

@@ -36,3 +36,19 @@ export const defaultMantineTableContainerProps = {
     md: "calc(100vh - 210px)",
   },
 };
+
+export function highlightMarkdown(text: string, phrase: string): string {
+  if (text && phrase) {
+    const index = text.toLowerCase().indexOf(phrase.toLowerCase());
+    if (index !== -1) {
+      return (
+        text.substring(0, index) +
+        "<mark>" +
+        text.substring(index, index + phrase.length) +
+        "</mark>" +
+        text.substring(index + phrase.length)
+      );
+    }
+  }
+  return text;
+}
