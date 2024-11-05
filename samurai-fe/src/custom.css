@@ -18,10 +18,10 @@
 
 /* Enable line wrap in table cells */
 .mrt-table td {
-    white-space: pre-wrap;
+    white-space: normal;
 }
 
-/* For formatted markdown displayed in table */
-.mrt-table h1, .mrt-table h2, .mrt-table h3, .mrt-table h4, .mrt-table h5, .mrt-table h6, .mrt-table li {
-    margin: 0;
+/* Fix popup in mdx editor displayed in modal */
+.mdxeditor-popup-container {
+    z-index: 100000 !important;
 }

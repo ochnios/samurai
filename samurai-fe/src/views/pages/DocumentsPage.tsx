@@ -1,4 +1,4 @@
-import { Box, Button, Menu, Text } from "@mantine/core";
+import { Button, Menu, Text } from "@mantine/core";
 import {
   IconArchive,
   IconDownload,
@@ -360,9 +360,5 @@ export default function DocumentsPage() {
     ),
   });
 
-  return (
-    <Box>
-      <MantineReactTable table={table} />
-    </Box>
-  );
+  return <MantineReactTable table={table} />;
 }

@@ -1,4 +1,13 @@
-import { Box, Button, NumberInput, Stack, Text, Textarea } from "@mantine/core";
+import {
+  Alert,
+  Box,
+  Button,
+  NumberInput,
+  Paper,
+  Stack,
+  Text,
+  useMantineColorScheme,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import {
   validateContent,
@@ -10,6 +19,28 @@ import { Chunk } from "../../../../model/api/document/chunk/Chunk.ts";
 import { JsonPatch } from "../../../../model/api/patch/JsonPatch.ts";
 import { JsonPatchNodeImpl } from "../../../../model/api/patch/JsonPatchNodeImpl.ts";
 import { modals } from "@mantine/modals";
+import React from "react";
+import {
+  BlockTypeSelect,
+  BoldItalicUnderlineToggles,
+  CreateLink,
+  diffSourcePlugin,
+  DiffSourceToggleWrapper,
+  headingsPlugin,
+  InsertTable,
+  linkDialogPlugin,
+  listsPlugin,
+  ListsToggle,
+  MDXEditor,
+  MDXEditorMethods,
+  quotePlugin,
+  tablePlugin,
+  thematicBreakPlugin,
+  toolbarPlugin,
+  UndoRedo,
+} from "@mdxeditor/editor";
+import "@mdxeditor/editor/style.css";
+import { IconExclamationCircle } from "@tabler/icons-react";
 
 interface ChunkEditFormProps {
   current?: Chunk;
@@ -32,6 +63,8 @@ export function showChunkEditForm(props: ChunkEditFormProps) {
 }
 
 export default function ChunkEditForm(props: ChunkEditFormProps) {
+  const ref = React.useRef<MDXEditorMethods>(null);
+  const { colorScheme } = useMantineColorScheme();
   const form = useForm({
     initialValues: {
       position:
@@ -87,18 +120,61 @@ export default function ChunkEditForm(props: ChunkEditFormProps) {
     <Box>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
-          <Textarea
-            label="Chunk content"
-            placeholder="Enter chunk content"
-            value={form.values.content}
-            onChange={(event) =>
-              form.setFieldValue("content", event.currentTarget.value)
-            }
-            resize="vertical"
-            autosize
-            minRows={3}
-            error={form.errors.content}
-          />
+          {form.errors.content && (
+            <Alert
+              variant="light"
+              color="red"
+              title="Errors detected"
+              icon={<IconExclamationCircle />}
+            >
+              {form.errors.content}
+            </Alert>
+          )}
+          <Paper
+            withBorder
+            radius="sm"
+            style={{ overflowY: "auto", maxHeight: "66vh" }}
+          >
+            <MDXEditor
+              ref={ref}
+              className={colorScheme === "dark" ? "dark-theme dark-editor" : ""}
+              markdown={form.values.content ?? ""}
+              onChange={(content) => form.setFieldValue("content", content)}
+              onError={(error) => {
+                showErrorMessage("Failed to render provided markdown content");
+                console.error(error);
+              }}
+              placeholder="Enter chunk content"
+              plugins={[
+                headingsPlugin(),
+                listsPlugin(),
+                quotePlugin(),
+                thematicBreakPlugin(),
+                linkDialogPlugin(),
+                tablePlugin(),
+                diffSourcePlugin({
+                  diffMarkdown: props.current?.content,
+                  viewMode: "rich-text",
+                }),
+
+                toolbarPlugin({
+                  toolbarContents: () => (
+                    <>
+                      <UndoRedo />
+                      <BoldItalicUnderlineToggles />
+                      <BlockTypeSelect />
+                      <ListsToggle />
+                      <CreateLink />
+                      <InsertTable />
+                      <DiffSourceToggleWrapper>
+                        <UndoRedo />
+                      </DiffSourceToggleWrapper>
+                    </>
+                  ),
+                }),
+              ]}
+            />
+          </Paper>
           <NumberInput
             label="Chunk position in document"
             placeholder="Enter chunk position"
