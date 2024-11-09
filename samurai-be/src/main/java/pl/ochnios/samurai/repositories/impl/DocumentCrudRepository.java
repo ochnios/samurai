@@ -6,5 +6,4 @@ import org.springframework.data.repository.CrudRepository;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 
 public interface DocumentCrudRepository
-                extends CrudRepository<DocumentEntity, UUID>, JpaSpecificationExecutor<DocumentEntity> {
-}
+        extends CrudRepository<DocumentEntity, UUID>, JpaSpecificationExecutor<DocumentEntity> {}

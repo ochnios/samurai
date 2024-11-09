@@ -1,6 +1,8 @@
 package pl.ochnios.samurai.controllers.impl;
 
 import jakarta.validation.Valid;
+import java.util.UUID;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +23,6 @@ import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.samurai.services.ChunkService;
 
-import javax.json.JsonPatch;
-import java.util.UUID;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/documents/{documentId}/chunks")
@@ -38,16 +37,15 @@ public class ChunkController implements ChunkApi {
             @PathVariable UUID documentId,
             @ParameterObject ChunkCriteria criteria,
             @ParameterObject PageRequestDto pageRequestDto) {
-        final var chunksPage = chunkService.getChunksPage(documentId, criteria, pageRequestDto);
+        var chunksPage = chunkService.getChunksPage(documentId, criteria, pageRequestDto);
         return ResponseEntity.ok(chunksPage);
     }
 
     @Override
     @PreAuthorize("hasRole('MOD')")
     @PostMapping
-    public ResponseEntity<ChunkDto> addChunk(
-            @PathVariable UUID documentId, @Valid @RequestBody ChunkDto chunkDto) {
-        final var savedChunk = chunkService.saveChunk(documentId, chunkDto);
+    public ResponseEntity<ChunkDto> addChunk(@PathVariable UUID documentId, @Valid @RequestBody ChunkDto chunkDto) {
+        var savedChunk = chunkService.saveChunk(documentId, chunkDto);
         return ResponseEntity.ok(savedChunk);
     }
 
@@ -56,7 +54,7 @@ public class ChunkController implements ChunkApi {
     @PatchMapping(value = "/{chunkId}", consumes = AppConstants.PATCH_MEDIA_TYPE)
     public ResponseEntity<ChunkDto> patchChunk(
             @PathVariable UUID documentId, @PathVariable UUID chunkId, @RequestBody JsonPatch jsonPatch) {
-        final var patchedChunk = chunkService.patchChunk(documentId, chunkId, jsonPatch);
+        var patchedChunk = chunkService.patchChunk(documentId, chunkId, jsonPatch);
         return ResponseEntity.ok(patchedChunk);
     }
 

@@ -27,11 +27,11 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        final var jwt = jwtService.getJwt(request);
+        var jwt = jwtService.getJwt(request);
         if (jwt.isPresent() && jwtService.validateJwt(jwt.get())) {
-            final var username = jwtService.getUsername(jwt.get());
-            final var user = userService.loadUserByUsername(username);
-            final var auth = new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
+            var username = jwtService.getUsername(jwt.get());
+            var user = userService.loadUserByUsername(username);
+            var auth = new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

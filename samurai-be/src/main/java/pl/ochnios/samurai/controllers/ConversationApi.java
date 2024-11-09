@@ -25,31 +25,33 @@ import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
 @Tag(name = "${docs.ctrl.conversation.tag.name}", description = "${docs.ctrl.conversation.tag.desc}")
 public interface ConversationApi {
 
-        @Operation(summary = "${docs.ctrl.conversation.getSummaries}")
-        @ApiResponse(responseCode = HTTP_200)
-        @ApiResponse(responseCode = HTTP_400)
-        ResponseEntity<PageDto<ConversationSummaryDto>> getSummaries(@ParameterObject PageRequestDto pageRequestDto);
+    @Operation(summary = "${docs.ctrl.conversation.getSummaries}")
+    @ApiResponse(responseCode = HTTP_200)
+    @ApiResponse(responseCode = HTTP_400)
+    ResponseEntity<PageDto<ConversationSummaryDto>> getSummaries(@ParameterObject PageRequestDto pageRequestDto);
 
-        @Operation(summary = "${docs.ctrl.conversation.searchConversations}", description = "${docs.ctrl.conversation.searchConversations.desc}")
-        @ApiResponse(responseCode = HTTP_200)
-        @ApiResponse(responseCode = HTTP_400)
-        ResponseEntity<PageDto<ConversationDetailsDto>> searchConversations(
-                        @ParameterObject ConversationCriteria criteria, @ParameterObject PageRequestDto pageRequestDto);
+    @Operation(
+            summary = "${docs.ctrl.conversation.searchConversations}",
+            description = "${docs.ctrl.conversation.searchConversations.desc}")
+    @ApiResponse(responseCode = HTTP_200)
+    @ApiResponse(responseCode = HTTP_400)
+    ResponseEntity<PageDto<ConversationDetailsDto>> searchConversations(
+            @ParameterObject ConversationCriteria criteria, @ParameterObject PageRequestDto pageRequestDto);
 
-        @Operation(summary = "${docs.ctrl.conversation.get}")
-        @ApiResponse(responseCode = HTTP_200)
-        @ApiResponse(responseCode = HTTP_404)
-        ResponseEntity<ConversationDto> getConversation(@PathVariable UUID conversationId);
+    @Operation(summary = "${docs.ctrl.conversation.get}")
+    @ApiResponse(responseCode = HTTP_200)
+    @ApiResponse(responseCode = HTTP_404)
+    ResponseEntity<ConversationDto> getConversation(@PathVariable UUID conversationId);
 
-        @Operation(summary = "${docs.ctrl.conversation.patch}")
-        @ApiResponse(responseCode = HTTP_200)
-        @ApiResponse(responseCode = HTTP_400)
-        @ApiResponse(responseCode = HTTP_404)
-        ResponseEntity<ConversationDto> patchConversation(
-                        @PathVariable UUID conversationId, @RequestBody JsonPatch jsonPatch);
+    @Operation(summary = "${docs.ctrl.conversation.patch}")
+    @ApiResponse(responseCode = HTTP_200)
+    @ApiResponse(responseCode = HTTP_400)
+    @ApiResponse(responseCode = HTTP_404)
+    ResponseEntity<ConversationDto> patchConversation(
+            @PathVariable UUID conversationId, @RequestBody JsonPatch jsonPatch);
 
-        @Operation(summary = "${docs.ctrl.conversation.delete}")
-        @ApiResponse(responseCode = HTTP_200)
-        @ApiResponse(responseCode = HTTP_404)
-        ResponseEntity<Void> deleteConversation(@PathVariable UUID conversationId);
+    @Operation(summary = "${docs.ctrl.conversation.delete}")
+    @ApiResponse(responseCode = HTTP_200)
+    @ApiResponse(responseCode = HTTP_404)
+    ResponseEntity<Void> deleteConversation(@PathVariable UUID conversationId);
 }

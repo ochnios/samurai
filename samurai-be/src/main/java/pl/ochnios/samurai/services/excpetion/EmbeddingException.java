@@ -1,6 +1,6 @@
 package pl.ochnios.samurai.services.excpetion;
 
-public class EmbeddingException extends ServiceException{
+public class EmbeddingException extends ServiceException {
 
     public EmbeddingException(String message) {
         super(message);

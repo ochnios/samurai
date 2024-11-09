@@ -35,26 +35,26 @@ public class ChunkService {
 
     @Transactional(readOnly = true)
     public PageDto<ChunkDto> getChunksPage(UUID documentId, ChunkCriteria criteria, PageRequestDto pageRequestDto) {
-        final var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
-        final var specification = ChunkSpecification.create(criteria);
-        final var chunksPage = chunkRepository.findAll(documentId, specification, pageRequest);
+        var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
+        var specification = ChunkSpecification.create(criteria);
+        var chunksPage = chunkRepository.findAll(documentId, specification, pageRequest);
         return pageMapper.validOrDefaultSort(chunksPage, chunkMapper::map);
     }
 
     @Transactional
     public ChunkDto saveChunk(UUID documentId, ChunkDto chunkDto) {
-        final var document = documentRepository.findById(documentId);
-        final var chunk = chunkMapper.map(chunkDto, document);
-        final var savedChunk = doAdd(documentId, chunk);
-        final var embeddingChunk = chunkMapper.mapToEmbeddedChunk(savedChunk);
+        var document = documentRepository.findById(documentId);
+        var chunk = chunkMapper.map(chunkDto, document);
+        var savedChunk = doAdd(documentId, chunk);
+        var embeddingChunk = chunkMapper.mapToEmbeddedChunk(savedChunk);
         embeddingService.add(embeddingChunk);
         return chunkMapper.map(savedChunk);
     }
 
     @Transactional
     public ChunkDto patchChunk(UUID documentId, UUID chunkId, JsonPatch jsonPatch) {
-        final var chunk = chunkRepository.findById(documentId, chunkId);
-        final var patched = chunkMapper.copy(chunk);
+        var chunk = chunkRepository.findById(documentId, chunkId);
+        var patched = chunkMapper.copy(chunk);
         patchService.apply(patched, jsonPatch);
 
         Chunk saved;
@@ -76,7 +76,7 @@ public class ChunkService {
 
     @Transactional
     public void deleteChunk(UUID documentId, UUID chunkId) {
-        final var chunk = chunkRepository.findById(documentId, chunkId);
+        var chunk = chunkRepository.findById(documentId, chunkId);
         chunkRepository.delete(chunk);
         reorderChunks(documentId, chunk.getPosition());
         embeddingService.delete(chunkMapper.mapToEmbeddedChunk(chunk));
@@ -84,13 +84,13 @@ public class ChunkService {
     }
 
     private Chunk doAdd(UUID documentId, Chunk chunk) {
-        final var chunks = chunkRepository.findAllByDocumentIdOrdered(documentId);
+        var chunks = chunkRepository.findAllByDocumentIdOrdered(documentId);
         validateNewPosition(chunks, chunk.getPosition());
         if (chunk.getPosition() == chunks.size()) {
             return chunkRepository.save(chunk);
         } else {
             chunks.add(chunk.getPosition(), chunk);
-            final var reordered = reorderChunks(chunks, chunk.getPosition(), chunks.size());
+            var reordered = reorderChunks(chunks, chunk.getPosition(), chunks.size());
             return reordered.get(chunk.getPosition());
         }
     }
@@ -102,15 +102,15 @@ public class ChunkService {
     }
 
     private Chunk doMove(UUID documentId, int fromPosition, int toPosition) {
-        final var chunks = chunkRepository.findAllByDocumentIdOrdered(documentId);
+        var chunks = chunkRepository.findAllByDocumentIdOrdered(documentId);
         validateToPosition(chunks, toPosition);
 
-        final var moved = chunks.remove(fromPosition);
+        var moved = chunks.remove(fromPosition);
         chunks.add(toPosition, moved);
 
         int start = Math.min(fromPosition, toPosition);
         int end = Math.max(fromPosition + 1, toPosition + 1);
-        final var reordered = reorderChunks(chunks, start, end);
+        var reordered = reorderChunks(chunks, start, end);
         return reordered.get(toPosition);
     }
 
@@ -121,7 +121,7 @@ public class ChunkService {
     }
 
     private void reorderChunks(UUID documentId, int fromPosition) {
-        final var chunks = chunkRepository.findAllByDocumentIdOrdered(documentId);
+        var chunks = chunkRepository.findAllByDocumentIdOrdered(documentId);
         reorderChunks(chunks, fromPosition, chunks.size());
     }
 
@@ -131,7 +131,7 @@ public class ChunkService {
                 chunks.get(i).setPosition(i);
             }
         }
-        final var savedChunks = chunkRepository.saveAll(chunks);
+        var savedChunks = chunkRepository.saveAll(chunks);
         return StreamSupport.stream(savedChunks.spliterator(), false).toList();
     }
 }

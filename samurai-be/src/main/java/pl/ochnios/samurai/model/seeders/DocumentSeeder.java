@@ -1,5 +1,8 @@
 package pl.ochnios.samurai.model.seeders;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -8,10 +11,6 @@ import pl.ochnios.samurai.commons.exceptions.ApplicationException;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.repositories.DocumentRepository;
 import pl.ochnios.samurai.repositories.UserRepository;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -28,21 +27,21 @@ public class DocumentSeeder implements DataSeeder {
     }
 
     private void createDocument(String title, String username, String filepath) {
-        final var user = userRepository.findByUsername(username);
-        final var file = getFile(filepath);
-        final var document = DocumentEntity.builder()
+        var user = userRepository.findByUsername(username);
+        var file = getFile(filepath);
+        var document = DocumentEntity.builder()
                 .id(UUID.nameUUIDFromBytes(title.getBytes()))
                 .file(file)
                 .user(user)
                 .title(title)
                 .description(title + " - " + "description")
                 .build();
-        final var savedDocument = documentRepository.save(document);
+        var savedDocument = documentRepository.save(document);
         log.info("Created document: {}", savedDocument);
     }
 
     private File getFile(String filepath) {
-        final var resource = new ClassPathResource(filepath);
+        var resource = new ClassPathResource(filepath);
         try {
             return resource.getFile();
         } catch (IOException ex) {

@@ -6,7 +6,7 @@ import pl.ochnios.samurai.model.dtos.document.DocumentUploadDto;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.user.User;
 
-@Mapper(uses = { UserMapper.class })
+@Mapper(uses = {UserMapper.class})
 public interface DocumentMapper {
 
     DocumentDto map(DocumentEntity documentEntity);

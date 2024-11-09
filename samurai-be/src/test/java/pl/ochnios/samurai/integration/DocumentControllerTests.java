@@ -52,7 +52,7 @@ import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles({ "local", "test" })
+@ActiveProfiles({"local", "test"})
 public class DocumentControllerTests {
 
     private static final String DOCUMENTS_URI = "/documents";
@@ -111,13 +111,13 @@ public class DocumentControllerTests {
 
         @BeforeEach
         public void beforeEach() {
-            final var file = new MockMultipartFile("file", "test.txt", "text/plain", "Test file content".getBytes());
+            var file = new MockMultipartFile("file", "test.txt", "text/plain", "Test file content".getBytes());
             documentUploadDto = new DocumentUploadDto(file, null, "Test document title", "Test document description");
         }
 
         @Test
         public void upload_200() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.multipart(DOCUMENTS_URI)
+            var requestBuilder = MockMvcRequestBuilders.multipart(DOCUMENTS_URI)
                     .file((MockMultipartFile) documentUploadDto.getFile())
                     .param("title", documentUploadDto.getTitle())
                     .param("description", documentUploadDto.getDescription());
@@ -137,8 +137,8 @@ public class DocumentControllerTests {
 
         @Test
         public void upload_file_too_big_400() throws Exception {
-            final var content = generateTooLongString(50 * 1024 * 1024 + 1);
-            final var tooBigFile = new MockMultipartFile("file", "test.txt", "text/plain", content.getBytes());
+            var content = generateTooLongString(50 * 1024 * 1024 + 1);
+            var tooBigFile = new MockMultipartFile("file", "test.txt", "text/plain", content.getBytes());
             documentUploadDto.setFile(tooBigFile);
             test_upload_validation(documentUploadDto, "size must not be greater than");
         }
@@ -175,7 +175,7 @@ public class DocumentControllerTests {
 
         private void test_upload_validation(DocumentUploadDto documentUploadDto, String expectedError)
                 throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.multipart(DOCUMENTS_URI)
+            var requestBuilder = MockMvcRequestBuilders.multipart(DOCUMENTS_URI)
                     .file((MockMultipartFile) (documentUploadDto.getFile()))
                     .param("title", documentUploadDto.getTitle())
                     .param("description", documentUploadDto.getDescription());
@@ -194,12 +194,11 @@ public class DocumentControllerTests {
 
         @Test
         public void download_by_id_200() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders
-                    .get(DOCUMENTS_URI + "/" + samplePDF.getId() + "/download");
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + samplePDF.getId() + "/download");
             mockMvc.perform(requestBuilder)
                     .andExpect(header().string(
-                            HttpHeaders.CONTENT_DISPOSITION,
-                            "form-data; name=\"attachment\"; filename*=UTF-8''" + samplePDF.getName()))
+                                    HttpHeaders.CONTENT_DISPOSITION,
+                                    "form-data; name=\"attachment\"; filename*=UTF-8''" + samplePDF.getName()))
                     .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
                     .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, Long.toString(samplePDF.getSize())));
         }
@@ -212,7 +211,7 @@ public class DocumentControllerTests {
 
         @Test
         public void get_documents_200() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI);
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI);
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -223,8 +222,8 @@ public class DocumentControllerTests {
 
         @Test
         public void get_documents_2nd_page_200() throws Exception {
-            final var pageRequest = new PageRequestDto(1, 1, List.of("title"), List.of("asc"));
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(pageRequest));
+            var pageRequest = new PageRequestDto(1, 1, List.of("title"), List.of("asc"));
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(pageRequest));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(1)))
@@ -246,8 +245,8 @@ public class DocumentControllerTests {
 
         @Test
         public void get_documents_2nd_page_empty_200() throws Exception {
-            final var pageRequest = new PageRequestDto(1, 5, null, null);
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(pageRequest));
+            var pageRequest = new PageRequestDto(1, 5, null, null);
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(pageRequest));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(1)))
@@ -258,7 +257,7 @@ public class DocumentControllerTests {
 
         @Test
         public void get_by_id_200() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + sampleDOCX.getId());
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + sampleDOCX.getId());
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(sampleDOCX.getId().toString())))
@@ -275,8 +274,8 @@ public class DocumentControllerTests {
 
         @Test
         public void get_by_id_404() throws Exception {
-            final var notExistingId = UUID.nameUUIDFromBytes("not existing".getBytes());
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + notExistingId);
+            var notExistingId = UUID.nameUUIDFromBytes("not existing".getBytes());
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + notExistingId);
             mockMvc.perform(requestBuilder).andExpect(status().isNotFound());
         }
     }
@@ -288,8 +287,8 @@ public class DocumentControllerTests {
 
         @Test
         public void patch_document_title_200() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/title", "New title");
-            final var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
+            var patch = new JsonPatchDto("replace", "/title", "New title");
+            var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
                     .content(asJsonString(Set.of(patch)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
             mockMvc.perform(requestBuilder)
@@ -302,33 +301,33 @@ public class DocumentControllerTests {
 
         @Test
         public void patch_document_title_blank_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/title", "   ");
+            var patch = new JsonPatchDto("replace", "/title", "   ");
             test_patch_validation(patch, "title must not be blank or null");
         }
 
         @Test
         public void patch_document_title_null_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/title", null);
+            var patch = new JsonPatchDto("replace", "/title", null);
             test_patch_validation(patch, "title must not be blank or null");
         }
 
         @Test
         public void patch_document_title_too_short_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/title", "xx");
+            var patch = new JsonPatchDto("replace", "/title", "xx");
             test_patch_validation(patch, "title must have at least");
         }
 
         @Test
         public void patch_document_title_long_400() throws Exception {
-            final var tooLongTitle = generateTooLongString(256);
-            final var patch = new JsonPatchDto("replace", "/title", tooLongTitle);
+            var tooLongTitle = generateTooLongString(256);
+            var patch = new JsonPatchDto("replace", "/title", tooLongTitle);
             test_patch_validation(patch, "title must have at most");
         }
 
         @Test
         public void patch_document_description_200() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/description", "New description");
-            final var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
+            var patch = new JsonPatchDto("replace", "/description", "New description");
+            var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
                     .content(asJsonString(Set.of(patch)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
             mockMvc.perform(requestBuilder)
@@ -341,14 +340,14 @@ public class DocumentControllerTests {
 
         @Test
         public void patch_document_description_too_short_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/description", "xx");
+            var patch = new JsonPatchDto("replace", "/description", "xx");
             test_patch_validation(patch, "description must have at least");
         }
 
         @Test
         public void patch_document_description_too_long_400() throws Exception {
-            final var tooLongDescription = generateTooLongString(2049);
-            final var patch = new JsonPatchDto("replace", "/description", tooLongDescription);
+            var tooLongDescription = generateTooLongString(2049);
+            var patch = new JsonPatchDto("replace", "/description", tooLongDescription);
             test_patch_validation(patch, "description must have at most");
         }
 
@@ -357,8 +356,8 @@ public class DocumentControllerTests {
             samplePDF.setStatus(DocumentStatus.ARCHIVED);
             documentCrudRepository.save(samplePDF);
 
-            final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
-            final var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
+            var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
+            var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
                     .content(asJsonString(Set.of(patch)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
             mockMvc.perform(requestBuilder)
@@ -374,8 +373,8 @@ public class DocumentControllerTests {
             samplePDF.setStatus(DocumentStatus.ACTIVE);
             documentCrudRepository.save(samplePDF);
 
-            final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ARCHIVED.name());
-            final var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
+            var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ARCHIVED.name());
+            var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
                     .content(asJsonString(Set.of(patch)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
             mockMvc.perform(requestBuilder)
@@ -390,7 +389,7 @@ public class DocumentControllerTests {
         public void patch_document_status_to_uploaded_400() throws Exception {
             samplePDF.setStatus(DocumentStatus.ACTIVE);
             documentCrudRepository.save(samplePDF);
-            final var patch = new JsonPatchDto("replace", "/status", UPLOADED.name());
+            var patch = new JsonPatchDto("replace", "/status", UPLOADED.name());
             test_patch_validation(patch, "cannot be assigned manually");
         }
 
@@ -398,36 +397,36 @@ public class DocumentControllerTests {
         public void patch_document_status_to_failed_400() throws Exception {
             samplePDF.setStatus(DocumentStatus.ACTIVE);
             documentCrudRepository.save(samplePDF);
-            final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.FAILED.name());
+            var patch = new JsonPatchDto("replace", "/status", DocumentStatus.FAILED.name());
             test_patch_validation(patch, "cannot be assigned manually");
         }
 
         @Test
         public void patch_document_status_from_uploaded_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
+            var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
             test_patch_validation(patch, "cannot be changed manually");
         }
 
         @Test
         public void patch_document_status_from_failed_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
+            var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
             test_patch_validation(patch, "cannot be changed manually");
         }
 
         @Test
         public void patch_document_not_patchable_field_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/id", UUID.nameUUIDFromBytes("fake".getBytes()));
+            var patch = new JsonPatchDto("replace", "/id", UUID.nameUUIDFromBytes("fake".getBytes()));
             test_patch_validation(patch, "'id' is not patchable");
         }
 
         @Test
         public void patch_document_not_existing_field_400() throws Exception {
-            final var patch = new JsonPatchDto("add", "/owner", "johndoe");
+            var patch = new JsonPatchDto("add", "/owner", "johndoe");
             test_patch_validation(patch, "'owner' does not exist in");
         }
 
         private void test_patch_validation(JsonPatchDto jsonPatchDto, String expectedError) throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
+            var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
                     .content(asJsonString(Set.of(jsonPatchDto)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
             mockMvc.perform(requestBuilder)
@@ -443,18 +442,18 @@ public class DocumentControllerTests {
 
         @Test
         public void delete_document_204() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.delete(DOCUMENTS_URI + "/" + samplePDF.getId());
+            var requestBuilder = MockMvcRequestBuilders.delete(DOCUMENTS_URI + "/" + samplePDF.getId());
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNoContent())
                     .andExpect(content().string(""));
-            final var document = documentCrudRepository.findById(samplePDF.getId());
+            var document = documentCrudRepository.findById(samplePDF.getId());
             assertThat(document, is(Optional.empty()));
         }
 
         @Test
         public void delete_document_404() throws Exception {
-            final var notExistingId = UUID.nameUUIDFromBytes("not existing".getBytes());
-            final var requestBuilder = MockMvcRequestBuilders.delete(DOCUMENTS_URI + "/" + notExistingId);
+            var notExistingId = UUID.nameUUIDFromBytes("not existing".getBytes());
+            var requestBuilder = MockMvcRequestBuilders.delete(DOCUMENTS_URI + "/" + notExistingId);
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.errors[0]", containsString("Not found")));
@@ -467,7 +466,7 @@ public class DocumentControllerTests {
     class SearchForbidden {
         @Test
         public void get_documents_403() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI);
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI);
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.errors[0]", containsString("Access Denied")));
@@ -481,7 +480,7 @@ public class DocumentControllerTests {
 
         @Test
         public void search_no_filter() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI);
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI);
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -492,8 +491,8 @@ public class DocumentControllerTests {
 
         @Test
         public void search_name_filter() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().filename(".pdf").build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = DocumentCriteria.builder().filename(".pdf").build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -506,8 +505,8 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_user_firstname() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().userFullName("John").build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = DocumentCriteria.builder().userFullName("John").build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -518,8 +517,9 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_user_lastname() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().userFullName("Admin").build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria =
+                    DocumentCriteria.builder().userFullName("Admin").build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -532,8 +532,9 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_user_fullName() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().userFullName("Admin John").build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria =
+                    DocumentCriteria.builder().userFullName("Admin John").build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -550,8 +551,9 @@ public class DocumentControllerTests {
             samplePDF.setStatus(DocumentStatus.ACTIVE);
             documentCrudRepository.save(samplePDF);
 
-            final var searchCriteria = DocumentCriteria.builder().status(DocumentStatus.ACTIVE).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria =
+                    DocumentCriteria.builder().status(DocumentStatus.ACTIVE).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -564,8 +566,8 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_min_size_no_results() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().minSize(1000_000L).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = DocumentCriteria.builder().minSize(1000_000L).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -576,8 +578,8 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_min_size_all_results() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().minSize(100_000L).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = DocumentCriteria.builder().minSize(100_000L).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -588,8 +590,8 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_max_size_no_results() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().maxSize(100_000L).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = DocumentCriteria.builder().maxSize(100_000L).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -600,8 +602,8 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_max_size_all_results() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().maxSize(1000_000L).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = DocumentCriteria.builder().maxSize(1000_000L).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -612,8 +614,9 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_min_created_at_no_results() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().minCreatedAt(Instant.now()).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria =
+                    DocumentCriteria.builder().minCreatedAt(Instant.now()).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -624,9 +627,10 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_min_created_at_all_results() throws Exception {
-            final var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
-            final var searchCriteria = DocumentCriteria.builder().minCreatedAt(oneHourEarlier).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
+            var searchCriteria =
+                    DocumentCriteria.builder().minCreatedAt(oneHourEarlier).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -637,9 +641,10 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_max_created_at_no_results() throws Exception {
-            final var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
-            final var searchCriteria = DocumentCriteria.builder().maxCreatedAt(oneHourEarlier).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
+            var searchCriteria =
+                    DocumentCriteria.builder().maxCreatedAt(oneHourEarlier).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -650,8 +655,9 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_max_created_at_all_results() throws Exception {
-            final var searchCriteria = DocumentCriteria.builder().maxCreatedAt(Instant.now()).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria =
+                    DocumentCriteria.builder().maxCreatedAt(Instant.now()).build();
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))

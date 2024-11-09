@@ -60,7 +60,7 @@ public abstract class FileEntity {
         public B file(File file) {
             if (file != null) {
                 try (var inputStream = new FileInputStream(file)) {
-                    final var bytes = inputStream.readAllBytes();
+                    var bytes = inputStream.readAllBytes();
                     this.name = file.getName();
                     this.size = file.length();
                     this.mimeType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(bytes));

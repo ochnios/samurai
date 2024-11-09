@@ -1,10 +1,9 @@
 package pl.ochnios.samurai.model.dtos.document.chunk;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.Instant;
 
 @Data
 @Builder

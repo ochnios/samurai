@@ -7,6 +7,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,10 +26,6 @@ import pl.ochnios.samurai.model.entities.PatchableEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.samurai.model.mappers.ChunkMapper;
-
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -74,13 +73,13 @@ public class Chunk implements PatchableEntity {
 
     @Override
     public PatchDto getPatchDto() {
-        final var chunkMapper = Mappers.getMapper(ChunkMapper.class);
+        var chunkMapper = Mappers.getMapper(ChunkMapper.class);
         return chunkMapper.map(this);
     }
 
     @Override
     public void apply(PatchDto patchDto) {
-        final var chunkPatchDto = (ChunkDto) patchDto;
+        var chunkPatchDto = (ChunkDto) patchDto;
         position = chunkPatchDto.getPosition();
         content = chunkPatchDto.getContent();
     }

@@ -24,7 +24,7 @@ public interface PageMapper {
         if (page == null) {
             return new PageDto<>(List.of(), 0, 0, 0);
         } else {
-            final var dtos = page.getContent().stream().map(mapper).collect(Collectors.toList());
+            var dtos = page.getContent().stream().map(mapper).collect(Collectors.toList());
             return new PageDto<>(dtos, page.getNumber(), page.getTotalElements(), page.getTotalPages());
         }
     }
@@ -33,9 +33,9 @@ public interface PageMapper {
         if (pageRequestDto == null) {
             return PageRequest.of(0, 10);
         }
-        final var page = validOrDefaultPage(pageRequestDto.getPage());
-        final var size = validOrDefaultSize(pageRequestDto.getSize());
-        final var sort = validOrDefaultSort(pageRequestDto.getSortBy(), pageRequestDto.getSortDir());
+        var page = validOrDefaultPage(pageRequestDto.getPage());
+        var size = validOrDefaultSize(pageRequestDto.getSize());
+        var sort = validOrDefaultSort(pageRequestDto.getSortBy(), pageRequestDto.getSortDir());
         return PageRequest.of(page, size, sort);
     }
 
@@ -60,7 +60,7 @@ public interface PageMapper {
             List<Sort.Order> orders = new ArrayList<>();
             for (int i = 0; i < sortBy.size(); i++) {
                 if (sortDir != null && sortDir.size() > i) {
-                    final var order = "asc".equalsIgnoreCase(sortDir.get(i))
+                    var order = "asc".equalsIgnoreCase(sortDir.get(i))
                             ? Sort.Order.asc(sortBy.get(i))
                             : Sort.Order.desc(sortBy.get(i));
                     orders.add(order);

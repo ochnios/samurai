@@ -1,14 +1,13 @@
 package pl.ochnios.samurai.model.entities.document.chunk;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.ai.document.ContentFormatter;
 import org.springframework.ai.document.DefaultContentFormatter;
 import org.springframework.ai.document.Document;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

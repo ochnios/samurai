@@ -9,8 +9,7 @@ import pl.ochnios.samurai.model.dtos.config.ChatOptionsDto;
 public interface ChatOptionsMapper {
 
     default ChatOptions map(ChatOptionsDto chatOptionsDto) {
-        if (chatOptionsDto == null)
-            return null;
+        if (chatOptionsDto == null) return null;
         return ChatOptionsBuilder.builder()
                 .withModel(chatOptionsDto.getModel())
                 .withFrequencyPenalty(chatOptionsDto.getFrequencyPenalty())

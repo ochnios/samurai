@@ -44,13 +44,13 @@ public class AppExceptionHandler {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<AppError> handleValidationException(ValidationException ex) {
-        final var errors = ex.getMessages();
+        var errors = ex.getMessages();
         return logAndGetResponse(ex, HttpStatus.BAD_REQUEST, errors);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<AppError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        final var errors = processFieldErrors(ex.getFieldErrors());
+        var errors = processFieldErrors(ex.getFieldErrors());
         return logAndGetResponse(ex, HttpStatus.BAD_REQUEST, errors);
     }
 
@@ -65,25 +65,25 @@ public class AppExceptionHandler {
     }
 
     private ResponseEntity<AppError> logAndGetResponse(Exception ex, HttpStatus status) {
-        final var errors = List.of(ex.getMessage());
+        var errors = List.of(ex.getMessage());
         return logAndGetResponse(ex, status, errors);
     }
 
     private ResponseEntity<AppError> logAndGetResponse(Exception ex, HttpStatus status, Iterable<String> errors) {
-        final var errorId = UUID.randomUUID();
+        var errorId = UUID.randomUUID();
         if (status.is5xxServerError()) {
             log.error(String.format("errorId=%s, message=%s", errorId, errors), ex);
-            final var body = AppError.create(errorId, "Unexpected error");
+            var body = AppError.create(errorId, "Unexpected error");
             return ResponseEntity.status(status).body(body);
         } else {
             log.warn(String.format("errorId=%s, message=%s", errorId, errors));
-            final var body = AppError.create(errorId, errors);
+            var body = AppError.create(errorId, errors);
             return ResponseEntity.status(status).body(body);
         }
     }
 
     private Iterable<String> processFieldErrors(List<FieldError> fieldErrors) {
-        final var errors = new ArrayList<String>();
+        var errors = new ArrayList<String>();
         for (var fieldError : fieldErrors) {
             errors.add(fieldError.getField() + " " + fieldError.getDefaultMessage());
         }

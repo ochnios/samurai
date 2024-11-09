@@ -24,11 +24,11 @@ public class AuthService {
     private final UserMapper userMapper;
 
     public UserDto authenticate(LoginDto loginDto, HttpServletResponse response) {
-        final var authToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
-        final var auth = authManager.authenticate(authToken);
+        var authToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
+        var auth = authManager.authenticate(authToken);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        final var user = (User) auth.getPrincipal();
-        final var jwt = jwtService.generateJwt(user);
+        var user = (User) auth.getPrincipal();
+        var jwt = jwtService.generateJwt(user);
         jwtService.setJwtCookie(response, jwt);
         return userMapper.map(user);
     }
@@ -38,7 +38,7 @@ public class AuthService {
     }
 
     public User getAuthenticatedUser() {
-        final var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof User user) {
             return user;
         } else if (principal instanceof UserDetails userDetails) {

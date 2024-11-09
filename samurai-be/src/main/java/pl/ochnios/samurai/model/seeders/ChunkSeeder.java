@@ -1,5 +1,10 @@
 package pl.ochnios.samurai.model.seeders;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -12,12 +17,6 @@ import pl.ochnios.samurai.model.mappers.ChunkMapper;
 import pl.ochnios.samurai.repositories.ChunkRepository;
 import pl.ochnios.samurai.repositories.DocumentRepository;
 import pl.ochnios.samurai.services.EmbeddingService;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -32,26 +31,26 @@ public class ChunkSeeder implements DataSeeder {
     @Override
     @Transactional
     public void seed() {
-        final var titles = List.of("Sample PDF");
+        var titles = List.of("Sample PDF");
         for (var title : titles) {
-            final var id = UUID.nameUUIDFromBytes(title.getBytes());
-            final var document = documentRepository.findById(id);
-            final var chunks = createChunks(document, "files/sample-chunks.txt");
+            var id = UUID.nameUUIDFromBytes(title.getBytes());
+            var document = documentRepository.findById(id);
+            var chunks = createChunks(document, "files/sample-chunks.txt");
             createEmbeddings(chunks, "files/sample-embeddings.txt");
         }
     }
 
     private List<Chunk> createChunks(DocumentEntity document, String filepath) {
-        final var sampleChunksContent = getFileContent(filepath).split("-----");
+        var sampleChunksContent = getFileContent(filepath).split("-----");
         List<Chunk> chunks = new ArrayList<>();
         for (int i = 0; i < sampleChunksContent.length; i++) {
-            final var chunk = Chunk.builder()
+            var chunk = Chunk.builder()
                     .id(UUID.nameUUIDFromBytes((document.getName() + "_chunk_" + i).getBytes()))
                     .document(document)
                     .content(sampleChunksContent[i].trim())
                     .position(i)
                     .build();
-            final var savedChunk = chunkRepository.save(chunk);
+            var savedChunk = chunkRepository.save(chunk);
             chunks.add(savedChunk);
             log.info("Created document chunk: {}", savedChunk);
         }
@@ -59,14 +58,14 @@ public class ChunkSeeder implements DataSeeder {
     }
 
     private void createEmbeddings(List<Chunk> chunks, String filepath) {
-        final var embeddings = getFileContent(filepath).split("\n");
+        var embeddings = getFileContent(filepath).split("\n");
         if (chunks.size() != embeddings.length) {
             throw new RuntimeException("Document chunks size mismatch, points won't be created");
         }
 
         for (int i = 0; i < chunks.size(); i++) {
-            final var embeddedChunk = chunkMapper.mapToEmbeddedChunk(chunks.get(i));
-            final var embedding = getEmbedding(embeddings[i].trim());
+            var embeddedChunk = chunkMapper.mapToEmbeddedChunk(chunks.get(i));
+            var embedding = getEmbedding(embeddings[i].trim());
             embeddingService.add(embeddedChunk, embedding);
             log.info("Saved chunk in vector store: {}", embeddedChunk.getId());
         }
@@ -85,7 +84,7 @@ public class ChunkSeeder implements DataSeeder {
     }
 
     private String getFileContent(String filepath) {
-        final var resource = new ClassPathResource(filepath);
+        var resource = new ClassPathResource(filepath);
         try {
             return resource.getContentAsString(StandardCharsets.UTF_8).trim();
         } catch (IOException ex) {

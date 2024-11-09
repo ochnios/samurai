@@ -19,6 +19,9 @@ public class PageRequestDto {
     @Schema(description = "${docs.dto.page-request.sortBy}", type = "array")
     private final List<String> sortBy;
 
-    @Schema(description = "${docs.dto.page-request.sortDir}", type = "array", allowableValues = { "asc", "desc" })
+    @Schema(
+            description = "${docs.dto.page-request.sortDir}",
+            type = "array",
+            allowableValues = {"asc", "desc"})
     private final List<String> sortDir;
 }

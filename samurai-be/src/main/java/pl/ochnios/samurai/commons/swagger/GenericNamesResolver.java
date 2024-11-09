@@ -18,7 +18,7 @@ public class GenericNamesResolver extends TypeNameResolver {
 
         List<String> genericNames = new ArrayList<>();
         for (int i = 0; i < count; ++i) {
-            final var arg = type.containedType(i);
+            var arg = type.containedType(i);
             String argName = PrimitiveType.fromType(arg) != null
                     ? this.nameForClass(arg, options)
                     : this.nameForType(arg, options);

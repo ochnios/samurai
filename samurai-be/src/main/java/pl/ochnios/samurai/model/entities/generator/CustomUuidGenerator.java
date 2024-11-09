@@ -11,7 +11,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 @IdGeneratorType(CustomIdGenerator.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ FIELD, METHOD })
+@Target({FIELD, METHOD})
 public @interface CustomUuidGenerator {
     UuidGenerator.Style style() default UuidGenerator.Style.TIME;
 }

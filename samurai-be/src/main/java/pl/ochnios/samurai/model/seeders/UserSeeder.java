@@ -26,7 +26,7 @@ public class UserSeeder implements DataSeeder {
 
     private void createUser(String username, String firstname, String lastname, Role role) {
         if (!userRepository.existsByUsername(username)) {
-            final var user = User.builder()
+            var user = User.builder()
                     .username(username)
                     .firstname(firstname)
                     .lastname(lastname)
@@ -35,7 +35,7 @@ public class UserSeeder implements DataSeeder {
                     .role(role)
                     .conversations(new ArrayList<>())
                     .build();
-            final var savedUser = userRepository.save(user);
+            var savedUser = userRepository.save(user);
             log.info("Created user: {}", savedUser);
         }
     }

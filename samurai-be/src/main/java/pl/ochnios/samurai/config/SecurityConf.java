@@ -76,7 +76,7 @@ public class SecurityConf {
 
     @Bean
     public MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
-        final var expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        var expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setRoleHierarchy(roleHierarchy);
         return expressionHandler;
     }

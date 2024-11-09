@@ -44,16 +44,16 @@ public class DocumentController implements DocumentApi {
     @GetMapping
     public ResponseEntity<PageDto<DocumentDto>> getDocuments(
             DocumentCriteria documentCriteria, PageRequestDto pageRequestDto) {
-        final var documentsPage = documentService.getDocumentsPage(documentCriteria, pageRequestDto);
+        var documentsPage = documentService.getDocumentsPage(documentCriteria, pageRequestDto);
         return ResponseEntity.ok(documentsPage);
     }
 
     @Override
     @PreAuthorize("hasRole('MOD')")
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<DocumentDto> uploadDocument(@ModelAttribute @Valid DocumentUploadDto documentUploadDto) {
-        final var user = authService.getAuthenticatedUser();
-        final var savedDocument = documentService.saveDocument(user, documentUploadDto);
+        var user = authService.getAuthenticatedUser();
+        var savedDocument = documentService.saveDocument(user, documentUploadDto);
         return ResponseEntity.ok(savedDocument);
     }
 
@@ -61,14 +61,14 @@ public class DocumentController implements DocumentApi {
     @PreAuthorize("hasRole('MOD')")
     @GetMapping("/{documentId}")
     public ResponseEntity<DocumentDto> getDocument(@PathVariable UUID documentId) {
-        final var document = documentService.getDocument(documentId);
+        var document = documentService.getDocument(documentId);
         return ResponseEntity.ok(document);
     }
 
     @GetMapping(value = "/{documentId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> downloadDocument(@PathVariable UUID documentId) {
-        final var documentFile = documentService.getDocumentFile(documentId);
-        final var headers = createFileDownloadHeaders(documentFile);
+        var documentFile = documentService.getDocumentFile(documentId);
+        var headers = createFileDownloadHeaders(documentFile);
         return new ResponseEntity<>(documentFile.getContent(), headers, HttpStatus.OK);
     }
 
@@ -76,7 +76,7 @@ public class DocumentController implements DocumentApi {
     @PreAuthorize("hasRole('MOD')")
     @PatchMapping(value = "/{documentId}", consumes = AppConstants.PATCH_MEDIA_TYPE)
     public ResponseEntity<DocumentDto> patchDocument(@PathVariable UUID documentId, @RequestBody JsonPatch jsonPatch) {
-        final var patchedDocument = documentService.patchDocument(documentId, jsonPatch);
+        var patchedDocument = documentService.patchDocument(documentId, jsonPatch);
         return ResponseEntity.ok(patchedDocument);
     }
 

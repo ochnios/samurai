@@ -1,9 +1,15 @@
 package pl.ochnios.samurai.controllers;
 
+import static pl.ochnios.samurai.commons.AppConstants.HTTP_200;
+import static pl.ochnios.samurai.commons.AppConstants.HTTP_400;
+import static pl.ochnios.samurai.commons.AppConstants.HTTP_404;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.UUID;
+import javax.json.JsonPatch;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,13 +20,6 @@ import pl.ochnios.samurai.model.dtos.document.DocumentDto;
 import pl.ochnios.samurai.model.dtos.document.DocumentUploadDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
-
-import javax.json.JsonPatch;
-import java.util.UUID;
-
-import static pl.ochnios.samurai.commons.AppConstants.HTTP_200;
-import static pl.ochnios.samurai.commons.AppConstants.HTTP_400;
-import static pl.ochnios.samurai.commons.AppConstants.HTTP_404;
 
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "${docs.ctrl.document.tag.name}", description = "${docs.ctrl.document.tag.desc}")
