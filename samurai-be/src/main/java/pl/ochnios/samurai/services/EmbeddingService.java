@@ -44,10 +44,10 @@ public class EmbeddingService {
     private Float similarityThreshold;
 
     public List<EmbeddedChunk> search(String query) {
-        final var searchRequest =
+        var searchRequest =
                 SearchRequest.defaults().withQuery(query).withTopK(topK).withSimilarityThreshold(similarityThreshold);
         try {
-            final var results = vectorStore.similaritySearch(searchRequest);
+            var results = vectorStore.similaritySearch(searchRequest);
             return results.stream().map(EmbeddedChunk::new).toList();
         } catch (Exception ex) {
             throw new EmbeddingException("Failed to search chunks in vector store", ex);
@@ -56,9 +56,9 @@ public class EmbeddingService {
 
     public void add(List<EmbeddedChunk> chunks) {
         try {
-            final var springDocuments = chunks.stream().map(ch -> (Document) ch).toList();
+            var springDocuments = chunks.stream().map(ch -> (Document) ch).toList();
             vectorStore.add(springDocuments);
-            final var ids = chunks.stream().map(EmbeddedChunk::getId).toList();
+            var ids = chunks.stream().map(EmbeddedChunk::getId).toList();
             log.info("Chunks embeddings {} added", ids);
         } catch (Exception ex) {
             throw new EmbeddingException("Failed to save chunks in vector store", ex);
@@ -71,8 +71,8 @@ public class EmbeddingService {
 
     public void delete(List<EmbeddedChunk> chunks) {
         try {
-            final var ids = chunks.stream().map(EmbeddedChunk::getId).toList();
-            final var completed = vectorStore.delete(ids);
+            var ids = chunks.stream().map(EmbeddedChunk::getId).toList();
+            var completed = vectorStore.delete(ids);
             if (completed.isEmpty() || !completed.get()) {
                 log.warn("Vector store delete returned false, chunk ids={}", ids);
             }
@@ -100,7 +100,7 @@ public class EmbeddingService {
             throw new EmbeddingException("Chunk dimensions mismatch, point won't be created, id=" + chunk.getId());
         }
 
-        final var point = Points.PointStruct.newBuilder()
+        var point = Points.PointStruct.newBuilder()
                 .setId(id(UUID.fromString(chunk.getId())))
                 .setVectors(vectors(embedding))
                 .putAllPayload(createPayload(chunk))
@@ -116,9 +116,9 @@ public class EmbeddingService {
     }
 
     private Map<String, JsonWithInt.Value> createPayload(EmbeddedChunk chunk) {
-        final var docId = ValueFactory.value(chunk.getId());
-        final var docName = ValueFactory.value(chunk.getDocumentName());
-        final var docContent = ValueFactory.value(chunk.getContent());
+        var docId = ValueFactory.value(chunk.getId());
+        var docName = ValueFactory.value(chunk.getDocumentName());
+        var docContent = ValueFactory.value(chunk.getContent());
         return Map.of(DOCUMENT_ID_KEY, docId, DOCUMENT_NAME_KEY, docName, DOCUMENT_CONTENT_KEY, docContent);
     }
 }

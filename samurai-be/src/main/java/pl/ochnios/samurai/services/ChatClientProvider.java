@@ -25,13 +25,15 @@ public class ChatClientProvider {
 
     public ChatClient getChatClient() {
         // TODO fetch chat options from db configuration
-        final var chatOptionsDto = ChatOptionsDto.builder().model(chatModelName).temperature(0.7F).build();
+        var chatOptionsDto =
+                ChatOptionsDto.builder().model(chatModelName).temperature(0.7F).build();
         return getClient(chatOptionsDto);
     }
 
     public ChatClient getTaskClient() {
         // TODO fetch task options from db configuration
-        final var chatOptionsDto = ChatOptionsDto.builder().model(taskModelName).temperature(0.7F).build();
+        var chatOptionsDto =
+                ChatOptionsDto.builder().model(taskModelName).temperature(0.7F).build();
         return getClient(chatOptionsDto);
     }
 

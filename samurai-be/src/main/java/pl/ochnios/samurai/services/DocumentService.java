@@ -40,21 +40,21 @@ public class DocumentService {
 
     @Transactional(readOnly = true)
     public DocumentDto getDocument(UUID documentId) {
-        final var document = documentRepository.findById(documentId);
+        var document = documentRepository.findById(documentId);
         return documentMapper.map(document);
     }
 
     @Transactional(readOnly = true)
     public FileDownloadDto getDocumentFile(UUID documentId) {
-        final var document = documentRepository.findById(documentId);
+        var document = documentRepository.findById(documentId);
         return fileMapper.mapToDownloadDto(document);
     }
 
     @Transactional(readOnly = true)
     public PageDto<DocumentDto> getDocumentsPage(DocumentCriteria criteria, PageRequestDto pageRequestDto) {
-        final var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
-        final var specification = DocumentSpecification.create(criteria);
-        final var documentsPage = documentRepository.findAll(specification, pageRequest);
+        var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
+        var specification = DocumentSpecification.create(criteria);
+        var documentsPage = documentRepository.findAll(specification, pageRequest);
         return pageMapper.validOrDefaultSort(documentsPage, documentMapper::map);
     }
 
@@ -62,24 +62,24 @@ public class DocumentService {
     public DocumentDto saveDocument(User user, DocumentUploadDto documentUploadDto) {
         // TODO auto generating document summary if requested
         validateFileSize(documentUploadDto.getFile());
-        final var document = documentMapper.map(user, documentUploadDto);
-        final var savedDocument = documentRepository.save(document);
+        var document = documentMapper.map(user, documentUploadDto);
+        var savedDocument = documentRepository.save(document);
         log.info("Document {} saved", savedDocument.getId());
         return documentMapper.map(savedDocument);
     }
 
     @Transactional
     public DocumentDto patchDocument(UUID documentId, JsonPatch jsonPatch) {
-        final var document = documentRepository.findById(documentId);
+        var document = documentRepository.findById(documentId);
         patchService.apply(document, jsonPatch);
-        final var savedDocument = documentRepository.save(document);
+        var savedDocument = documentRepository.save(document);
         log.info("Document {} patched", documentId);
         return documentMapper.map(savedDocument);
     }
 
     @Transactional
     public void deleteDocument(UUID documentId) {
-        final var document = documentRepository.findById(documentId);
+        var document = documentRepository.findById(documentId);
         documentRepository.delete(document);
         log.info("Document {} deleted", documentId);
     }

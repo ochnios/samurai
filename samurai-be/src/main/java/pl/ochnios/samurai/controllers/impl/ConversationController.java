@@ -34,8 +34,8 @@ public class ConversationController implements ConversationApi {
     @Override
     @GetMapping("/summaries")
     public ResponseEntity<PageDto<ConversationSummaryDto>> getSummaries(PageRequestDto pageRequestDto) {
-        final var user = authService.getAuthenticatedUser();
-        final var summariesPage = conversationService.getSummariesPage(user, pageRequestDto);
+        var user = authService.getAuthenticatedUser();
+        var summariesPage = conversationService.getSummariesPage(user, pageRequestDto);
         return ResponseEntity.ok(summariesPage);
     }
 
@@ -44,15 +44,15 @@ public class ConversationController implements ConversationApi {
     @GetMapping
     public ResponseEntity<PageDto<ConversationDetailsDto>> searchConversations(
             ConversationCriteria conversationCriteria, PageRequestDto pageRequestDto) {
-        final var detailsPage = conversationService.getDetailsPage(conversationCriteria, pageRequestDto);
+        var detailsPage = conversationService.getDetailsPage(conversationCriteria, pageRequestDto);
         return ResponseEntity.ok(detailsPage);
     }
 
     @Override
     @GetMapping("/{conversationId}")
     public ResponseEntity<ConversationDto> getConversation(@PathVariable UUID conversationId) {
-        final var user = authService.getAuthenticatedUser();
-        final var conversation = conversationService.getConversation(user, conversationId);
+        var user = authService.getAuthenticatedUser();
+        var conversation = conversationService.getConversation(user, conversationId);
         return ResponseEntity.ok(conversation);
     }
 
@@ -60,15 +60,15 @@ public class ConversationController implements ConversationApi {
     @PatchMapping(value = "/{conversationId}", consumes = AppConstants.PATCH_MEDIA_TYPE)
     public ResponseEntity<ConversationDto> patchConversation(
             @PathVariable UUID conversationId, @RequestBody JsonPatch jsonPatch) {
-        final var user = authService.getAuthenticatedUser();
-        final var patchedConversation = conversationService.patchConversation(user, conversationId, jsonPatch);
+        var user = authService.getAuthenticatedUser();
+        var patchedConversation = conversationService.patchConversation(user, conversationId, jsonPatch);
         return ResponseEntity.ok(patchedConversation);
     }
 
     @Override
     @DeleteMapping(value = "/{conversationId}")
     public ResponseEntity<Void> deleteConversation(@PathVariable UUID conversationId) {
-        final var user = authService.getAuthenticatedUser();
+        var user = authService.getAuthenticatedUser();
         conversationService.deleteConversation(user, conversationId);
         return ResponseEntity.noContent().build();
     }

@@ -6,7 +6,7 @@ import pl.ochnios.samurai.model.dtos.conversation.ConversationDto;
 import pl.ochnios.samurai.model.dtos.conversation.ConversationSummaryDto;
 import pl.ochnios.samurai.model.entities.conversation.Conversation;
 
-@Mapper(uses = { MessageMapper.class, UserMapper.class })
+@Mapper(uses = {MessageMapper.class, UserMapper.class})
 public interface ConversationMapper {
 
     ConversationDto map(Conversation conversation);

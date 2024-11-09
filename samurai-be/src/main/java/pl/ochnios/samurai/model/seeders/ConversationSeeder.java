@@ -21,28 +21,28 @@ public class ConversationSeeder implements DataSeeder {
 
     @Override
     public void seed() {
-        final var conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
-        final var user = userRepository.findByUsername("user");
-        final var conversation = Conversation.builder()
+        var conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
+        var user = userRepository.findByUsername("user");
+        var conversation = Conversation.builder()
                 .id(conversationId)
                 .user(user)
                 .summary("New conversation")
                 .build();
         conversation.addMessages(createMessages(conversation));
-        final var savedConversation = conversationRepository.save(conversation);
+        var savedConversation = conversationRepository.save(conversation);
 
         log.info("Created conversation: {}", savedConversation);
         log.info("Created messages: {}", savedConversation.getMessages());
     }
 
     private List<MessageEntity> createMessages(Conversation conversation) {
-        final var userMessage = MessageEntity.builder()
+        var userMessage = MessageEntity.builder()
                 .id(UUID.nameUUIDFromBytes("m1".getBytes()))
                 .conversation(conversation)
                 .content("Hello!")
                 .type(MessageType.USER)
                 .build();
-        final var assistantMessage = MessageEntity.builder()
+        var assistantMessage = MessageEntity.builder()
                 .id(UUID.nameUUIDFromBytes("m2".getBytes()))
                 .conversation(conversation)
                 .content("Hi there! How can I help you today?")

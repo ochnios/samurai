@@ -117,7 +117,7 @@ public class ChunkControllerTests {
 
         @Test
         public void add_200() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.post(CHUNKS_URI)
+            var requestBuilder = MockMvcRequestBuilders.post(CHUNKS_URI)
                     .content(asJsonString(chunkDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -164,7 +164,7 @@ public class ChunkControllerTests {
         }
 
         private void test_add_validation(ChunkDto chunkDto, String expectedError) throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.post(CHUNKS_URI)
+            var requestBuilder = MockMvcRequestBuilders.post(CHUNKS_URI)
                     .content(asJsonString(chunkDto))
                     .contentType(MediaType.APPLICATION_JSON);
             mockMvc.perform(requestBuilder)
@@ -180,9 +180,9 @@ public class ChunkControllerTests {
 
         @Test
         public void patch_chunk_content_200() throws Exception {
-            final var newContent = "This is updated content that meets the minimum length requirement for testing";
-            final var patch = new JsonPatchDto("replace", "/content", newContent);
-            final var requestBuilder = MockMvcRequestBuilders.patch(
+            var newContent = "This is updated content that meets the minimum length requirement for testing";
+            var patch = new JsonPatchDto("replace", "/content", newContent);
+            var requestBuilder = MockMvcRequestBuilders.patch(
                             CHUNKS_URI + "/" + chunks.getFirst().getId())
                     .content(asJsonString(Set.of(patch)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
@@ -197,9 +197,9 @@ public class ChunkControllerTests {
 
         @Test
         public void patch_chunk_position_200() throws Exception {
-            final var newPosition = chunks.getFirst().getPosition() + 1;
-            final var patch = new JsonPatchDto("replace", "/position", newPosition);
-            final var requestBuilder = MockMvcRequestBuilders.patch(
+            var newPosition = chunks.getFirst().getPosition() + 1;
+            var patch = new JsonPatchDto("replace", "/position", newPosition);
+            var requestBuilder = MockMvcRequestBuilders.patch(
                             CHUNKS_URI + "/" + chunks.getFirst().getId())
                     .content(asJsonString(Set.of(patch)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
@@ -211,61 +211,60 @@ public class ChunkControllerTests {
 
         @Test
         public void patch_chunk_content_too_short_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/content", "Too short");
+            var patch = new JsonPatchDto("replace", "/content", "Too short");
             test_patch_validation(patch, "must have at least 20 characters");
         }
 
         @Test
         public void patch_chunk_content_too_long_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/content", generateTooLongString(8193));
+            var patch = new JsonPatchDto("replace", "/content", generateTooLongString(8193));
             test_patch_validation(patch, "must have at most 8192 characters");
         }
 
         @Test
         public void patch_chunk_content_blank_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/content", "   ");
+            var patch = new JsonPatchDto("replace", "/content", "   ");
             test_patch_validation(patch, "must have at least 20 characters");
         }
 
         @Test
         public void patch_chunk_position_negative_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/position", -1);
+            var patch = new JsonPatchDto("replace", "/position", -1);
             test_patch_validation(patch, "must be greater than or equal to 0");
         }
 
         @Test
         public void patch_chunk_position_out_of_range_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/position", chunks.size() + 1);
+            var patch = new JsonPatchDto("replace", "/position", chunks.size() + 1);
             test_patch_validation(patch, "Requested position is out of chunks range");
         }
 
         @Test
         public void patch_chunk_not_patchable_id_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/id", UUID.randomUUID());
+            var patch = new JsonPatchDto("replace", "/id", UUID.randomUUID());
             test_patch_validation(patch, "'id' is not patchable");
         }
 
         @Test
         public void patch_chunk_not_patchable_document_id_400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/documentId", UUID.randomUUID());
+            var patch = new JsonPatchDto("replace", "/documentId", UUID.randomUUID());
             test_patch_validation(patch, "'documentId' is not patchable");
         }
 
         @Test
         public void patch_chunk_not_patchable_length400() throws Exception {
-            final var patch = new JsonPatchDto("replace", "/length", 100);
+            var patch = new JsonPatchDto("replace", "/length", 100);
             test_patch_validation(patch, "'length' is not patchable");
         }
 
         @Test
         public void patch_chunk_not_patchable_update_at_400() throws Exception {
-            final var patch =
-                    new JsonPatchDto("replace", "/updatedAt", Instant.now().toString());
+            var patch = new JsonPatchDto("replace", "/updatedAt", Instant.now().toString());
             test_patch_validation(patch, "'updatedAt' is not patchable");
         }
 
         private void test_patch_validation(JsonPatchDto jsonPatchDto, String expectedError) throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.patch(
+            var requestBuilder = MockMvcRequestBuilders.patch(
                             CHUNKS_URI + "/" + chunks.getFirst().getId())
                     .content(asJsonString(Set.of(jsonPatchDto)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
@@ -282,8 +281,8 @@ public class ChunkControllerTests {
 
         @Test
         public void delete_chunk_204() throws Exception {
-            final var chunkId = chunks.getFirst().getId();
-            final var requestBuilder = MockMvcRequestBuilders.delete(CHUNKS_URI + "/" + chunkId);
+            var chunkId = chunks.getFirst().getId();
+            var requestBuilder = MockMvcRequestBuilders.delete(CHUNKS_URI + "/" + chunkId);
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNoContent())
                     .andExpect(content().string(""));
@@ -293,8 +292,8 @@ public class ChunkControllerTests {
 
         @Test
         public void delete_chunk_404() throws Exception {
-            final var notExistingId = UUID.randomUUID();
-            final var requestBuilder = MockMvcRequestBuilders.delete(CHUNKS_URI + "/" + notExistingId);
+            var notExistingId = UUID.randomUUID();
+            var requestBuilder = MockMvcRequestBuilders.delete(CHUNKS_URI + "/" + notExistingId);
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.errors[0]", containsString("Not found")));
@@ -307,7 +306,7 @@ public class ChunkControllerTests {
     class SearchForbidden {
         @Test
         public void get_documents_403() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI);
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI);
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.errors[0]", containsString("Access Denied")));
@@ -321,7 +320,7 @@ public class ChunkControllerTests {
 
         @Test
         public void search_no_filter() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI);
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI);
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -332,9 +331,9 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_content_filter() throws Exception {
-            final var searchCriteria =
+            var searchCriteria =
                     ChunkCriteria.builder().content("Table of contents").build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -351,9 +350,9 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_global_filter() throws Exception {
-            final var searchCriteria =
+            var searchCriteria =
                     ChunkCriteria.builder().globalSearch("Table of contents").build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -370,8 +369,8 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_min_length_no_results() throws Exception {
-            final var searchCriteria = ChunkCriteria.builder().minLength(1500).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = ChunkCriteria.builder().minLength(1500).build();
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -382,8 +381,8 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_min_length_all_results() throws Exception {
-            final var searchCriteria = ChunkCriteria.builder().minLength(100).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = ChunkCriteria.builder().minLength(100).build();
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -394,8 +393,8 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_max_length_no_results() throws Exception {
-            final var searchCriteria = ChunkCriteria.builder().maxLength(50).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = ChunkCriteria.builder().maxLength(50).build();
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -406,8 +405,8 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_max_length_all_results() throws Exception {
-            final var searchCriteria = ChunkCriteria.builder().maxLength(5000).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = ChunkCriteria.builder().maxLength(5000).build();
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -418,8 +417,8 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_min_position_no_results() throws Exception {
-            final var searchCriteria = ChunkCriteria.builder().minPosition(10).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = ChunkCriteria.builder().minPosition(10).build();
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -430,8 +429,8 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_min_position_all_results() throws Exception {
-            final var searchCriteria = ChunkCriteria.builder().minPosition(0).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = ChunkCriteria.builder().minPosition(0).build();
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -442,8 +441,8 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_max_position_no_results() throws Exception {
-            final var searchCriteria = ChunkCriteria.builder().maxPosition(-1).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = ChunkCriteria.builder().maxPosition(-1).build();
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -454,8 +453,8 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_max_position_all_results() throws Exception {
-            final var searchCriteria = ChunkCriteria.builder().maxPosition(10).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var searchCriteria = ChunkCriteria.builder().maxPosition(10).build();
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -466,9 +465,9 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_min_updated_at_no_results() throws Exception {
-            final var searchCriteria =
+            var searchCriteria =
                     ChunkCriteria.builder().minUpdatedAt(Instant.now()).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -479,10 +478,10 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_min_updated_at_all_results() throws Exception {
-            final var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
-            final var searchCriteria =
+            var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
+            var searchCriteria =
                     ChunkCriteria.builder().minUpdatedAt(oneHourEarlier).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -493,10 +492,10 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_max_updated_at_no_results() throws Exception {
-            final var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
-            final var searchCriteria =
+            var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
+            var searchCriteria =
                     ChunkCriteria.builder().maxUpdatedAt(oneHourEarlier).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))
@@ -507,9 +506,9 @@ public class ChunkControllerTests {
 
         @Test
         public void search_by_max_updated_at_all_results() throws Exception {
-            final var searchCriteria =
+            var searchCriteria =
                     ChunkCriteria.builder().maxUpdatedAt(Instant.now()).build();
-            final var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
+            var requestBuilder = MockMvcRequestBuilders.get(CHUNKS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.pageNumber", is(0)))

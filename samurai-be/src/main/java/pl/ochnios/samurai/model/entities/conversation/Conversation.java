@@ -85,13 +85,13 @@ public class Conversation implements PatchableEntity {
 
     @Override
     public PatchDto getPatchDto() {
-        final var conversationMapper = Mappers.getMapper(ConversationMapper.class);
+        var conversationMapper = Mappers.getMapper(ConversationMapper.class);
         return conversationMapper.map(this);
     }
 
     @Override
     public void apply(PatchDto patchDto) {
-        final var conversationPatchDto = (ConversationDto) patchDto;
+        var conversationPatchDto = (ConversationDto) patchDto;
         summary = conversationPatchDto.getSummary();
     }
 

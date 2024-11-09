@@ -22,13 +22,13 @@ public class ChatService {
     private final MessageMapper messageMapper;
 
     public ChatResponseDto getCompletion(User user, ChatRequestDto chatRequestDto) {
-        final var conversationDto = getConversation(user, chatRequestDto);
-        final var springMessages = getSpringMessages(conversationDto);
+        var conversationDto = getConversation(user, chatRequestDto);
+        var springMessages = getSpringMessages(conversationDto);
 
-        final var userMessage = MessageDto.user(chatRequestDto.getQuestion());
+        var userMessage = MessageDto.user(chatRequestDto.getQuestion());
         conversationService.saveMessage(user, conversationDto.getId(), userMessage);
 
-        final var chatResponse = chatClientProvider
+        var chatResponse = chatClientProvider
                 .getChatClient()
                 .prompt()
                 .system("You are a helpful assistant") // TODO from app configuration
@@ -37,10 +37,9 @@ public class ChatService {
                 .call()
                 .chatResponse();
 
-        final var completion = chatResponse.getResult().getOutput().getContent();
-        final var assistantMessage = MessageDto.assistant(completion);
-        final var savedAssistantMessage = conversationService.saveMessage(user, conversationDto.getId(),
-                assistantMessage);
+        var completion = chatResponse.getResult().getOutput().getContent();
+        var assistantMessage = MessageDto.assistant(completion);
+        var savedAssistantMessage = conversationService.saveMessage(user, conversationDto.getId(), assistantMessage);
 
         log.info("Completion for conversation {} created", conversationDto.getId());
         return getChatResponse(conversationDto, savedAssistantMessage);
@@ -48,7 +47,7 @@ public class ChatService {
 
     private ConversationDto getConversation(User user, ChatRequestDto chatRequestDto) {
         if (chatRequestDto.getConversationId() == null) {
-            final var summary = generateSummary(chatRequestDto.getQuestion());
+            var summary = generateSummary(chatRequestDto.getQuestion());
             return conversationService.startConversation(user, summary);
         }
 

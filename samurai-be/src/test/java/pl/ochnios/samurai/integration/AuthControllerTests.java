@@ -29,7 +29,7 @@ import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles({ "local", "test" })
+@ActiveProfiles({"local", "test"})
 public class AuthControllerTests {
 
     private static final String AUTH_URL = "/auth";
@@ -66,8 +66,8 @@ public class AuthControllerTests {
 
         @Test
         void login_as_user_200() throws Exception {
-            final var loginDto = new LoginDto("user", "user");
-            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+            var loginDto = new LoginDto("user", "user");
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
                     .content(asJsonString(loginDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -81,8 +81,8 @@ public class AuthControllerTests {
 
         @Test
         void login_as_mod_200() throws Exception {
-            final var loginDto = new LoginDto("mod", "mod");
-            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+            var loginDto = new LoginDto("mod", "mod");
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
                     .content(asJsonString(loginDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -96,8 +96,8 @@ public class AuthControllerTests {
 
         @Test
         void login_as_admin_200() throws Exception {
-            final var loginDto = new LoginDto("admin", "admin");
-            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+            var loginDto = new LoginDto("admin", "admin");
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
                     .content(asJsonString(loginDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -111,8 +111,8 @@ public class AuthControllerTests {
 
         @Test
         void login_bad_username_401() throws Exception {
-            final var loginDto = new LoginDto("user1", "user");
-            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+            var loginDto = new LoginDto("user1", "user");
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
                     .content(asJsonString(loginDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -124,8 +124,8 @@ public class AuthControllerTests {
 
         @Test
         void login_bad_password_401() throws Exception {
-            final var loginDto = new LoginDto("user", "user1");
-            final var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
+            var loginDto = new LoginDto("user", "user1");
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/login")
                     .content(asJsonString(loginDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -143,7 +143,7 @@ public class AuthControllerTests {
         @Test
         @WithMockUser(username = "user")
         void logout_200() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(AUTH_URL + "/logout");
+            var requestBuilder = MockMvcRequestBuilders.get(AUTH_URL + "/logout");
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(cookie().value(jwtCookieName, is(jwtPrefix)))
@@ -152,7 +152,7 @@ public class AuthControllerTests {
 
         @Test
         void logout_while_not_logged_in_401() throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.get(AUTH_URL + "/logout");
+            var requestBuilder = MockMvcRequestBuilders.get(AUTH_URL + "/logout");
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isUnauthorized())
                     .andExpect(cookie().doesNotExist(jwtCookieName));

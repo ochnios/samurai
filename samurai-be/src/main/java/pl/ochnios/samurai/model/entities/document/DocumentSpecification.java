@@ -1,11 +1,10 @@
 package pl.ochnios.samurai.model.entities.document;
 
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.domain.Specification;
-import pl.ochnios.samurai.model.dtos.document.DocumentCriteria;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+import pl.ochnios.samurai.model.dtos.document.DocumentCriteria;
 
 public class DocumentSpecification {
 
@@ -15,11 +14,10 @@ public class DocumentSpecification {
 
             if (criteria.getGlobalSearch() != null) {
                 String globalSearchPattern = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
-                final var titlePredicate = builder.like(builder.lower(root.get("title")), globalSearchPattern);
-                final var descriptionPredicate = builder.like(builder.lower(root.get("description")),
-                        globalSearchPattern);
-                final var filenamePredicate = builder.like(builder.lower(root.get("name")), globalSearchPattern);
-                final var fullNamePredicate = builder.like(
+                var titlePredicate = builder.like(builder.lower(root.get("title")), globalSearchPattern);
+                var descriptionPredicate = builder.like(builder.lower(root.get("description")), globalSearchPattern);
+                var filenamePredicate = builder.like(builder.lower(root.get("name")), globalSearchPattern);
+                var fullNamePredicate = builder.like(
                         builder.lower(builder.concat(
                                 builder.concat(root.join("user").get("lastname"), " "),
                                 root.join("user").get("firstname"))),

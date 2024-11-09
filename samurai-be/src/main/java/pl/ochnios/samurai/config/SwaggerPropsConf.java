@@ -5,5 +5,4 @@ import org.springframework.context.annotation.PropertySource;
 
 @PropertySource(value = "classpath:api-docs.properties")
 @Configuration
-public class SwaggerPropsConf {
-}
+public class SwaggerPropsConf {}

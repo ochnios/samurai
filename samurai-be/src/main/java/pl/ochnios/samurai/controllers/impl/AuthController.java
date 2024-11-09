@@ -23,7 +23,7 @@ public class AuthController implements AuthApi {
     @Override
     @PostMapping("/login")
     public ResponseEntity<UserDto> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
-        final var user = authService.authenticate(loginDto, response);
+        var user = authService.authenticate(loginDto, response);
         return ResponseEntity.ok(user);
     }
 

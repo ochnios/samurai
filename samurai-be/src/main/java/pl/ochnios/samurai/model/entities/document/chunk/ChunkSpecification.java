@@ -1,11 +1,10 @@
 package pl.ochnios.samurai.model.entities.document.chunk;
 
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.domain.Specification;
-import pl.ochnios.samurai.model.dtos.document.chunk.ChunkCriteria;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+import pl.ochnios.samurai.model.dtos.document.chunk.ChunkCriteria;
 
 public class ChunkSpecification {
 
@@ -15,7 +14,7 @@ public class ChunkSpecification {
 
             if (criteria.getGlobalSearch() != null) {
                 String globalSearchPattern = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
-                final var contentPredicate = builder.like(builder.lower(root.get("content")), globalSearchPattern);
+                var contentPredicate = builder.like(builder.lower(root.get("content")), globalSearchPattern);
                 predicates.add(builder.or(contentPredicate));
             }
 

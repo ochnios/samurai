@@ -1,5 +1,6 @@
 package pl.ochnios.samurai.model.mappers;
 
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -9,8 +10,6 @@ import org.springframework.ai.chat.messages.UserMessage;
 import pl.ochnios.samurai.model.dtos.conversation.MessageDto;
 import pl.ochnios.samurai.model.entities.conversation.Conversation;
 import pl.ochnios.samurai.model.entities.conversation.MessageEntity;
-
-import java.util.List;
 
 @Mapper
 public interface MessageMapper {

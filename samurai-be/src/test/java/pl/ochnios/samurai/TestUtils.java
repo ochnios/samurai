@@ -19,8 +19,8 @@ public class TestUtils {
     }
 
     public static MultiValueMap<String, String> asParamsMap(Object dto) {
-        final var params = new LinkedMultiValueMap<String, String>();
-        final var fields = dto.getClass().getDeclaredFields();
+        var params = new LinkedMultiValueMap<String, String>();
+        var fields = dto.getClass().getDeclaredFields();
         for (var field : fields) {
             field.setAccessible(true);
             try {
@@ -42,7 +42,7 @@ public class TestUtils {
     }
 
     public static String generateTooLongString(int length) {
-        final var sb = new StringBuilder();
+        var sb = new StringBuilder();
         do {
             sb.append('X');
         } while (sb.length() < length);

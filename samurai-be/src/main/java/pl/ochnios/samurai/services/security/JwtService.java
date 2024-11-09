@@ -53,9 +53,9 @@ public class JwtService {
     }
 
     public String generateJwt(UserDetails userDetails) {
-        final var currentDate = new Date();
-        final var expirationMillis = currentDate.getTime() + expiration.getSeconds() * 1000;
-        final var expirationDate = new Date(expirationMillis);
+        var currentDate = new Date();
+        var expirationMillis = currentDate.getTime() + expiration.getSeconds() * 1000;
+        var expirationDate = new Date(expirationMillis);
         return Jwts.builder()
                 .issuedAt(currentDate)
                 .expiration(expirationDate)
@@ -91,7 +91,7 @@ public class JwtService {
     }
 
     public Optional<String> getJwt(HttpServletRequest request) {
-        final var cookies = request.getCookies();
+        var cookies = request.getCookies();
         var jwt = Arrays.stream(cookies != null ? cookies : new Cookie[0])
                 .filter(cookie -> cookie.getName().equals(jwtCookieName))
                 .findFirst()
@@ -109,13 +109,13 @@ public class JwtService {
     }
 
     private SecretKey createSecretKey() {
-        final var passphraseBytes = passphrase.getBytes(StandardCharsets.UTF_8);
+        var passphraseBytes = passphrase.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(passphraseBytes);
     }
 
     private void setJwtCookie(HttpServletResponse response, String jwt, int maxAge) {
-        final var jwtWithPrefix = addJwtPrefix(jwt);
-        final var jwtCookie = new Cookie(jwtCookieName, jwtWithPrefix);
+        var jwtWithPrefix = addJwtPrefix(jwt);
+        var jwtCookie = new Cookie(jwtCookieName, jwtWithPrefix);
         jwtCookie.setSecure(secure);
         jwtCookie.setHttpOnly(httpOnly);
         jwtCookie.setMaxAge(maxAge);

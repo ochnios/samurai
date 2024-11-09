@@ -24,8 +24,8 @@ public class ChatController implements ChatApi {
     @Override
     @PostMapping
     public ResponseEntity<ChatResponseDto> chat(@Valid @RequestBody ChatRequestDto chatRequestDto) {
-        final var user = authService.getAuthenticatedUser();
-        final var chatResponse = chatService.getCompletion(user, chatRequestDto);
+        var user = authService.getAuthenticatedUser();
+        var chatResponse = chatService.getCompletion(user, chatRequestDto);
         return ResponseEntity.ok(chatResponse);
     }
 }

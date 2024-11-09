@@ -28,12 +28,12 @@ public class CorsConf {
     @Profile("local")
     public Customizer<CorsConfigurer<HttpSecurity>> csrfCustomizerLocal() {
         return corsConfigurer -> {
-            final var corsConfiguration = new CorsConfiguration();
+            var corsConfiguration = new CorsConfiguration();
             corsConfiguration.setAllowedOrigins(allowedOrigins);
             corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE"));
             corsConfiguration.setAllowedHeaders(List.of("*"));
             corsConfiguration.setAllowCredentials(true);
-            final var corsConfigurationSource = new UrlBasedCorsConfigurationSource();
+            var corsConfigurationSource = new UrlBasedCorsConfigurationSource();
             corsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
             corsConfigurer.configurationSource(corsConfigurationSource);
         };

@@ -17,7 +17,7 @@ public class AppError {
     }
 
     public static AppError create(UUID errorId, Iterable<String> errors) {
-        final var errorSet = StreamSupport.stream(errors.spliterator(), false).collect(Collectors.toSet());
+        var errorSet = StreamSupport.stream(errors.spliterator(), false).collect(Collectors.toSet());
         return new AppError(errorId, errorSet);
     }
 }

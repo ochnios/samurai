@@ -23,18 +23,18 @@ public class JsonPatchCustomizer implements OpenApiCustomizer {
     }
 
     private void addJsonPatchSchema(OpenAPI openApi) {
-        final var jsonPatchSchema = createJsonPatchSchema();
+        var jsonPatchSchema = createJsonPatchSchema();
         openApi.getComponents()
                 .addSchemas("JsonPatch", jsonPatchSchema)
                 .addSchemas("JsonPatch operation", jsonPatchSchema.getItems());
     }
 
     private void customiseJsonPatchRequests(OpenAPI openApi) {
-        final var mediaType = new MediaType().schema(new Schema<>().$ref("#/components/schemas/JsonPatch"));
-        final var content = new Content().addMediaType(PATCH_MEDIA_TYPE, mediaType);
-        final var requestBody = new RequestBody().content(content);
+        var mediaType = new MediaType().schema(new Schema<>().$ref("#/components/schemas/JsonPatch"));
+        var content = new Content().addMediaType(PATCH_MEDIA_TYPE, mediaType);
+        var requestBody = new RequestBody().content(content);
         openApi.getPaths().forEach((path, pathItem) -> {
-            final var patchOperation = pathItem.getPatch();
+            var patchOperation = pathItem.getPatch();
             if (patchOperation != null) {
                 patchOperation.requestBody(requestBody);
             }
@@ -42,17 +42,17 @@ public class JsonPatchCustomizer implements OpenApiCustomizer {
     }
 
     private ArraySchema createJsonPatchSchema() {
-        final var opSchema = new StringSchema()._enum(List.of("add", "replace", "remove"))
-                .description("${docs.dto.json-patch.op}");
-        final var pathSchema = new StringSchema().description("${docs.dto.json-patch.value}");
-        final var valueSchema = new ObjectSchema().nullable(true).description("${docs.dto.json-patch.value}");
-        final var mapSchema = new MapSchema();
+        var opSchema =
+                new StringSchema()._enum(List.of("add", "replace", "remove")).description("${docs.dto.json-patch.op}");
+        var pathSchema = new StringSchema().description("${docs.dto.json-patch.value}");
+        var valueSchema = new ObjectSchema().nullable(true).description("${docs.dto.json-patch.value}");
+        var mapSchema = new MapSchema();
         mapSchema
                 .required(List.of("op", "path"))
                 .addProperty("op", opSchema)
                 .addProperty("path", pathSchema)
                 .addProperty("value", valueSchema);
-        final var schema = new ArraySchema();
+        var schema = new ArraySchema();
         schema.items(mapSchema).description("${docs.dto.json-patch}");
         return schema;
     }

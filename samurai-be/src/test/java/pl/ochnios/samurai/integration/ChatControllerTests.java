@@ -32,7 +32,7 @@ import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles({ "local", "test" })
+@ActiveProfiles({"local", "test"})
 public class ChatControllerTests {
 
     private static final String CHAT_URL = "/chat";
@@ -77,8 +77,8 @@ public class ChatControllerTests {
 
         @Test
         public void new_chat_200() throws Exception {
-            final var chatRequestDto = new ChatRequestDto(null, "Answer with OK and nothing more");
-            final var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
+            var chatRequestDto = new ChatRequestDto(null, "Answer with OK and nothing more");
+            var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
                     .content(asJsonString(chatRequestDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -90,9 +90,9 @@ public class ChatControllerTests {
 
         @Test
         public void continue_chat_200() throws Exception {
-            final var conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
-            final var chatRequestDto = new ChatRequestDto(conversationId, "What was my first message?");
-            final var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
+            var conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
+            var chatRequestDto = new ChatRequestDto(conversationId, "What was my first message?");
+            var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
                     .content(asJsonString(chatRequestDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -104,9 +104,9 @@ public class ChatControllerTests {
 
         @Test
         public void continue_not_existing_chat_404() throws Exception {
-            final var conversationId = UUID.nameUUIDFromBytes("not existing".getBytes());
-            final var chatRequestDto = new ChatRequestDto(conversationId, "Blah blah");
-            final var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
+            var conversationId = UUID.nameUUIDFromBytes("not existing".getBytes());
+            var chatRequestDto = new ChatRequestDto(conversationId, "Blah blah");
+            var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
                     .content(asJsonString(chatRequestDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -117,31 +117,31 @@ public class ChatControllerTests {
 
         @Test
         public void chat_null_question_400() throws Exception {
-            final var chatRequestDto = new ChatRequestDto(null, null);
+            var chatRequestDto = new ChatRequestDto(null, null);
             test_validation(chatRequestDto, "question must not be blank or null");
         }
 
         @Test
         public void chat_blank_question_400() throws Exception {
-            final var chatRequestDto = new ChatRequestDto(null, "     ");
+            var chatRequestDto = new ChatRequestDto(null, "     ");
             test_validation(chatRequestDto, "question must not be blank or null");
         }
 
         @Test
         public void chat_too_short_question_400() throws Exception {
-            final var chatRequestDto = new ChatRequestDto(null, "ok");
+            var chatRequestDto = new ChatRequestDto(null, "ok");
             test_validation(chatRequestDto, "question must have at least");
         }
 
         @Test
         public void chat_too_long_question_400() throws Exception {
-            final var question = generateTooLongString(8193);
-            final var chatRequestDto = new ChatRequestDto(null, question);
+            var question = generateTooLongString(8193);
+            var chatRequestDto = new ChatRequestDto(null, question);
             test_validation(chatRequestDto, "question must have at most");
         }
 
         private void test_validation(ChatRequestDto chatRequestDto, String expectedError) throws Exception {
-            final var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
+            var requestBuilder = MockMvcRequestBuilders.post(CHAT_URL)
                     .content(asJsonString(chatRequestDto))
                     .contentType(MediaType.APPLICATION_JSON);
 
