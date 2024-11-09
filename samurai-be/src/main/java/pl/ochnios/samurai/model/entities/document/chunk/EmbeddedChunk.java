@@ -14,7 +14,7 @@ import org.springframework.ai.document.Document;
 public class EmbeddedChunk extends Document {
 
     public static final String DOCUMENT_ID_KEY = "doc_id";
-    public static final String DOCUMENT_NAME_KEY = "doc_name";
+    public static final String DOCUMENT_TITLE_KEY = "doc_title";
     public static final String DOCUMENT_CONTENT_KEY = "doc_content";
 
     public EmbeddedChunk(Document document) {
@@ -37,7 +37,11 @@ public class EmbeddedChunk extends Document {
     }
 
     public String getDocumentName() {
-        return (String) super.getMetadata().get(DOCUMENT_NAME_KEY);
+        return (String) super.getMetadata().get(DOCUMENT_TITLE_KEY);
+    }
+
+    public String getDocumentId() {
+        return (String) super.getMetadata().get(DOCUMENT_ID_KEY);
     }
 
     public static EmbeddedChunkBuilder builder() {
@@ -64,8 +68,8 @@ public class EmbeddedChunk extends Document {
             return this;
         }
 
-        public EmbeddedChunkBuilder documentName(String documentName) {
-            metadata.put(DOCUMENT_NAME_KEY, documentName);
+        public EmbeddedChunkBuilder documentTitle(String documentTitle) {
+            metadata.put(DOCUMENT_TITLE_KEY, documentTitle);
             return this;
         }
 

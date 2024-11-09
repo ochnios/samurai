@@ -2,6 +2,7 @@ package pl.ochnios.samurai.repositories.impl;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,8 +42,9 @@ public class ChunkRepositoryImpl implements ChunkRepository {
     }
 
     @Override
-    public Iterable<Chunk> saveAll(List<Chunk> chunks) {
-        return chunkCrudRepository.saveAll(chunks);
+    public List<Chunk> saveAll(List<Chunk> chunks) {
+        return StreamSupport.stream(chunkCrudRepository.saveAll(chunks).spliterator(), false)
+                .toList();
     }
 
     @Override

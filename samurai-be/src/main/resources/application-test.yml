@@ -1,0 +1,5 @@
+custom:
+  loader:
+    enabled: false
+  chunking:
+    enabled: false;

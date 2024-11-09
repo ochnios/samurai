@@ -1,4 +1,4 @@
-import { Button, Menu, Text } from "@mantine/core";
+import { Anchor, Button, Menu, Text } from "@mantine/core";
 import {
   IconArchive,
   IconDownload,
@@ -44,6 +44,8 @@ import DocumentEditForm from "../components/document/DocumentEditForm.tsx";
 import { JsonPatch } from "../../model/api/patch/JsonPatch.ts";
 import { Link } from "react-router-dom";
 import { JsonPatchNodeImpl } from "../../model/api/patch/JsonPatchNodeImpl.ts";
+
+const apiUrl = config.baseUrl;
 
 export default function DocumentsPage() {
   const tableState = useTableState("documents");
@@ -131,6 +133,25 @@ export default function DocumentsPage() {
       {
         accessorKey: "name",
         header: "Filename",
+        Cell: ({ cell }) => (
+          <Anchor
+            href={`${apiUrl}/documents/${page.items[cell.row.index].id}/download`}
+            target="_blank"
+            td="underline"
+            c="inherit"
+            fz="sm"
+          >
+            <HighlightedText
+              text={cell.getValue<string>()}
+              phrase={
+                tableFilters.globalFilter
+                  ? tableFilters.globalFilter
+                  : (tableFilters.columnFilters.find((e) => e.id == "name")
+                      ?.value as string)
+              }
+            />
+          </Anchor>
+        ),
       },
       {
         accessorKey: "user",
@@ -240,7 +261,6 @@ export default function DocumentsPage() {
       </Button>
     ),
     renderRowActionMenuItems: ({ row }) => {
-      const apiUrl = config.baseUrl;
       const document = page.items[row.index];
       return (
         <>

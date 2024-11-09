@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles({"local", "test"})
+@ActiveProfiles({"local", "test"}) // note that order is important, test props should override local props
 class SamurAiApplicationTests {
 
     @Autowired

@@ -1,18 +1,9 @@
 package pl.ochnios.samurai.services;
 
-import static io.qdrant.client.PointIdFactory.id;
-import static io.qdrant.client.VectorsFactory.vectors;
-import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_CONTENT_KEY;
-import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_ID_KEY;
-import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_NAME_KEY;
-
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.ValueFactory;
 import io.qdrant.client.grpc.JsonWithInt;
 import io.qdrant.client.grpc.Points;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
@@ -22,6 +13,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
 import pl.ochnios.samurai.services.excpetion.EmbeddingException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import static io.qdrant.client.PointIdFactory.id;
+import static io.qdrant.client.VectorsFactory.vectors;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_CONTENT_KEY;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_ID_KEY;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_TITLE_KEY;
 
 @Slf4j
 @Service
@@ -119,6 +120,6 @@ public class EmbeddingService {
         var docId = ValueFactory.value(chunk.getId());
         var docName = ValueFactory.value(chunk.getDocumentName());
         var docContent = ValueFactory.value(chunk.getContent());
-        return Map.of(DOCUMENT_ID_KEY, docId, DOCUMENT_NAME_KEY, docName, DOCUMENT_CONTENT_KEY, docContent);
+        return Map.of(DOCUMENT_ID_KEY, docId, DOCUMENT_TITLE_KEY, docName, DOCUMENT_CONTENT_KEY, docContent);
     }
 }

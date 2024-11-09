@@ -71,6 +71,12 @@ custom:
   loader:
     enabled: true
     bulk: false
+  chunking:
+    enabled: true;
+    initialDelay:
+      seconds: 30
+    fixedDelay:
+      seconds: 10
   allowed-origins: http://localhost:5173,localhost
   jwt:
     passphrase: ${JWT_PASSPHRASE}

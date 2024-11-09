@@ -42,7 +42,7 @@ import pl.ochnios.samurai.model.seeders.ChunkSeeder;
 import pl.ochnios.samurai.model.seeders.DocumentSeeder;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
 import pl.ochnios.samurai.repositories.impl.ChunkCrudRepository;
-import pl.ochnios.samurai.repositories.impl.DocumentCrudRepository;
+import pl.ochnios.samurai.repositories.impl.DocumentJpaRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
 
 @SpringBootTest
@@ -69,7 +69,7 @@ public class ChunkControllerTests {
     private UserCrudRepository userCrudRepository;
 
     @Autowired
-    private DocumentCrudRepository documentCrudRepository;
+    private DocumentJpaRepository documentJpaRepository;
 
     @Autowired
     private ChunkCrudRepository chunkCrudRepository;
@@ -78,20 +78,20 @@ public class ChunkControllerTests {
 
     @BeforeAll
     public void setup() {
-        documentCrudRepository.deleteAll();
+        documentJpaRepository.deleteAll();
         userCrudRepository.deleteAll();
         userSeeder.seed();
     }
 
     @AfterAll
     public void tearDown() {
-        documentCrudRepository.deleteAll();
+        documentJpaRepository.deleteAll();
         userCrudRepository.deleteAll();
     }
 
     @BeforeEach
     public void beforeEach() {
-        documentCrudRepository.deleteAll();
+        documentJpaRepository.deleteAll();
         documentSeeder.seed();
         chunkSeeder.seed();
 

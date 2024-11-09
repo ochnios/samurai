@@ -9,6 +9,8 @@ function getBadgeColor(status: DocumentStatus) {
   switch (status) {
     case DocumentStatus.ACTIVE:
       return "green";
+    case DocumentStatus.IN_PROGRESS:
+      return "orange";
     case DocumentStatus.ARCHIVED:
       return "yellow";
     case DocumentStatus.FAILED:
