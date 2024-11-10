@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.3'
+    id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'com.diffplug.spotless' version '7.0.0.BETA2'
 }
@@ -70,7 +70,7 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.ai:spring-ai-bom:1.0.0-M2'
+        mavenBom 'org.springframework.ai:spring-ai-bom:1.0.0-M3'
     }
 }
 

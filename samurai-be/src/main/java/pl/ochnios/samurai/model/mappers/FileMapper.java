@@ -12,6 +12,7 @@ import pl.ochnios.samurai.model.entities.file.FileEntity;
 @Mapper
 public interface FileMapper {
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "content", source = "content", qualifiedByName = "mapFileContent")
     FileDownloadDto mapToDownloadDto(FileEntity fileEntity);
 
