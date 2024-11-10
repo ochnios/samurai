@@ -36,6 +36,7 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
     implementation 'org.springframework.ai:spring-ai-anthropic-spring-boot-starter'
     implementation 'org.springframework.ai:spring-ai-qdrant-store-spring-boot-starter'
+    implementation 'org.springframework.ai:spring-ai-tika-document-reader'
 
     implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'

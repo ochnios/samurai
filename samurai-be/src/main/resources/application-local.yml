@@ -55,6 +55,9 @@ spring:
 
 logging:
   level:
+    pl:
+      ochnios:
+        samurai: DEBUG
     org:
       springframework:
         web: DEBUG

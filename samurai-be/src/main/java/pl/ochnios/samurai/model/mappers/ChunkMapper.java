@@ -2,6 +2,7 @@ package pl.ochnios.samurai.model.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.ai.document.Document;
 import pl.ochnios.samurai.model.dtos.document.chunk.ChunkDto;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
@@ -30,6 +31,14 @@ public interface ChunkMapper {
                 .content(chunk.getContent())
                 .documentId(chunk.getDocument().getId())
                 .documentTitle(chunk.getDocument().getTitle())
+                .build();
+    }
+
+    default EmbeddedChunk mapToEmbeddedChunk(Document springDocument, DocumentEntity documentEntity) {
+        return EmbeddedChunk.builder()
+                .content(springDocument.getContent())
+                .documentId(documentEntity.getId())
+                .documentTitle(documentEntity.getTitle())
                 .build();
     }
 

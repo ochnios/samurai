@@ -1,25 +1,34 @@
 package pl.ochnios.samurai.services.chunking;
 
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.reader.tika.TikaDocumentReader;
+import org.springframework.ai.transformer.splitter.TextSplitter;
 import org.springframework.stereotype.Service;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
+import pl.ochnios.samurai.model.mappers.ChunkMapper;
+
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DocumentChunker {
 
-    List<EmbeddedChunk> process(DocumentEntity document) {
-        var sampleChunk = EmbeddedChunk.builder()
-                .id(UUID.nameUUIDFromBytes("just some chunk".getBytes()))
-                .documentId(document.getId())
-                .documentTitle(document.getTitle())
-                .content("Hello, I'm sample chunk content! I'm happy to see you!")
-                .build();
-        return List.of(sampleChunk);
+    private final TextSplitter textSplitter;
+    private final ChunkMapper chunkMapper;
+
+    List<EmbeddedChunk> process(DocumentEntity documentEntity) {
+        var tikaReader = new TikaDocumentReader(documentEntity.asResource());
+        var extracted = tikaReader.get();
+        var split = textSplitter.split(extracted);
+
+        var chunks = split.stream()
+                .map(d -> chunkMapper.mapToEmbeddedChunk(d, documentEntity))
+                .toList();
+
+        log.debug("Document {} processed, chunks: ", chunks);
+        return chunks;
     }
 }

@@ -3,12 +3,6 @@ package pl.ochnios.samurai.model.entities.file;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URLConnection;
-import java.sql.Blob;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -17,6 +11,14 @@ import org.hibernate.annotations.Nationalized;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.web.multipart.MultipartFile;
 import pl.ochnios.samurai.commons.exceptions.ApplicationException;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.sql.Blob;
+import java.sql.SQLException;
 
 @Getter
 @SuperBuilder
@@ -39,6 +41,14 @@ public abstract class FileEntity {
     @Lob
     @Column(nullable = false, updatable = false)
     private Blob content;
+
+    public byte[] getContent() {
+        try {
+            return content.getBytes(1, (int) content.length());
+        } catch (SQLException ex) {
+            throw new ApplicationException("Failed to get file content", ex);
+        }
+    }
 
     public abstract static class FileEntityBuilder<C extends FileEntity, B extends FileEntityBuilder<C, B>> {
         public B multipartFile(MultipartFile multipartFile) {
