@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -44,6 +45,7 @@ import pl.ochnios.samurai.model.seeders.UserSeeder;
 import pl.ochnios.samurai.repositories.impl.ChunkCrudRepository;
 import pl.ochnios.samurai.repositories.impl.DocumentJpaRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
+import pl.ochnios.samurai.services.EmbeddingService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -52,6 +54,9 @@ public class ChunkControllerTests {
 
     private static final UUID DOCUMENT_ID = UUID.nameUUIDFromBytes("Sample PDF".getBytes());
     private static final String CHUNKS_URI = "/documents/" + DOCUMENT_ID + "/chunks";
+
+    @MockBean
+    private EmbeddingService embeddingService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -78,7 +83,6 @@ public class ChunkControllerTests {
 
     @BeforeAll
     public void setup() {
-        documentJpaRepository.deleteAll();
         userCrudRepository.deleteAll();
         userSeeder.seed();
     }
@@ -129,8 +133,6 @@ public class ChunkControllerTests {
                     .andExpect(jsonPath("$.content", is(chunkDto.getContent())))
                     .andExpect(jsonPath("$.length", is(chunkDto.getContent().length())))
                     .andExpect(jsonPath("$.updatedAt", is(not(emptyOrNullString()))));
-
-            // TODO check whether chunk was saved in vector store
         }
 
         @Test
@@ -191,8 +193,6 @@ public class ChunkControllerTests {
                     .andExpect(jsonPath("$.id", is(chunks.getFirst().getId().toString())))
                     .andExpect(jsonPath("$.content", is(newContent)))
                     .andExpect(jsonPath("$.length", is(newContent.length())));
-
-            // TODO check whether chunk was modified in vector store?
         }
 
         @Test
@@ -286,8 +286,6 @@ public class ChunkControllerTests {
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNoContent())
                     .andExpect(content().string(""));
-
-            // TODO check whether chunk was deleted from vector store?
         }
 
         @Test

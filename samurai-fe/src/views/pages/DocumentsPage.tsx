@@ -4,6 +4,7 @@ import {
   IconDownload,
   IconEdit,
   IconFileStack,
+  IconReload,
   IconRestore,
   IconTrash,
 } from "@tabler/icons-react";
@@ -107,6 +108,13 @@ export default function DocumentsPage() {
       .catch(() => {
         showErrorMessage("Failed to save changes");
       });
+  }
+
+  function handleUpdateDocumentStatus(id: string, status: DocumentStatus) {
+    handleUpdateDocument(
+      id,
+      JsonPatch.of(JsonPatchNodeImpl.replace("/status", status)),
+    );
   }
 
   function handleDeleteDocument(id: string) {
@@ -300,19 +308,46 @@ export default function DocumentsPage() {
           >
             Download
           </Menu.Item>
+          {(document?.status === DocumentStatus.ACTIVE ||
+            document?.status === DocumentStatus.ARCHIVED ||
+            document?.status === DocumentStatus.FAILED) && (
+            <Menu.Item
+              leftSection={<IconReload />}
+              onClick={() => {
+                modals.openConfirmModal({
+                  title: (
+                    <Text fz="h3" fw="bold" span>
+                      Reload document
+                    </Text>
+                  ),
+                  children: (
+                    <Text>
+                      Are you sure? The document will be processed again, all
+                      changes will be lost. It may also generate additional
+                      costs.
+                    </Text>
+                  ),
+                  labels: { confirm: "Reload", cancel: "Cancel" },
+                  onConfirm: () =>
+                    handleUpdateDocumentStatus(
+                      document.id,
+                      DocumentStatus.UPLOADED,
+                    ),
+                  size: "md",
+                });
+              }}
+            >
+              Reload
+            </Menu.Item>
+          )}
           {document?.status === DocumentStatus.ACTIVE && (
             <Menu.Item
               color="yellow"
               leftSection={<IconArchive />}
               onClick={() => {
-                handleUpdateDocument(
+                handleUpdateDocumentStatus(
                   document.id,
-                  JsonPatch.of(
-                    JsonPatchNodeImpl.replace(
-                      "/status",
-                      DocumentStatus.ARCHIVED,
-                    ),
-                  ),
+                  DocumentStatus.ARCHIVED,
                 );
               }}
             >
@@ -324,41 +359,38 @@ export default function DocumentsPage() {
               color="green"
               leftSection={<IconRestore />}
               onClick={() => {
-                handleUpdateDocument(
-                  document.id,
-                  JsonPatch.of(
-                    JsonPatchNodeImpl.replace("/status", DocumentStatus.ACTIVE),
-                  ),
-                );
+                handleUpdateDocumentStatus(document.id, DocumentStatus.ACTIVE);
               }}
             >
               Restore
             </Menu.Item>
           )}
-          <Menu.Item
-            color="red"
-            leftSection={<IconTrash />}
-            onClick={() => {
-              modals.openConfirmModal({
-                title: (
-                  <Text fz="h3" fw="bold" span>
-                    Delete document
-                  </Text>
-                ),
-                children: (
-                  <Text>
-                    Are you sure? The document will be permanently deleted, this
-                    action cannot be undone
-                  </Text>
-                ),
-                labels: { confirm: "Delete", cancel: "Cancel" },
-                onConfirm: () => handleDeleteDocument(document.id),
-                size: "md",
-              });
-            }}
-          >
-            Delete
-          </Menu.Item>
+          {document?.status !== DocumentStatus.IN_PROGRESS && (
+            <Menu.Item
+              color="red"
+              leftSection={<IconTrash />}
+              onClick={() => {
+                modals.openConfirmModal({
+                  title: (
+                    <Text fz="h3" fw="bold" span>
+                      Delete document
+                    </Text>
+                  ),
+                  children: (
+                    <Text>
+                      Are you sure? The document will be permanently deleted,
+                      this action cannot be undone
+                    </Text>
+                  ),
+                  labels: { confirm: "Delete", cancel: "Cancel" },
+                  onConfirm: () => handleDeleteDocument(document.id),
+                  size: "md",
+                });
+              }}
+            >
+              Delete
+            </Menu.Item>
+          )}
         </>
       );
     },

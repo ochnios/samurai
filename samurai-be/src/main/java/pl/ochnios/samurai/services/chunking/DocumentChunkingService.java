@@ -30,9 +30,13 @@ public class DocumentChunkingService {
         documentRepository.saveAndFlush(document);
 
         try {
+            chunkService.deleteAll(document.getId());
+            document.getChunks().clear();
+
             var chunks = documentChunker.process(document);
-            chunkService.saveEmbeddedChunks(document.getId(), chunks);
+            chunkService.saveAllEmbedded(document.getId(), chunks);
             document.setStatus(DocumentStatus.ACTIVE);
+
             log.info("Document {} processed successfully", document.getId());
         } catch (Exception ex) {
             document.setStatus(DocumentStatus.FAILED);

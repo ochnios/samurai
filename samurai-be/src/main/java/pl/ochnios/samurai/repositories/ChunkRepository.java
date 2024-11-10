@@ -21,4 +21,6 @@ public interface ChunkRepository {
     List<Chunk> saveAll(List<Chunk> chunks);
 
     void delete(Chunk chunk);
+
+    void deleteAll(List<Chunk> chunks);
 }

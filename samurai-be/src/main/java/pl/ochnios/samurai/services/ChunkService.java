@@ -36,7 +36,7 @@ public class ChunkService {
     private final ChunkMapper chunkMapper;
 
     @Transactional(readOnly = true)
-    public PageDto<ChunkDto> getChunksPage(UUID documentId, ChunkCriteria criteria, PageRequestDto pageRequestDto) {
+    public PageDto<ChunkDto> getPage(UUID documentId, ChunkCriteria criteria, PageRequestDto pageRequestDto) {
         var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
         var specification = ChunkSpecification.create(criteria);
         var chunksPage = chunkRepository.findAll(documentId, specification, pageRequest);
@@ -44,7 +44,7 @@ public class ChunkService {
     }
 
     @Transactional
-    public ChunkDto saveChunk(UUID documentId, ChunkDto chunkDto) {
+    public ChunkDto save(UUID documentId, ChunkDto chunkDto) {
         var document = documentRepository.findById(documentId);
         var chunk = chunkMapper.map(chunkDto, document);
         var savedChunk = doAdd(documentId, chunk);
@@ -56,7 +56,7 @@ public class ChunkService {
     }
 
     @Transactional
-    public List<ChunkDto> saveChunks(UUID documentId, List<ChunkDto> chunkDtos) {
+    public List<ChunkDto> saveAll(UUID documentId, List<ChunkDto> chunkDtos) {
         var document = documentRepository.findById(documentId);
         var chunks = chunkDtos.stream()
                 .map(ch -> chunkMapper.map(ch, document))
@@ -79,16 +79,16 @@ public class ChunkService {
     }
 
     @Transactional
-    public List<ChunkDto> saveEmbeddedChunks(UUID documentId, List<EmbeddedChunk> embeddedChunks) {
+    public List<ChunkDto> saveAllEmbedded(UUID documentId, List<EmbeddedChunk> embeddedChunks) {
         List<ChunkDto> chunkDtos = new ArrayList<>();
         for (int i = 0; i < embeddedChunks.size(); i++) {
             chunkDtos.add(chunkMapper.mapToChunkDto(embeddedChunks.get(i), i));
         }
-        return saveChunks(documentId, chunkDtos);
+        return saveAll(documentId, chunkDtos);
     }
 
     @Transactional
-    public ChunkDto patchChunk(UUID documentId, UUID chunkId, JsonPatch jsonPatch) {
+    public ChunkDto patch(UUID documentId, UUID chunkId, JsonPatch jsonPatch) {
         var chunk = chunkRepository.findById(documentId, chunkId);
         var patched = chunkMapper.copy(chunk);
         patchService.apply(patched, jsonPatch);
@@ -111,12 +111,23 @@ public class ChunkService {
     }
 
     @Transactional
-    public void deleteChunk(UUID documentId, UUID chunkId) {
+    public void delete(UUID documentId, UUID chunkId) {
         var chunk = chunkRepository.findById(documentId, chunkId);
         chunkRepository.delete(chunk);
         reorderChunks(documentId, chunk.getPosition());
-        embeddingService.delete(chunkMapper.mapToEmbeddedChunk(chunk));
+        embeddingService.delete(chunkId.toString());
         log.info("Chunk {} deleted from document {}", chunkId, documentId);
+    }
+
+    @Transactional
+    public void deleteAll(UUID documentId) {
+        var chunks = documentRepository.findById(documentId).getChunks();
+        if (!chunks.isEmpty()) {
+            chunkRepository.deleteAll(chunks);
+            var ids = chunks.stream().map(ch -> ch.getId().toString()).toList();
+            embeddingService.delete(ids);
+            log.info("Chunks (all) {} deleted from document {}", ids, documentId);
+        }
     }
 
     private Chunk doAdd(UUID documentId, Chunk chunk) {

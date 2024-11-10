@@ -1,10 +1,6 @@
 package pl.ochnios.samurai.controllers.impl;
 
 import jakarta.validation.Valid;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
-import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +27,11 @@ import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.samurai.services.DocumentService;
 import pl.ochnios.samurai.services.security.AuthService;
 
+import javax.json.JsonPatch;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/documents")
@@ -44,7 +45,7 @@ public class DocumentController implements DocumentApi {
     @GetMapping
     public ResponseEntity<PageDto<DocumentDto>> getDocuments(
             DocumentCriteria documentCriteria, PageRequestDto pageRequestDto) {
-        var documentsPage = documentService.getDocumentsPage(documentCriteria, pageRequestDto);
+        var documentsPage = documentService.getPage(documentCriteria, pageRequestDto);
         return ResponseEntity.ok(documentsPage);
     }
 
@@ -53,7 +54,7 @@ public class DocumentController implements DocumentApi {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<DocumentDto> uploadDocument(@ModelAttribute @Valid DocumentUploadDto documentUploadDto) {
         var user = authService.getAuthenticatedUser();
-        var savedDocument = documentService.saveDocument(user, documentUploadDto);
+        var savedDocument = documentService.save(user, documentUploadDto);
         return ResponseEntity.ok(savedDocument);
     }
 
@@ -61,13 +62,13 @@ public class DocumentController implements DocumentApi {
     @PreAuthorize("hasRole('MOD')")
     @GetMapping("/{documentId}")
     public ResponseEntity<DocumentDto> getDocument(@PathVariable UUID documentId) {
-        var document = documentService.getDocument(documentId);
+        var document = documentService.get(documentId);
         return ResponseEntity.ok(document);
     }
 
     @GetMapping(value = "/{documentId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> downloadDocument(@PathVariable UUID documentId) {
-        var documentFile = documentService.getDocumentFile(documentId);
+        var documentFile = documentService.getFile(documentId);
         var headers = createFileDownloadHeaders(documentFile);
         return new ResponseEntity<>(documentFile.getContent(), headers, HttpStatus.OK);
     }
@@ -76,7 +77,7 @@ public class DocumentController implements DocumentApi {
     @PreAuthorize("hasRole('MOD')")
     @PatchMapping(value = "/{documentId}", consumes = AppConstants.PATCH_MEDIA_TYPE)
     public ResponseEntity<DocumentDto> patchDocument(@PathVariable UUID documentId, @RequestBody JsonPatch jsonPatch) {
-        var patchedDocument = documentService.patchDocument(documentId, jsonPatch);
+        var patchedDocument = documentService.patch(documentId, jsonPatch);
         return ResponseEntity.ok(patchedDocument);
     }
 
@@ -84,7 +85,7 @@ public class DocumentController implements DocumentApi {
     @PreAuthorize("hasRole('MOD')")
     @DeleteMapping(value = "/{documentId}")
     public ResponseEntity<Void> deleteDocument(@PathVariable UUID documentId) {
-        documentService.deleteDocument(documentId);
+        documentService.delete(documentId);
         return ResponseEntity.noContent().build();
     }
 
