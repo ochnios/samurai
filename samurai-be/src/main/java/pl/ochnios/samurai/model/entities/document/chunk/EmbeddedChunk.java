@@ -58,6 +58,11 @@ public class EmbeddedChunk extends Document {
             return this;
         }
 
+        public EmbeddedChunkBuilder id(String id) {
+            this.id = id;
+            return this;
+        }
+
         public EmbeddedChunkBuilder content(String content) {
             this.content = content;
             return this;

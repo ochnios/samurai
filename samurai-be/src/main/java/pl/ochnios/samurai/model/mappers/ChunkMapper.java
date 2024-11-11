@@ -36,6 +36,7 @@ public interface ChunkMapper {
 
     default EmbeddedChunk mapToEmbeddedChunk(Document springDocument, DocumentEntity documentEntity) {
         return EmbeddedChunk.builder()
+                .id(springDocument.getId())
                 .content(springDocument.getContent())
                 .documentId(documentEntity.getId())
                 .documentTitle(documentEntity.getTitle())

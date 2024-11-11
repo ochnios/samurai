@@ -3,6 +3,13 @@ package pl.ochnios.samurai.model.entities.file;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.sql.Blob;
+import java.sql.SQLException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -11,14 +18,6 @@ import org.hibernate.annotations.Nationalized;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.web.multipart.MultipartFile;
 import pl.ochnios.samurai.commons.exceptions.ApplicationException;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URLConnection;
-import java.sql.Blob;
-import java.sql.SQLException;
 
 @Getter
 @SuperBuilder
@@ -73,7 +72,8 @@ public abstract class FileEntity {
                     var bytes = inputStream.readAllBytes();
                     this.name = file.getName();
                     this.size = file.length();
-                    this.mimeType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(bytes));
+                    this.mimeType =
+                            Files.probeContentType(file.getAbsoluteFile().toPath());
                     this.content = BlobProxy.generateProxy(new ByteArrayInputStream(bytes), file.length());
                 } catch (IOException ex) {
                     throw new ApplicationException("Failed to read file", ex);
