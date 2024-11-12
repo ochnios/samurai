@@ -136,49 +136,13 @@ public class MarkdownReader implements DocumentReader {
         }
 
         @Override
-        public void visit(Heading heading) {
-            currentHeaderLevel = heading.getLevel();
-            if (shouldSplitSemantically()) {
+        public void visit(BlockQuote blockQuote) {
+            if (!config.includeBlockquote) {
                 buildAndFlush();
             }
 
             insertHardBreak();
-            var renderedHeader = renderer.render(heading);
-            headerHierarchy.put(currentHeaderLevel, renderedHeader);
-            currentContent.append(renderedHeader);
-            insertHardBreak();
-        }
-
-        @Override
-        public void visit(HtmlBlock htmlBlock) {
-            insertHardBreak();
-            addContent(htmlBlock);
-            insertHardBreak();
-        }
-
-        @Override
-        public void visit(Paragraph paragraph) {
-            insertHardBreak();
-            var paragraphContent = renderer.render(paragraph).replace('\n', ' ');
-            hasContent = true;
-            currentContent.append(paragraphContent);
-            insertHardBreak();
-        }
-
-        @Override
-        public void visit(ThematicBreak thematicBreak) {
-            if (config.horizontalRuleCreateDocument) {
-                buildAndFlush();
-            }
-        }
-
-        @Override
-        public void visit(SoftLineBreak softLineBreak) {
-            currentContent.append(' ');
-        }
-
-        @Override
-        public void visit(HardLineBreak hardLineBreak) {
+            addContent(blockQuote);
             insertHardBreak();
         }
 
@@ -186,13 +150,6 @@ public class MarkdownReader implements DocumentReader {
         public void visit(BulletList bulletList) {
             insertHardBreak();
             addContent(bulletList);
-            insertHardBreak();
-        }
-
-        @Override
-        public void visit(OrderedList orderedList) {
-            insertHardBreak();
-            addContent(orderedList);
             insertHardBreak();
         }
 
@@ -208,14 +165,57 @@ public class MarkdownReader implements DocumentReader {
         }
 
         @Override
-        public void visit(BlockQuote blockQuote) {
-            if (!config.includeBlockquote) {
+        public void visit(HardLineBreak hardLineBreak) {
+            insertHardBreak();
+        }
+
+        @Override
+        public void visit(Heading heading) {
+            currentHeaderLevel = heading.getLevel();
+            if (shouldSplitSemantically()) {
                 buildAndFlush();
             }
 
             insertHardBreak();
-            addContent(blockQuote);
+            var renderedHeader = renderer.render(heading);
+            headerHierarchy.put(currentHeaderLevel, renderedHeader);
+            currentContent.append(renderedHeader);
             insertHardBreak();
+        }
+
+        @Override
+        public void visit(ThematicBreak thematicBreak) {
+            if (config.horizontalRuleCreateDocument) {
+                buildAndFlush();
+            }
+        }
+
+        @Override
+        public void visit(HtmlBlock htmlBlock) {
+            insertHardBreak();
+            addContent(htmlBlock);
+            insertHardBreak();
+        }
+
+        @Override
+        public void visit(OrderedList orderedList) {
+            insertHardBreak();
+            addContent(orderedList);
+            insertHardBreak();
+        }
+
+        @Override
+        public void visit(Paragraph paragraph) {
+            insertHardBreak();
+            var paragraphContent = renderer.render(paragraph).replace('\n', ' ');
+            hasContent = true;
+            currentContent.append(paragraphContent);
+            insertHardBreak();
+        }
+
+        @Override
+        public void visit(SoftLineBreak softLineBreak) {
+            currentContent.append(' ');
         }
 
         public List<Document> getDocuments() {
