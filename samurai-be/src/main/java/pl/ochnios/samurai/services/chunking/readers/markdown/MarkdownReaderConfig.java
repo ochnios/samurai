@@ -16,12 +16,11 @@
 
 package pl.ochnios.samurai.services.chunking.readers.markdown;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.markdown.MarkdownDocumentReader;
 import org.springframework.util.Assert;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Common configuration for the {@link MarkdownDocumentReader}.
@@ -40,12 +39,15 @@ public class MarkdownReaderConfig {
 
     public final int maxChunkLength;
 
+    public final int minChunkLength;
+
     public MarkdownReaderConfig(Builder builder) {
         this.horizontalRuleCreateDocument = builder.horizontalRuleCreateDocument;
         this.includeCodeBlock = builder.includeCodeBlock;
         this.includeBlockquote = builder.includeBlockquote;
         this.additionalMetadata = builder.additionalMetadata;
         this.maxChunkLength = builder.maxChunkLength;
+        this.minChunkLength = builder.minChunkLength;
     }
 
     /**
@@ -70,6 +72,8 @@ public class MarkdownReaderConfig {
         private Map<String, Object> additionalMetadata = new HashMap<>();
 
         private int maxChunkLength = 4000;
+
+        private int minChunkLength = 1;
 
         private Builder() {}
 
@@ -134,6 +138,12 @@ public class MarkdownReaderConfig {
         public Builder withMaxChunkLength(int maxChunkLength) {
             Assert.isTrue(maxChunkLength > 0, "maxChunkLength must be positive");
             this.maxChunkLength = maxChunkLength;
+            return this;
+        }
+
+        public Builder withMinChunkLength(int minChunkLength) {
+            Assert.isTrue(minChunkLength > 0, "minChunkLength must be positive");
+            this.minChunkLength = minChunkLength;
             return this;
         }
 

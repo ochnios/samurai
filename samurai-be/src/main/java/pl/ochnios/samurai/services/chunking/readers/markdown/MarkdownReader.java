@@ -26,21 +26,17 @@ import java.util.Map;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.BlockQuote;
 import org.commonmark.node.BulletList;
-import org.commonmark.node.Code;
-import org.commonmark.node.Emphasis;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.HardLineBreak;
 import org.commonmark.node.Heading;
-import org.commonmark.node.Link;
-import org.commonmark.node.ListBlock;
-import org.commonmark.node.ListItem;
+import org.commonmark.node.HtmlBlock;
+import org.commonmark.node.Node;
 import org.commonmark.node.OrderedList;
 import org.commonmark.node.Paragraph;
 import org.commonmark.node.SoftLineBreak;
-import org.commonmark.node.StrongEmphasis;
-import org.commonmark.node.Text;
 import org.commonmark.node.ThematicBreak;
 import org.commonmark.parser.Parser;
+import org.commonmark.renderer.markdown.MarkdownRenderer;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentReader;
 import org.springframework.core.io.ByteArrayResource;
@@ -96,6 +92,7 @@ public class MarkdownReader implements DocumentReader {
                 .withIncludeCodeBlock(true)
                 .withIncludeBlockquote(true)
                 .withMaxChunkLength(4000)
+                .withMinChunkLength(350)
                 .build();
     }
 
@@ -120,15 +117,18 @@ public class MarkdownReader implements DocumentReader {
 
     /**
      * A convenient class for visiting handled nodes in the Markdown document.
+     * Document is split semantically between headers if it is possible or
+     * always when the maxChunkLength is reached.
      */
     static class DocumentVisitor extends AbstractVisitor {
 
         private final MarkdownReaderConfig config;
+        private final MarkdownRenderer renderer = new MarkdownRenderer.Builder().build();
         private final List<Document> documents = new ArrayList<>();
         private final Map<Integer, String> headerHierarchy = new HashMap<>();
 
         private StringBuilder currentContent = new StringBuilder();
-        private boolean hasTextContent = false;
+        private boolean hasContent = false;
         private int currentHeaderLevel = 0;
 
         DocumentVisitor(MarkdownReaderConfig config) {
@@ -137,19 +137,32 @@ public class MarkdownReader implements DocumentReader {
 
         @Override
         public void visit(Heading heading) {
+            currentHeaderLevel = heading.getLevel();
+            if (shouldSplitSemantically()) {
+                buildAndFlush();
+            }
+
             insertHardBreak();
-            super.visit(heading);
+            var renderedHeader = renderer.render(heading);
+            headerHierarchy.put(currentHeaderLevel, renderedHeader);
+            currentContent.append(renderedHeader);
+            insertHardBreak();
+        }
+
+        @Override
+        public void visit(HtmlBlock htmlBlock) {
+            insertHardBreak();
+            addContent(htmlBlock);
             insertHardBreak();
         }
 
         @Override
         public void visit(Paragraph paragraph) {
-            var parent = paragraph.getParent();
-            boolean withoutBreak = parent instanceof ListBlock || parent instanceof ListItem;
-
-            if (!withoutBreak) insertHardBreak();
-            super.visit(paragraph);
-            if (!withoutBreak) insertHardBreak();
+            insertHardBreak();
+            var paragraphContent = renderer.render(paragraph).replace('\n', ' ');
+            hasContent = true;
+            currentContent.append(paragraphContent);
+            insertHardBreak();
         }
 
         @Override
@@ -157,81 +170,30 @@ public class MarkdownReader implements DocumentReader {
             if (config.horizontalRuleCreateDocument) {
                 buildAndFlush();
             }
-            super.visit(thematicBreak);
         }
 
         @Override
         public void visit(SoftLineBreak softLineBreak) {
             currentContent.append(' ');
-            super.visit(softLineBreak);
         }
 
         @Override
         public void visit(HardLineBreak hardLineBreak) {
             insertHardBreak();
-            super.visit(hardLineBreak);
         }
 
         @Override
         public void visit(BulletList bulletList) {
             insertHardBreak();
-            var child = bulletList.getFirstChild();
-            while (child != null) {
-                if (child instanceof ListItem listItem) {
-                    currentContent.append(bulletList.getMarker()).append(' ');
-                    super.visit(listItem);
-                    insertSoftBreak();
-                }
-                child = child.getNext();
-            }
+            addContent(bulletList);
             insertHardBreak();
         }
 
         @Override
         public void visit(OrderedList orderedList) {
             insertHardBreak();
-            int number = orderedList.getMarkerStartNumber();
-            var child = orderedList.getFirstChild();
-            while (child != null) {
-                if (child instanceof ListItem listItem) {
-                    currentContent
-                            .append(number)
-                            .append(orderedList.getMarkerDelimiter())
-                            .append(' ');
-                    super.visit(listItem);
-                    insertSoftBreak();
-                }
-                child = child.getNext();
-                number++;
-            }
+            addContent(orderedList);
             insertHardBreak();
-        }
-
-        @Override
-        public void visit(ListItem listItem) {
-            insertSoftBreak();
-            super.visit(listItem);
-            insertSoftBreak();
-        }
-
-        @Override
-        public void visit(StrongEmphasis strongEmphasis) {
-            currentContent.append(strongEmphasis.getOpeningDelimiter());
-            visitChildren(strongEmphasis);
-            currentContent.append(strongEmphasis.getClosingDelimiter());
-        }
-
-        @Override
-        public void visit(Emphasis emphasis) {
-            currentContent.append(emphasis.getOpeningDelimiter());
-            visitChildren(emphasis);
-            currentContent.append(emphasis.getClosingDelimiter());
-        }
-
-        @Override
-        public void visit(Code code) {
-            currentContent.append('`').append(code.getLiteral()).append('`');
-            super.visit(code);
         }
 
         @Override
@@ -241,13 +203,7 @@ public class MarkdownReader implements DocumentReader {
             }
 
             insertHardBreak();
-            currentContent
-                    .append(fencedCodeBlock.getFenceCharacter().repeat(fencedCodeBlock.getOpeningFenceLength()))
-                    .append(fencedCodeBlock.getInfo())
-                    .append('\n')
-                    .append(fencedCodeBlock.getLiteral())
-                    .append(fencedCodeBlock.getFenceCharacter().repeat(fencedCodeBlock.getClosingFenceLength()));
-            super.visit(fencedCodeBlock);
+            addContent(fencedCodeBlock);
             insertHardBreak();
         }
 
@@ -258,56 +214,8 @@ public class MarkdownReader implements DocumentReader {
             }
 
             insertHardBreak();
-            var child1 = blockQuote.getFirstChild();
-            while (child1 != null) {
-                if (child1 instanceof Paragraph paragraph) {
-                    var child2 = paragraph.getFirstChild();
-                    while (child2 != null) {
-                        if (child2 instanceof Text text) {
-                            currentContent.append("> ").append(text.getLiteral());
-                            insertSoftBreak();
-                        }
-                        child2 = child2.getNext();
-                    }
-                }
-                child1 = child1.getNext();
-            }
+            addContent(blockQuote);
             insertHardBreak();
-        }
-
-        @Override
-        public void visit(Link link) {
-            currentContent.append('[');
-            var child = link.getFirstChild();
-            while (child != null) {
-                if (child instanceof Text text) {
-                    currentContent.append(text.getLiteral());
-                }
-                child = child.getNext();
-            }
-            currentContent.append("](").append(link.getDestination()).append(')');
-        }
-
-        @Override
-        public void visit(Text text) {
-            if (currentContent.length() > config.maxChunkLength) {
-                buildAndFlush();
-            }
-
-            if (text.getParent() instanceof Heading heading) {
-                currentHeaderLevel = heading.getLevel();
-                if (headerHierarchy.containsKey(currentHeaderLevel) || hasTextContent) {
-                    buildAndFlush();
-                }
-                headerHierarchy.put(currentHeaderLevel, text.getLiteral());
-                currentContent.append("#".repeat(currentHeaderLevel)).append(' ');
-                currentContent.append(text.getLiteral());
-            } else {
-                hasTextContent = true;
-                currentContent.append(text.getLiteral());
-            }
-
-            super.visit(text);
         }
 
         public List<Document> getDocuments() {
@@ -322,24 +230,37 @@ public class MarkdownReader implements DocumentReader {
                 config.additionalMetadata.forEach(builder::withMetadata);
                 documents.add(builder.build());
 
-                hasTextContent = false;
+                hasContent = false;
                 currentContent = new StringBuilder();
                 rebuildHeaderHierarchy(currentContent, currentHeaderLevel);
             }
+        }
+
+        private void addContent(Node node) {
+            if (currentContent.length() > config.maxChunkLength) {
+                buildAndFlush();
+            }
+
+            String content = renderer.render(node);
+            if (node instanceof Paragraph) {
+                content = content.replace('\n', ' ');
+            }
+            currentContent.append(content);
+            hasContent = true;
+        }
+
+        private boolean shouldSplitSemantically() {
+            return currentContent.length() > config.maxChunkLength
+                    || (currentContent.length() >= config.minChunkLength
+                            && (headerHierarchy.containsKey(currentHeaderLevel) || hasContent));
         }
 
         private void rebuildHeaderHierarchy(StringBuilder builder, int untilLevel) {
             for (int i = 1; i < untilLevel; i++) {
                 String headerText = headerHierarchy.get(i);
                 if (headerText != null) {
-                    builder.append("#".repeat(i)).append(' ').append(headerText).append("\n\n");
+                    builder.append(headerText).append("\n\n");
                 }
-            }
-        }
-
-        private void insertSoftBreak() {
-            if (!currentContent.isEmpty() && currentContent.charAt(currentContent.length() - 1) != '\n') {
-                currentContent.append('\n');
             }
         }
 

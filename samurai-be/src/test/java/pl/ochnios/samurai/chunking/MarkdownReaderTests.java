@@ -4,8 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import pl.ochnios.samurai.services.chunking.readers.markdown.MarkdownReader;
+import pl.ochnios.samurai.services.chunking.readers.markdown.MarkdownReaderConfig;
 
 public class MarkdownReaderTests {
+
+    private final MarkdownReaderConfig customConfig = MarkdownReaderConfig.builder()
+            .withHorizontalRuleCreateDocument(true)
+            .withIncludeCodeBlock(true)
+            .withIncludeBlockquote(true)
+            .withMaxChunkLength(4000)
+            .withMinChunkLength(5)
+            .build();
 
     @Test
     void shouldParseSimpleMarkdown() {
@@ -24,14 +33,8 @@ public class MarkdownReaderTests {
     @Test
     void shouldSplitOnMultipleHeaders() {
         // given
-        String markdown = """
-# Header 1
-Content 1
-## Subheader 1
-Content 2
-# Header 2
-Content 3""";
-        var reader = new MarkdownReader(markdown);
+        String markdown = "# Header 1\n\nContent 1\n\n## Subheader 1\n\nContent 2\n\n# Header 2\n\nContent 3";
+        var reader = new MarkdownReader(markdown, customConfig);
 
         // when
         var documents = reader.get();
@@ -41,6 +44,13 @@ Content 3""";
         assertThat(documents.get(0).getContent()).isEqualTo("# Header 1\n\nContent 1");
         assertThat(documents.get(1).getContent()).isEqualTo("# Header 1\n\n## Subheader 1\n\nContent 2");
         assertThat(documents.get(2).getContent()).isEqualTo("# Header 2\n\nContent 3");
+    }
+
+    @Test
+    void shouldNotSplitOnMultipleHeaders() {
+        // given
+        String markdown = "# Header 1\n\nContent 1\n\n## Subheader 1\n\nContent 2\n\n# Header 2\n\nContent 3";
+        testEqualInputOutput(markdown);
     }
 
     @Test
@@ -55,7 +65,7 @@ Content 1
 Content 2
 ## Sub Header 2
 Content 3""";
-        var reader = new MarkdownReader(markdown);
+        var reader = new MarkdownReader(markdown, customConfig);
 
         // when
         var documents = reader.get();
@@ -85,7 +95,7 @@ Content 3""";
     @Test
     void shouldHandleParagraph() {
         String markdown = "Here is sample\nparagraph.\n\nHere is another paragraph after hard break.";
-        var reader = new MarkdownReader(markdown);
+        var reader = new MarkdownReader(markdown, customConfig);
 
         // when
         var documents = reader.get();
@@ -152,6 +162,7 @@ Here's a quote:
 
 > This is a blockquote
 > With multiple lines
+> And *some* **formatting**
 
 Regular text continues""";
         testEqualInputOutput(markdown);
@@ -159,7 +170,19 @@ Regular text continues""";
 
     @Test
     void shouldHandleLinks() {
-        String markdown = "Here is sample [link](https://example.com)";
+        String markdown = "[Some link](https://example.com)";
+        testEqualInputOutput(markdown);
+    }
+
+    @Test
+    void shouldHandleJustText() {
+        String markdown = "Here is some test content";
+        testEqualInputOutput(markdown);
+    }
+
+    @Test
+    void shouldHandleHtmlBLocks() {
+        String markdown = "<div>\n<strong>Here is some HTML content<strong>\n</div>";
         testEqualInputOutput(markdown);
     }
 
