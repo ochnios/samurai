@@ -25,13 +25,16 @@ import java.util.List;
 import java.util.Map;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.BlockQuote;
+import org.commonmark.node.BulletList;
 import org.commonmark.node.Code;
 import org.commonmark.node.Emphasis;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.HardLineBreak;
 import org.commonmark.node.Heading;
 import org.commonmark.node.Link;
+import org.commonmark.node.ListBlock;
 import org.commonmark.node.ListItem;
+import org.commonmark.node.OrderedList;
 import org.commonmark.node.Paragraph;
 import org.commonmark.node.SoftLineBreak;
 import org.commonmark.node.StrongEmphasis;
@@ -87,6 +90,15 @@ public class MarkdownReader implements DocumentReader {
         this.parser = Parser.builder().build();
     }
 
+    public static MarkdownReaderConfig defaultConfig() {
+        return MarkdownReaderConfig.builder()
+                .withHorizontalRuleCreateDocument(true)
+                .withIncludeCodeBlock(true)
+                .withIncludeBlockquote(true)
+                .withMaxChunkLength(4000)
+                .build();
+    }
+
     /**
      * Extracts and returns a list of documents from the resource.
      * @return List of extracted {@link Document}
@@ -132,9 +144,12 @@ public class MarkdownReader implements DocumentReader {
 
         @Override
         public void visit(Paragraph paragraph) {
-            insertHardBreak();
+            var parent = paragraph.getParent();
+            boolean withoutBreak = parent instanceof ListBlock || parent instanceof ListItem;
+
+            if (!withoutBreak) insertHardBreak();
             super.visit(paragraph);
-            insertHardBreak();
+            if (!withoutBreak) insertHardBreak();
         }
 
         @Override
@@ -147,7 +162,7 @@ public class MarkdownReader implements DocumentReader {
 
         @Override
         public void visit(SoftLineBreak softLineBreak) {
-            insertSoftBreak();
+            currentContent.append(' ');
             super.visit(softLineBreak);
         }
 
@@ -158,10 +173,59 @@ public class MarkdownReader implements DocumentReader {
         }
 
         @Override
+        public void visit(BulletList bulletList) {
+            insertHardBreak();
+            var child = bulletList.getFirstChild();
+            while (child != null) {
+                if (child instanceof ListItem listItem) {
+                    currentContent.append(bulletList.getMarker()).append(' ');
+                    super.visit(listItem);
+                    insertSoftBreak();
+                }
+                child = child.getNext();
+            }
+            insertHardBreak();
+        }
+
+        @Override
+        public void visit(OrderedList orderedList) {
+            insertHardBreak();
+            int number = orderedList.getMarkerStartNumber();
+            var child = orderedList.getFirstChild();
+            while (child != null) {
+                if (child instanceof ListItem listItem) {
+                    currentContent
+                            .append(number)
+                            .append(orderedList.getMarkerDelimiter())
+                            .append(' ');
+                    super.visit(listItem);
+                    insertSoftBreak();
+                }
+                child = child.getNext();
+                number++;
+            }
+            insertHardBreak();
+        }
+
+        @Override
         public void visit(ListItem listItem) {
             insertSoftBreak();
             super.visit(listItem);
             insertSoftBreak();
+        }
+
+        @Override
+        public void visit(StrongEmphasis strongEmphasis) {
+            currentContent.append(strongEmphasis.getOpeningDelimiter());
+            visitChildren(strongEmphasis);
+            currentContent.append(strongEmphasis.getClosingDelimiter());
+        }
+
+        @Override
+        public void visit(Emphasis emphasis) {
+            currentContent.append(emphasis.getOpeningDelimiter());
+            visitChildren(emphasis);
+            currentContent.append(emphasis.getClosingDelimiter());
         }
 
         @Override
@@ -178,11 +242,11 @@ public class MarkdownReader implements DocumentReader {
 
             insertHardBreak();
             currentContent
-                    .append("```")
+                    .append(fencedCodeBlock.getFenceCharacter().repeat(fencedCodeBlock.getOpeningFenceLength()))
                     .append(fencedCodeBlock.getInfo())
                     .append('\n')
                     .append(fencedCodeBlock.getLiteral())
-                    .append("```");
+                    .append(fencedCodeBlock.getFenceCharacter().repeat(fencedCodeBlock.getClosingFenceLength()));
             super.visit(fencedCodeBlock);
             insertHardBreak();
         }
@@ -209,20 +273,6 @@ public class MarkdownReader implements DocumentReader {
                 child1 = child1.getNext();
             }
             insertHardBreak();
-        }
-
-        @Override
-        public void visit(StrongEmphasis strongEmphasis) {
-            currentContent.append("**");
-            visitChildren(strongEmphasis);
-            currentContent.append("**");
-        }
-
-        @Override
-        public void visit(Emphasis emphasis) {
-            currentContent.append('*');
-            visitChildren(emphasis);
-            currentContent.append('*');
         }
 
         @Override
@@ -306,14 +356,5 @@ public class MarkdownReader implements DocumentReader {
                 currentContent.append(suffix);
             }
         }
-    }
-
-    public static MarkdownReaderConfig defaultConfig() {
-        return MarkdownReaderConfig.builder()
-                .withHorizontalRuleCreateDocument(true)
-                .withIncludeCodeBlock(true)
-                .withIncludeBlockquote(true)
-                .withMaxChunkLength(4000)
-                .build();
     }
 }

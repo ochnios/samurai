@@ -1,9 +1,9 @@
 package pl.ochnios.samurai.chunking;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import pl.ochnios.samurai.services.chunking.readers.markdown.MarkdownReader;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class MarkdownReaderTests {
 
@@ -38,9 +38,9 @@ Content 3""";
 
         // then
         assertThat(documents).hasSize(3);
-        assertThat(documents.get(0).getContent()).contains("# Header 1\n\nContent 1");
-        assertThat(documents.get(1).getContent()).contains("# Header 1\n\n## Subheader 1\n\nContent 2");
-        assertThat(documents.get(2).getContent()).contains("# Header 2\n\nContent 3");
+        assertThat(documents.get(0).getContent()).isEqualTo("# Header 1\n\nContent 1");
+        assertThat(documents.get(1).getContent()).isEqualTo("# Header 1\n\n## Subheader 1\n\nContent 2");
+        assertThat(documents.get(2).getContent()).isEqualTo("# Header 2\n\nContent 3");
     }
 
     @Test
@@ -62,10 +62,50 @@ Content 3""";
 
         // then
         assertThat(documents).hasSize(3);
-        assertThat(documents.get(0).getContent()).contains("# Main Header\n\n## Sub Header 1\n\nContent 1");
+        assertThat(documents.get(0).getContent()).isEqualTo("# Main Header\n\n## Sub Header 1\n\nContent 1");
         assertThat(documents.get(1).getContent())
-                .contains("# Main Header\n\n## Sub Header 1\n\n### Sub-sub Header\n\nContent 2");
-        assertThat(documents.get(2).getContent()).contains("# Main Header\n\n## Sub Header 2\n\nContent 3");
+                .isEqualTo("# Main Header\n\n## Sub Header 1\n\n### Sub-sub Header\n\nContent 2");
+        assertThat(documents.get(2).getContent()).isEqualTo("# Main Header\n\n## Sub Header 2\n\nContent 3");
+    }
+
+    @Test
+    void shouldHandleThematicBreak() {
+        String markdown = "Here is sample text.\n\n---\n\nHere is another text after thematic break.";
+        var reader = new MarkdownReader(markdown);
+
+        // when
+        var documents = reader.get();
+
+        // then
+        assertThat(documents).hasSize(2);
+        assertThat(documents.get(0).getContent()).isEqualTo("Here is sample text.");
+        assertThat(documents.get(1).getContent()).isEqualTo("Here is another text after thematic break.");
+    }
+
+    @Test
+    void shouldHandleParagraph() {
+        String markdown = "Here is sample\nparagraph.\n\nHere is another paragraph after hard break.";
+        var reader = new MarkdownReader(markdown);
+
+        // when
+        var documents = reader.get();
+
+        // then
+        assertThat(documents).hasSize(1);
+        assertThat(documents.getFirst().getContent())
+                .isEqualTo("Here is sample paragraph.\n\nHere is another paragraph after hard break.");
+    }
+
+    @Test
+    void shouldHandleBulletList() {
+        String markdown = "Here is sample list:\n\n- Point 1\n- Point 2\n- Point 3";
+        testEqualInputOutput(markdown);
+    }
+
+    @Test
+    void shouldHandleOrderedList() {
+        String markdown = "Here is sample list:\n\n1. Point 1\n2. Point 2\n3. Point 3";
+        testEqualInputOutput(markdown);
     }
 
     @Test
@@ -77,12 +117,6 @@ Content 3""";
     @Test
     void shouldHandleEmphasis() {
         String markdown = "Here is sample *emphasis*";
-        testEqualInputOutput(markdown);
-    }
-
-    @Test
-    void shouldHandleLinks() {
-        String markdown = "Here is sample [link](https://example.com)";
         testEqualInputOutput(markdown);
     }
 
@@ -120,6 +154,12 @@ Here's a quote:
 > With multiple lines
 
 Regular text continues""";
+        testEqualInputOutput(markdown);
+    }
+
+    @Test
+    void shouldHandleLinks() {
+        String markdown = "Here is sample [link](https://example.com)";
         testEqualInputOutput(markdown);
     }
 
