@@ -1,5 +1,6 @@
 package pl.ochnios.samurai.services.chunking;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.transformer.splitter.TextSplitter;
@@ -8,8 +9,6 @@ import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
 import pl.ochnios.samurai.model.mappers.ChunkMapper;
 import pl.ochnios.samurai.services.chunking.readers.ReaderFactory;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -20,11 +19,8 @@ public class DocumentChunker {
     private final ReaderFactory readerFactory;
 
     List<EmbeddedChunk> process(DocumentEntity documentEntity) {
-        var reader = readerFactory.getReader(
-            documentEntity.asResource(), 
-            documentEntity.getMimeType()
-        );
-        
+        var reader = readerFactory.getReader(documentEntity.asResource(), documentEntity.getMimeType());
+
         var extracted = reader.get();
         var split = textSplitter.split(extracted);
 

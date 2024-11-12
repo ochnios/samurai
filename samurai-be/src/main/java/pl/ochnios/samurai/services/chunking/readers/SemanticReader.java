@@ -1,5 +1,9 @@
 package pl.ochnios.samurai.services.chunking.readers;
 
+import static org.apache.tika.parser.pdf.PDFParserConfig.OCR_STRATEGY.NO_OCR;
+
+import java.io.InputStream;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -12,23 +16,18 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentReader;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import pl.ochnios.samurai.services.chunking.converters.HtmlConverter;
+import pl.ochnios.samurai.services.chunking.converters.Html2MdConverter;
 import pl.ochnios.samurai.services.chunking.exception.ChunkingException;
 import pl.ochnios.samurai.services.chunking.readers.markdown.MarkdownReader;
-
-import java.io.InputStream;
-import java.util.List;
-
-import static org.apache.tika.parser.pdf.PDFParserConfig.OCR_STRATEGY.NO_OCR;
 
 @Slf4j
 public class SemanticReader implements DocumentReader {
     private final Resource resource;
-    private final HtmlConverter htmlConverter;
+    private final Html2MdConverter html2MdConverter;
 
     public SemanticReader(Resource resource) {
         this.resource = resource;
-        this.htmlConverter = new HtmlConverter();
+        this.html2MdConverter = new Html2MdConverter();
     }
 
     @Override
@@ -48,7 +47,7 @@ public class SemanticReader implements DocumentReader {
             var htmlContent = handler.toString();
             log.debug("HTML extracted from '{}': ===\n{}\n===", filename, htmlContent);
 
-            var mdContent = htmlConverter.toMarkdown(htmlContent);
+            var mdContent = html2MdConverter.convert(htmlContent);
             log.debug("Markdown extracted from '{}': ===\n{}\n===", filename, mdContent);
 
             var mdResource = new ByteArrayResource(mdContent.getBytes(), filename);
