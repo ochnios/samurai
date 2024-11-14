@@ -18,7 +18,5 @@ public interface DocumentRepository {
 
     DocumentEntity save(DocumentEntity documentEntity);
 
-    DocumentEntity saveAndFlush(DocumentEntity documentEntity);
-
     void delete(DocumentEntity documentEntity);
 }

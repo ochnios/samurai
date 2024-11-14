@@ -1,6 +1,5 @@
 package pl.ochnios.samurai.repositories.impl;
 
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,41 +10,38 @@ import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentStatus;
 import pl.ochnios.samurai.repositories.DocumentRepository;
 
+import java.util.UUID;
+
 @Repository
 @RequiredArgsConstructor
 public class DocumentRepositoryImpl implements DocumentRepository {
 
-    private final DocumentJpaRepository documentJpaRepository;
+    private final DocumentCrudRepository documentCrudRepository;
 
     @Override
     public DocumentEntity findById(UUID documentId) {
-        return documentJpaRepository
+        return documentCrudRepository
                 .findById(documentId)
                 .orElseThrow(() -> ResourceNotFoundException.of(DocumentEntity.class, documentId));
     }
 
     @Override
     public Page<DocumentEntity> findAll(Specification<DocumentEntity> specification, Pageable pageable) {
-        return documentJpaRepository.findAll(specification, pageable);
+        return documentCrudRepository.findAll(specification, pageable);
     }
 
     @Override
     public DocumentEntity findFirstByStatus(DocumentStatus status) {
-        return documentJpaRepository.findFirstByStatusOrderByCreatedAtAsc(status);
+        return documentCrudRepository.findFirstByStatusOrderByCreatedAtAsc(status);
     }
 
     @Override
     public DocumentEntity save(DocumentEntity documentEntity) {
-        return documentJpaRepository.save(documentEntity);
-    }
-
-    @Override
-    public DocumentEntity saveAndFlush(DocumentEntity documentEntity) {
-        return documentJpaRepository.saveAndFlush(documentEntity);
+        return documentCrudRepository.save(documentEntity);
     }
 
     @Override
     public void delete(DocumentEntity documentEntity) {
-        documentJpaRepository.delete(documentEntity);
+        documentCrudRepository.delete(documentEntity);
     }
 }

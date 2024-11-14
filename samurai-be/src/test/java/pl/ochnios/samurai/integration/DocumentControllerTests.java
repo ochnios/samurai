@@ -1,30 +1,5 @@
 package pl.ochnios.samurai.integration;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.samurai.TestUtils.asJsonString;
-import static pl.ochnios.samurai.TestUtils.asParamsMap;
-import static pl.ochnios.samurai.TestUtils.generateTooLongString;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.FAILED;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.IN_PROGRESS;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,8 +25,34 @@ import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentStatus;
 import pl.ochnios.samurai.model.seeders.DocumentSeeder;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
-import pl.ochnios.samurai.repositories.impl.DocumentJpaRepository;
+import pl.ochnios.samurai.repositories.impl.DocumentCrudRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.samurai.TestUtils.asJsonString;
+import static pl.ochnios.samurai.TestUtils.asParamsMap;
+import static pl.ochnios.samurai.TestUtils.generateTooLongString;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.FAILED;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.IN_PROGRESS;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -73,34 +74,34 @@ public class DocumentControllerTests {
     private UserCrudRepository userCrudRepository;
 
     @Autowired
-    private DocumentJpaRepository documentJpaRepository;
+    private DocumentCrudRepository documentCrudRepository;
 
     private DocumentEntity samplePDF;
     private DocumentEntity sampleDOCX;
 
     @BeforeAll
     public void setup() {
-        documentJpaRepository.deleteAll();
+        documentCrudRepository.deleteAll();
         userCrudRepository.deleteAll();
         userSeeder.seed();
     }
 
     @AfterAll
     public void tearDown() {
-        documentJpaRepository.deleteAll();
+        documentCrudRepository.deleteAll();
         userCrudRepository.deleteAll();
     }
 
     @BeforeEach
     public void beforeEach() {
-        documentJpaRepository.deleteAll();
+        documentCrudRepository.deleteAll();
         documentSeeder.seed();
 
-        samplePDF = documentJpaRepository
+        samplePDF = documentCrudRepository
                 .findById(UUID.nameUUIDFromBytes("Sample PDF".getBytes()))
                 .orElseThrow(() -> new RuntimeException("Sample PDF not found"));
 
-        sampleDOCX = documentJpaRepository
+        sampleDOCX = documentCrudRepository
                 .findById(UUID.nameUUIDFromBytes("Sample DOCX".getBytes()))
                 .orElseThrow(() -> new RuntimeException("Sample DOCX not found"));
     }
@@ -368,7 +369,7 @@ public class DocumentControllerTests {
         @Test
         public void patch_document_status_to_active_200() throws Exception {
             samplePDF.setStatus(DocumentStatus.ARCHIVED);
-            documentJpaRepository.save(samplePDF);
+            documentCrudRepository.save(samplePDF);
 
             var patch = new JsonPatchDto("replace", "/status", ACTIVE.name());
             var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
@@ -385,7 +386,7 @@ public class DocumentControllerTests {
         @Test
         public void patch_document_status_to_archived_200() throws Exception {
             samplePDF.setStatus(ACTIVE);
-            documentJpaRepository.save(samplePDF);
+            documentCrudRepository.save(samplePDF);
 
             var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ARCHIVED.name());
             var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
@@ -414,7 +415,7 @@ public class DocumentControllerTests {
         @Test
         public void patch_document_status_from_uploaded_400() throws Exception {
             samplePDF.setStatus(UPLOADED);
-            documentJpaRepository.save(samplePDF);
+            documentCrudRepository.save(samplePDF);
             var patch = new JsonPatchDto("replace", "/status", ACTIVE.name());
             test_patch_validation(patch, "cannot be changed manually");
         }
@@ -422,7 +423,7 @@ public class DocumentControllerTests {
         @Test
         public void patch_document_status_from_failed_400() throws Exception {
             samplePDF.setStatus(FAILED);
-            documentJpaRepository.save(samplePDF);
+            documentCrudRepository.save(samplePDF);
             var patch = new JsonPatchDto("replace", "/status", ACTIVE.name());
             test_patch_validation(patch, "cannot be changed manually");
         }
@@ -430,7 +431,7 @@ public class DocumentControllerTests {
         @Test
         public void patch_document_status_from_in_progress_400() throws Exception {
             samplePDF.setStatus(IN_PROGRESS);
-            documentJpaRepository.save(samplePDF);
+            documentCrudRepository.save(samplePDF);
             var patch = new JsonPatchDto("replace", "/status", ACTIVE.name());
             test_patch_validation(patch, "cannot be changed manually");
         }
@@ -468,7 +469,7 @@ public class DocumentControllerTests {
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNoContent())
                     .andExpect(content().string(""));
-            var document = documentJpaRepository.findById(samplePDF.getId());
+            var document = documentCrudRepository.findById(samplePDF.getId());
             assertThat(document, is(Optional.empty()));
         }
 
@@ -571,7 +572,7 @@ public class DocumentControllerTests {
         @Test
         public void search_by_status() throws Exception {
             samplePDF.setStatus(ACTIVE);
-            documentJpaRepository.save(samplePDF);
+            documentCrudRepository.save(samplePDF);
 
             var searchCriteria = DocumentCriteria.builder().status(ACTIVE).build();
             var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));

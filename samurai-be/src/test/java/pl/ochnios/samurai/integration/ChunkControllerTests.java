@@ -1,25 +1,5 @@
 package pl.ochnios.samurai.integration;
 
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.samurai.TestUtils.asJsonString;
-import static pl.ochnios.samurai.TestUtils.asParamsMap;
-import static pl.ochnios.samurai.TestUtils.generateTooLongString;
-import static pl.ochnios.samurai.model.entities.document.chunk.Chunk.MAX_CHUNK_LENGTH;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,9 +24,30 @@ import pl.ochnios.samurai.model.seeders.ChunkSeeder;
 import pl.ochnios.samurai.model.seeders.DocumentSeeder;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
 import pl.ochnios.samurai.repositories.impl.ChunkCrudRepository;
-import pl.ochnios.samurai.repositories.impl.DocumentJpaRepository;
+import pl.ochnios.samurai.repositories.impl.DocumentCrudRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
 import pl.ochnios.samurai.services.EmbeddingService;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.samurai.TestUtils.asJsonString;
+import static pl.ochnios.samurai.TestUtils.asParamsMap;
+import static pl.ochnios.samurai.TestUtils.generateTooLongString;
+import static pl.ochnios.samurai.model.entities.document.chunk.Chunk.MAX_CHUNK_LENGTH;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -75,7 +76,7 @@ public class ChunkControllerTests {
     private UserCrudRepository userCrudRepository;
 
     @Autowired
-    private DocumentJpaRepository documentJpaRepository;
+    private DocumentCrudRepository documentCrudRepository;
 
     @Autowired
     private ChunkCrudRepository chunkCrudRepository;
@@ -90,13 +91,13 @@ public class ChunkControllerTests {
 
     @AfterAll
     public void tearDown() {
-        documentJpaRepository.deleteAll();
+        documentCrudRepository.deleteAll();
         userCrudRepository.deleteAll();
     }
 
     @BeforeEach
     public void beforeEach() {
-        documentJpaRepository.deleteAll();
+        documentCrudRepository.deleteAll();
         documentSeeder.seed();
         chunkSeeder.seed();
 

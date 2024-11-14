@@ -3,7 +3,6 @@ package pl.ochnios.samurai.services.chunking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import pl.ochnios.samurai.model.entities.document.DocumentStatus;
 import pl.ochnios.samurai.repositories.DocumentRepository;
 import pl.ochnios.samurai.services.ChunkService;
@@ -17,7 +16,6 @@ public class DocumentChunkingService {
     private final DocumentChunker documentChunker;
     private final ChunkService chunkService;
 
-    @Transactional
     protected void processNextDocument() {
         var document = documentRepository.findFirstByStatus(DocumentStatus.UPLOADED);
 
@@ -27,11 +25,11 @@ public class DocumentChunkingService {
 
         log.info("Processing document {}", document.getId());
         document.setStatus(DocumentStatus.IN_PROGRESS);
-        documentRepository.saveAndFlush(document);
+        documentRepository.save(document);
 
         try {
             chunkService.deleteAll(document.getId());
-            document.getChunks().clear();
+            document = documentRepository.findById(document.getId());
 
             var chunks = documentChunker.process(document);
             chunkService.saveAllEmbedded(document.getId(), chunks);

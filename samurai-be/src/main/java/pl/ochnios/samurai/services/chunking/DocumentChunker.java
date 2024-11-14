@@ -1,5 +1,6 @@
 package pl.ochnios.samurai.services.chunking;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,8 +10,6 @@ import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
 import pl.ochnios.samurai.model.mappers.ChunkMapper;
 import pl.ochnios.samurai.services.chunking.readers.ReaderFactory;
 import pl.ochnios.samurai.services.chunking.splitters.MaxLengthSplitter;
-
-import java.util.List;
 
 @Slf4j
 @Service
