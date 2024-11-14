@@ -1,9 +1,5 @@
 package pl.ochnios.samurai.services.chunking.readers;
 
-import static org.apache.tika.parser.pdf.PDFParserConfig.OCR_STRATEGY.NO_OCR;
-
-import java.io.InputStream;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -19,15 +15,28 @@ import org.springframework.core.io.Resource;
 import pl.ochnios.samurai.services.chunking.converters.Html2MdConverter;
 import pl.ochnios.samurai.services.chunking.exception.ChunkingException;
 import pl.ochnios.samurai.services.chunking.readers.markdown.MarkdownReader;
+import pl.ochnios.samurai.services.chunking.readers.markdown.MarkdownReaderConfig;
+
+import java.io.InputStream;
+import java.util.List;
+
+import static org.apache.tika.parser.pdf.PDFParserConfig.OCR_STRATEGY.NO_OCR;
 
 @Slf4j
 public class SemanticReader implements DocumentReader {
-    private final Resource resource;
+
     private final Html2MdConverter html2MdConverter;
+    private final MarkdownReaderConfig markdownReaderConfig;
+    private final Resource resource;
+
+    public SemanticReader(Resource resource, MarkdownReaderConfig markdownReaderConfig) {
+        this.html2MdConverter = new Html2MdConverter();
+        this.markdownReaderConfig = markdownReaderConfig;
+        this.resource = resource;
+    }
 
     public SemanticReader(Resource resource) {
-        this.resource = resource;
-        this.html2MdConverter = new Html2MdConverter();
+        this(resource, MarkdownReaderConfig.defaultConfig());
     }
 
     @Override
@@ -51,7 +60,7 @@ public class SemanticReader implements DocumentReader {
             log.debug("Markdown extracted from '{}': ===\n{}\n===", filename, mdContent);
 
             var mdResource = new ByteArrayResource(mdContent.getBytes(), filename);
-            var mdReader = new MarkdownReader(mdResource);
+            var mdReader = new MarkdownReader(mdResource, markdownReaderConfig);
             var chunks = mdReader.get();
             log.debug("Chunks extracted from '{}': ===\n{}\n===", filename, chunks);
 

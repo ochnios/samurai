@@ -18,7 +18,6 @@ public class Html2MdConverter {
                 .set(TablesExtension.COLUMN_SPANS, false)
                 .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
                 .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
-                .set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, true)
                 .set(Parser.EXTENSIONS, List.of(TablesExtension.create())));
     }
 

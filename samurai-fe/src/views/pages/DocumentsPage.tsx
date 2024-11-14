@@ -71,13 +71,34 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     setLoading(true);
+    refreshDocuments();
+  }, [pageRequest]);
+
+  useEffect(() => {
+    if (
+      !page.items.find(
+        (d) =>
+          d.status === DocumentStatus.UPLOADED ||
+          d.status === DocumentStatus.IN_PROGRESS,
+      )
+    )
+      return;
+
+    const interval = setInterval(() => {
+      refreshDocuments();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [page]);
+
+  function refreshDocuments() {
     fetchDocuments(pageRequest)
       .then((response) => setPage(response))
       .catch(() => {
         showErrorMessage("Failed to fetch documents");
       })
       .finally(() => setLoading(false));
-  }, [pageRequest]);
+  }
 
   function handleAddDocument(document: DocumentUpload) {
     uploadDocument(document)
@@ -143,7 +164,7 @@ export default function DocumentsPage() {
         header: "Filename",
         Cell: ({ cell }) => (
           <Anchor
-            href={`${apiUrl}/documents/${page.items[cell.row.index].id}/download`}
+            href={`${apiUrl}/documents/${page.items[cell.row.index].id}/download?inline=true`}
             target="_blank"
             td="underline"
             c="inherit"

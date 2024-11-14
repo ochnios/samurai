@@ -1,6 +1,7 @@
 package pl.ochnios.samurai.model.dtos.document.chunk;
 
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
+import static pl.ochnios.samurai.model.entities.document.chunk.Chunk.MAX_CHUNK_LENGTH;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -36,7 +37,7 @@ public class ChunkDto implements PatchDto {
     @Schema(description = "${docs.dto.document.chunk.content}")
     @NotBlank(message = "must not be blank or null")
     @Size(min = 20, message = "must have at least 20 characters")
-    @Size(max = 8192, message = "must have at most 8192 characters")
+    @Size(max = MAX_CHUNK_LENGTH, message = "must have at most " + MAX_CHUNK_LENGTH + " characters")
     private String content;
 
     @NotPatchable

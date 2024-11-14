@@ -36,13 +36,11 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
     implementation 'org.springframework.ai:spring-ai-anthropic-spring-boot-starter'
     implementation 'org.springframework.ai:spring-ai-qdrant-store-spring-boot-starter'
-    implementation 'org.springframework.ai:spring-ai-markdown-document-reader'
-    implementation 'org.springframework.ai:spring-ai-tika-document-reader'
 
     implementation "org.apache.tika:tika-core:3.0.0"
-    implementation "org.apache.tika:tika-parser-pdf-module:3.0.0"
-    implementation "org.apache.tika:tika-parser-microsoft-module:3.0.0"
+    implementation "org.apache.tika:tika-parsers-standard-package:3.0.0"
     implementation 'com.vladsch.flexmark:flexmark-html2md-converter:0.64.8'
+    implementation 'org.commonmark:commonmark-ext-gfm-tables:0.24.0'
 
     implementation 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'

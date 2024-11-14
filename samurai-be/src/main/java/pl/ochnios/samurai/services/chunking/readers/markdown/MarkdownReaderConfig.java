@@ -19,11 +19,10 @@ package pl.ochnios.samurai.services.chunking.readers.markdown;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.reader.markdown.MarkdownDocumentReader;
 import org.springframework.util.Assert;
 
 /**
- * Common configuration for the {@link MarkdownDocumentReader}.
+ * Common configuration for the {@link MarkdownReader}.
  *
  * @author Piotr Olaszewski, Szymon Ochnio
  */
@@ -35,6 +34,8 @@ public class MarkdownReaderConfig {
 
     public final boolean includeBlockquote;
 
+    public final boolean includeTable;
+
     public final Map<String, Object> additionalMetadata;
 
     public final int maxChunkLength;
@@ -45,6 +46,7 @@ public class MarkdownReaderConfig {
         this.horizontalRuleCreateDocument = builder.horizontalRuleCreateDocument;
         this.includeCodeBlock = builder.includeCodeBlock;
         this.includeBlockquote = builder.includeBlockquote;
+        this.includeTable = builder.includeTable;
         this.additionalMetadata = builder.additionalMetadata;
         this.maxChunkLength = builder.maxChunkLength;
         this.minChunkLength = builder.minChunkLength;
@@ -68,6 +70,8 @@ public class MarkdownReaderConfig {
         private boolean includeCodeBlock = false;
 
         private boolean includeBlockquote = false;
+
+        private boolean includeTable = false;
 
         private Map<String, Object> additionalMetadata = new HashMap<>();
 
@@ -111,6 +115,18 @@ public class MarkdownReaderConfig {
          */
         public Builder withIncludeBlockquote(boolean includeBlockquote) {
             this.includeBlockquote = includeBlockquote;
+            return this;
+        }
+
+        /**
+         * Whatever to include blockquotes in {@link Document}s. The default is
+         * {@code false}, which means all blockquotes are in separate documents.
+         * @param includeTable flag to include tables into paragraph document or
+         * create new with table only
+         * @return this builder
+         */
+        public Builder withIncludeTable(boolean includeTable) {
+            this.includeTable = includeTable;
             return this;
         }
 

@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static pl.ochnios.samurai.TestUtils.asJsonString;
 import static pl.ochnios.samurai.TestUtils.asParamsMap;
 import static pl.ochnios.samurai.TestUtils.generateTooLongString;
+import static pl.ochnios.samurai.model.entities.document.chunk.Chunk.MAX_CHUNK_LENGTH;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -143,8 +144,8 @@ public class ChunkControllerTests {
 
         @Test
         public void add_content_too_long_400() throws Exception {
-            chunkDto.setContent(generateTooLongString(8193));
-            test_add_validation(chunkDto, "must have at most 8192 characters");
+            chunkDto.setContent(generateTooLongString(MAX_CHUNK_LENGTH + 1));
+            test_add_validation(chunkDto, "must have at most " + MAX_CHUNK_LENGTH + " characters");
         }
 
         @Test
@@ -217,8 +218,8 @@ public class ChunkControllerTests {
 
         @Test
         public void patch_chunk_content_too_long_400() throws Exception {
-            var patch = new JsonPatchDto("replace", "/content", generateTooLongString(8193));
-            test_patch_validation(patch, "must have at most 8192 characters");
+            var patch = new JsonPatchDto("replace", "/content", generateTooLongString(MAX_CHUNK_LENGTH + 1));
+            test_patch_validation(patch, "must have at most " + MAX_CHUNK_LENGTH + " characters");
         }
 
         @Test

@@ -1,5 +1,30 @@
 package pl.ochnios.samurai.integration;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.samurai.TestUtils.asJsonString;
+import static pl.ochnios.samurai.TestUtils.asParamsMap;
+import static pl.ochnios.samurai.TestUtils.generateTooLongString;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.FAILED;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.IN_PROGRESS;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,32 +52,6 @@ import pl.ochnios.samurai.model.seeders.DocumentSeeder;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
 import pl.ochnios.samurai.repositories.impl.DocumentJpaRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.samurai.TestUtils.asJsonString;
-import static pl.ochnios.samurai.TestUtils.asParamsMap;
-import static pl.ochnios.samurai.TestUtils.generateTooLongString;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.FAILED;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.IN_PROGRESS;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -203,7 +202,18 @@ public class DocumentControllerTests {
                     .andExpect(header().string(
                                     HttpHeaders.CONTENT_DISPOSITION,
                                     "form-data; name=\"attachment\"; filename*=UTF-8''" + samplePDF.getName()))
-                    .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                    .andExpect(content().contentType(MediaType.parseMediaType(samplePDF.getMimeType())))
+                    .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, Long.toString(samplePDF.getSize())));
+        }
+
+        @Test
+        public void preview_by_id_200() throws Exception {
+            var requestBuilder =
+                    MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + samplePDF.getId() + "/download?inline=true");
+            mockMvc.perform(requestBuilder)
+                    .andExpect(header().string(
+                                    HttpHeaders.CONTENT_DISPOSITION, "inline; filename*=UTF-8''" + samplePDF.getName()))
+                    .andExpect(content().contentType(MediaType.parseMediaType(samplePDF.getMimeType())))
                     .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, Long.toString(samplePDF.getSize())));
         }
     }
@@ -563,8 +573,7 @@ public class DocumentControllerTests {
             samplePDF.setStatus(ACTIVE);
             documentJpaRepository.save(samplePDF);
 
-            var searchCriteria =
-                    DocumentCriteria.builder().status(ACTIVE).build();
+            var searchCriteria = DocumentCriteria.builder().status(ACTIVE).build();
             var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())

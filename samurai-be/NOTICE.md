@@ -2,7 +2,8 @@ This product includes software developed by the Spring AI project under the Apac
 
 Modifications have been made to the original code. Significant modifications include:
 - Enhanced functionality of [MarkdownDocumentReader](src/main/java/pl/ochnios/samurai/services/chunking/readers/markdown/MarkdownReader.java) 
-to meet the application requirements
+to meet the application requirements. The goal is to have output in markdown but split in a semantic way - on 
+  headers, code blocks, blockquotes, tables etc.
 - Updated [MarkdownDocumentReaderConfig](src/main/java/pl/ochnios/samurai/services/chunking/readers/markdown/MarkdownReaderConfig.java)
 
 The original code was obtained from the Spring AI repository at https://github.com/spring-projects/spring-ai.

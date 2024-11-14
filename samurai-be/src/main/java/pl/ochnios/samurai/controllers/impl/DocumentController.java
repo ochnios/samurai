@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.ochnios.samurai.commons.AppConstants;
 import pl.ochnios.samurai.controllers.DocumentApi;
@@ -66,10 +67,11 @@ public class DocumentController implements DocumentApi {
         return ResponseEntity.ok(document);
     }
 
-    @GetMapping(value = "/{documentId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> downloadDocument(@PathVariable UUID documentId) {
+    @GetMapping(value = "/{documentId}/download")
+    public ResponseEntity<byte[]> downloadDocument(
+            @PathVariable UUID documentId, @RequestParam(required = false) Boolean inline) {
         var documentFile = documentService.getFile(documentId);
-        var headers = createFileDownloadHeaders(documentFile);
+        var headers = createFileDownloadHeaders(documentFile, inline);
         return new ResponseEntity<>(documentFile.getContent(), headers, HttpStatus.OK);
     }
 
@@ -89,12 +91,18 @@ public class DocumentController implements DocumentApi {
         return ResponseEntity.noContent().build();
     }
 
-    private HttpHeaders createFileDownloadHeaders(FileDownloadDto file) {
+    private HttpHeaders createFileDownloadHeaders(FileDownloadDto file, Boolean inline) {
+        return inline != null && inline ?
+                createFileDownloadHeaders(file, "inline; filename*=") :
+            createFileDownloadHeaders(file, "form-data; name=\"attachment\"; filename*=");
+    }
+
+    private HttpHeaders createFileDownloadHeaders(FileDownloadDto file, String headerValue) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentType(MediaType.parseMediaType(file.getMimeType()));
         String encodedFilename = "UTF-8''"
                 + URLEncoder.encode(file.getName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20");
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "form-data; name=\"attachment\"; filename*=" + encodedFilename);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, headerValue + encodedFilename);
         return headers;
     }
 }

@@ -12,9 +12,12 @@ public class MarkdownReaderTests {
             .withHorizontalRuleCreateDocument(true)
             .withIncludeCodeBlock(true)
             .withIncludeBlockquote(true)
+            .withIncludeTable(true)
             .withMaxChunkLength(4000)
-            .withMinChunkLength(5)
+            .withMinChunkLength(350)
             .build();
+
+    private final MarkdownReaderConfig defaultConfig = MarkdownReaderConfig.defaultConfig();
 
     @Test
     void shouldParseSimpleMarkdown() {
@@ -34,7 +37,7 @@ public class MarkdownReaderTests {
     void shouldSplitOnMultipleHeaders() {
         // given
         String markdown = "# Header 1\n\nContent 1\n\n## Subheader 1\n\nContent 2\n\n# Header 2\n\nContent 3";
-        var reader = new MarkdownReader(markdown, customConfig);
+        var reader = new MarkdownReader(markdown, defaultConfig);
 
         // when
         var documents = reader.get();
@@ -50,7 +53,7 @@ public class MarkdownReaderTests {
     void shouldNotSplitOnMultipleHeaders() {
         // given
         String markdown = "# Header 1\n\nContent 1\n\n## Subheader 1\n\nContent 2\n\n# Header 2\n\nContent 3";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, customConfig);
     }
 
     @Test
@@ -65,7 +68,7 @@ Content 1
 Content 2
 ## Sub Header 2
 Content 3""";
-        var reader = new MarkdownReader(markdown, customConfig);
+        var reader = new MarkdownReader(markdown, defaultConfig);
 
         // when
         var documents = reader.get();
@@ -81,7 +84,7 @@ Content 3""";
     @Test
     void shouldHandleThematicBreak() {
         String markdown = "Here is sample text.\n\n---\n\nHere is another text after thematic break.";
-        var reader = new MarkdownReader(markdown);
+        var reader = new MarkdownReader(markdown, customConfig);
 
         // when
         var documents = reader.get();
@@ -109,31 +112,31 @@ Content 3""";
     @Test
     void shouldHandleBulletList() {
         String markdown = "Here is sample list:\n\n- Point 1\n- Point 2\n- Point 3";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, defaultConfig);
     }
 
     @Test
     void shouldHandleOrderedList() {
         String markdown = "Here is sample list:\n\n1. Point 1\n2. Point 2\n3. Point 3";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, defaultConfig);
     }
 
     @Test
     void shouldHandleStrongEmphasis() {
         String markdown = "Here is sample **strong emphasis**";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, defaultConfig);
     }
 
     @Test
     void shouldHandleEmphasis() {
         String markdown = "Here is sample *emphasis*";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, defaultConfig);
     }
 
     @Test
     void shouldHandleCode() {
         String markdown = "Here is sample code `print('Hello world')`";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, defaultConfig);
     }
 
     @Test
@@ -149,7 +152,7 @@ public class Test {
     void method() {}
 }
 ```""";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, customConfig);
     }
 
     @Test
@@ -165,30 +168,39 @@ Here's a quote:
 > And *some* **formatting**
 
 Regular text continues""";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, customConfig);
     }
 
     @Test
     void shouldHandleLinks() {
         String markdown = "[Some link](https://example.com)";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, defaultConfig);
     }
 
     @Test
     void shouldHandleJustText() {
         String markdown = "Here is some test content";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, defaultConfig);
     }
 
     @Test
     void shouldHandleHtmlBLocks() {
         String markdown = "<div>\n<strong>Here is some HTML content<strong>\n</div>";
-        testEqualInputOutput(markdown);
+        testEqualInputOutput(markdown, defaultConfig);
     }
 
-    private void testEqualInputOutput(String markdown) {
+    @Test
+    void shouldHandleTables() {
+        String markdown = """
+|Header 1|Header 2|
+|---|---|
+|Value 1|Value 2|""";
+        testEqualInputOutput(markdown, defaultConfig);
+    }
+
+    private void testEqualInputOutput(String markdown, MarkdownReaderConfig config) {
         // given
-        var reader = new MarkdownReader(markdown);
+        var reader = new MarkdownReader(markdown, config);
 
         // when
         var documents = reader.get();

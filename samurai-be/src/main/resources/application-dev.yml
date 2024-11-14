@@ -70,6 +70,8 @@ custom:
       seconds: 30
     fixedDelay:
       seconds: 1
+    maxChunkLength: 8000
+    minChunkLength: 300
   jwt:
     passphrase: ${JWT_PASSPHRASE}
     expiration: 30m

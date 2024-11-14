@@ -80,6 +80,8 @@ custom:
       seconds: 30
     fixedDelay:
       seconds: 10
+    maxChunkLength: 8000
+    minChunkLength: 300
   allowed-origins: http://localhost:5173,localhost
   jwt:
     passphrase: ${JWT_PASSPHRASE}

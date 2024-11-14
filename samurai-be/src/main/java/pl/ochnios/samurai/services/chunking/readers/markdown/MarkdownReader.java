@@ -23,9 +23,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.commonmark.Extension;
+import org.commonmark.ext.gfm.tables.TableBlock;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.BlockQuote;
 import org.commonmark.node.BulletList;
+import org.commonmark.node.CustomBlock;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.HardLineBreak;
 import org.commonmark.node.Heading;
@@ -36,6 +40,7 @@ import org.commonmark.node.Paragraph;
 import org.commonmark.node.SoftLineBreak;
 import org.commonmark.node.ThematicBreak;
 import org.commonmark.parser.Parser;
+import org.commonmark.renderer.Renderer;
 import org.commonmark.renderer.markdown.MarkdownRenderer;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.DocumentReader;
@@ -64,16 +69,28 @@ public class MarkdownReader implements DocumentReader {
     private final MarkdownReaderConfig config;
 
     /**
+     * Markdown parser and renderer extensions.
+     */
+    private final List<Extension> extensions;
+
+    /**
      * Markdown parser.
      */
     private final Parser parser;
 
+    /**
+     * Markdown renderer.
+     */
+    private final Renderer renderer;
+
     public MarkdownReader(String markdownContent) {
-        this(new ByteArrayResource(markdownContent.getBytes(StandardCharsets.UTF_8)), defaultConfig());
+        this(
+                new ByteArrayResource(markdownContent.getBytes(StandardCharsets.UTF_8)),
+                MarkdownReaderConfig.defaultConfig());
     }
 
     public MarkdownReader(Resource markdownResource) {
-        this(markdownResource, defaultConfig());
+        this(markdownResource, MarkdownReaderConfig.defaultConfig());
     }
 
     public MarkdownReader(String markdownContent, MarkdownReaderConfig config) {
@@ -83,17 +100,9 @@ public class MarkdownReader implements DocumentReader {
     public MarkdownReader(Resource markdownResource, MarkdownReaderConfig config) {
         this.markdownResource = markdownResource;
         this.config = config;
-        this.parser = Parser.builder().build();
-    }
-
-    public static MarkdownReaderConfig defaultConfig() {
-        return MarkdownReaderConfig.builder()
-                .withHorizontalRuleCreateDocument(true)
-                .withIncludeCodeBlock(true)
-                .withIncludeBlockquote(true)
-                .withMaxChunkLength(4000)
-                .withMinChunkLength(350)
-                .build();
+        this.extensions = List.of(TablesExtension.create());
+        this.parser = Parser.builder().extensions(extensions).build();
+        this.renderer = MarkdownRenderer.builder().extensions(extensions).build();
     }
 
     /**
@@ -105,7 +114,7 @@ public class MarkdownReader implements DocumentReader {
         try (var input = markdownResource.getInputStream()) {
             var node = parser.parseReader(new InputStreamReader(input));
 
-            var documentVisitor = new DocumentVisitor(config);
+            var documentVisitor = new DocumentVisitor(config, renderer);
             node.accept(documentVisitor);
 
             return documentVisitor.getDocuments();
@@ -123,7 +132,7 @@ public class MarkdownReader implements DocumentReader {
     static class DocumentVisitor extends AbstractVisitor {
 
         private final MarkdownReaderConfig config;
-        private final MarkdownRenderer renderer = new MarkdownRenderer.Builder().build();
+        private final Renderer renderer;
         private final List<Document> documents = new ArrayList<>();
         private final Map<Integer, String> headerHierarchy = new HashMap<>();
 
@@ -131,19 +140,16 @@ public class MarkdownReader implements DocumentReader {
         private boolean hasContent = false;
         private int currentHeaderLevel = 0;
 
-        DocumentVisitor(MarkdownReaderConfig config) {
+        DocumentVisitor(MarkdownReaderConfig config, Renderer renderer) {
             this.config = config;
+            this.renderer = renderer;
         }
 
         @Override
         public void visit(BlockQuote blockQuote) {
-            if (!config.includeBlockquote) {
-                buildAndFlush();
-            }
-
-            insertHardBreak();
+            hardBreakOrFlush(config.includeBlockquote);
             addContent(blockQuote);
-            insertHardBreak();
+            hardBreakOrFlush(config.includeBlockquote);
         }
 
         @Override
@@ -154,14 +160,23 @@ public class MarkdownReader implements DocumentReader {
         }
 
         @Override
-        public void visit(FencedCodeBlock fencedCodeBlock) {
-            if (!config.includeCodeBlock) {
-                buildAndFlush();
+        public void visit(CustomBlock customBlock) {
+            if (customBlock instanceof TableBlock tableBlock) {
+                hardBreakOrFlush(config.includeTable);
+                addContent(tableBlock);
+                hardBreakOrFlush(config.includeTable);
+            } else {
+                insertHardBreak();
+                addContent(customBlock);
+                insertHardBreak();
             }
+        }
 
-            insertHardBreak();
+        @Override
+        public void visit(FencedCodeBlock fencedCodeBlock) {
+            hardBreakOrFlush(config.includeCodeBlock);
             addContent(fencedCodeBlock);
-            insertHardBreak();
+            hardBreakOrFlush(config.includeCodeBlock);
         }
 
         @Override
@@ -261,6 +276,14 @@ public class MarkdownReader implements DocumentReader {
                 if (headerText != null) {
                     builder.append(headerText).append("\n\n");
                 }
+            }
+        }
+
+        private void hardBreakOrFlush(boolean shouldHardBreak) {
+            if (shouldHardBreak) {
+                insertHardBreak();
+            } else {
+                buildAndFlush();
             }
         }
 
