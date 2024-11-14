@@ -37,6 +37,8 @@ import pl.ochnios.samurai.model.mappers.ChunkMapper;
 @Table(name = "chunks")
 public class Chunk implements PatchableEntity {
 
+    public static final int MAX_CHUNK_LENGTH = 8192;
+
     @Id
     @CustomUuidGenerator
     private UUID id;
@@ -49,7 +51,7 @@ public class Chunk implements PatchableEntity {
     private int position;
 
     @Nationalized
-    @Column(length = 8192)
+    @Column(length = MAX_CHUNK_LENGTH)
     private String content;
 
     @Setter(AccessLevel.NONE)

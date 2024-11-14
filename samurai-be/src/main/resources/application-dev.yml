@@ -64,6 +64,14 @@ logging:
               BasicBinder: TRACE
 
 custom:
+  chunking:
+    enabled: true;
+    initialDelay:
+      seconds: 30
+    fixedDelay:
+      seconds: 1
+    maxChunkLength: 8000
+    minChunkLength: 300
   jwt:
     passphrase: ${JWT_PASSPHRASE}
     expiration: 30m
@@ -78,3 +86,6 @@ custom:
     model: gpt-4o
   task:
     model: gpt-4o-mini
+  search:
+    topK: 5
+    similarityThreshold: 0.5

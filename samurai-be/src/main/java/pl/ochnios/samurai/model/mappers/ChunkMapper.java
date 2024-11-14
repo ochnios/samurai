@@ -2,10 +2,13 @@ package pl.ochnios.samurai.model.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.ai.document.Document;
 import pl.ochnios.samurai.model.dtos.document.chunk.ChunkDto;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
 import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
+
+import java.util.UUID;
 
 @Mapper
 public interface ChunkMapper {
@@ -27,7 +30,26 @@ public interface ChunkMapper {
                 .id(chunk.getId())
                 .content(chunk.getContent())
                 .documentId(chunk.getDocument().getId())
-                .documentName(chunk.getDocument().getTitle())
+                .documentTitle(chunk.getDocument().getTitle())
+                .build();
+    }
+
+    default EmbeddedChunk mapToEmbeddedChunk(Document springDocument, DocumentEntity documentEntity) {
+        return EmbeddedChunk.builder()
+                .id(springDocument.getId())
+                .content(springDocument.getContent())
+                .documentId(documentEntity.getId())
+                .documentTitle(documentEntity.getTitle())
+                .build();
+    }
+
+    default ChunkDto mapToChunkDto(EmbeddedChunk embeddedChunk, int position) {
+        return ChunkDto.builder()
+                .id(UUID.fromString(embeddedChunk.getId()))
+                .content(embeddedChunk.getContent())
+                .length(embeddedChunk.getContent().length())
+                .documentId(UUID.fromString(embeddedChunk.getDocumentId()))
+                .position(position)
                 .build();
     }
 }

@@ -65,7 +65,7 @@ export default function DocumentUploadForm(props: DocumentUploadFormProps) {
             label="Upload Document"
             description="Only PDF documents are supported, up to 50MB"
             placeholder="Choose file"
-            accept="application/pdf"
+            accept="*/*"
             value={form.values.file}
             onChange={handleFileChange}
             error={form.errors.file}

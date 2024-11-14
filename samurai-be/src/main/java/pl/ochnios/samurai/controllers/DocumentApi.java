@@ -5,6 +5,7 @@ import static pl.ochnios.samurai.commons.AppConstants.HTTP_400;
 import static pl.ochnios.samurai.commons.AppConstants.HTTP_404;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,7 +45,9 @@ public interface DocumentApi {
     @Operation(summary = "${docs.ctrl.document.download}")
     @ApiResponse(responseCode = HTTP_200)
     @ApiResponse(responseCode = HTTP_404)
-    ResponseEntity<byte[]> downloadDocument(@PathVariable UUID documentId);
+    ResponseEntity<byte[]> downloadDocument(
+            @PathVariable UUID documentId,
+            @Parameter(description = "${docs.ctrl.document.download.inline}") Boolean inline);
 
     @Operation(summary = "${docs.ctrl.document.patch}")
     @ApiResponse(responseCode = HTTP_200)

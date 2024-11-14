@@ -4,7 +4,7 @@ import static io.qdrant.client.PointIdFactory.id;
 import static io.qdrant.client.VectorsFactory.vectors;
 import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_CONTENT_KEY;
 import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_ID_KEY;
-import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_NAME_KEY;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_TITLE_KEY;
 
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.ValueFactory;
@@ -69,9 +69,8 @@ public class EmbeddingService {
         add(List.of(chunk));
     }
 
-    public void delete(List<EmbeddedChunk> chunks) {
+    public void delete(List<String> ids) {
         try {
-            var ids = chunks.stream().map(EmbeddedChunk::getId).toList();
             var completed = vectorStore.delete(ids);
             if (completed.isEmpty() || !completed.get()) {
                 log.warn("Vector store delete returned false, chunk ids={}", ids);
@@ -82,12 +81,12 @@ public class EmbeddingService {
         }
     }
 
-    public void delete(EmbeddedChunk chunk) {
-        delete(List.of(chunk));
+    public void delete(String id) {
+        delete(List.of(id));
     }
 
     public void update(List<EmbeddedChunk> chunks) {
-        delete(chunks);
+        delete(chunks.stream().map(EmbeddedChunk::getId).toList());
         add(chunks);
     }
 
@@ -119,6 +118,6 @@ public class EmbeddingService {
         var docId = ValueFactory.value(chunk.getId());
         var docName = ValueFactory.value(chunk.getDocumentName());
         var docContent = ValueFactory.value(chunk.getContent());
-        return Map.of(DOCUMENT_ID_KEY, docId, DOCUMENT_NAME_KEY, docName, DOCUMENT_CONTENT_KEY, docContent);
+        return Map.of(DOCUMENT_ID_KEY, docId, DOCUMENT_TITLE_KEY, docName, DOCUMENT_CONTENT_KEY, docContent);
     }
 }

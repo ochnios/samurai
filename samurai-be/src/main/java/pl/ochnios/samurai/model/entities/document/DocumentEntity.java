@@ -31,6 +31,8 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.mapstruct.factory.Mappers;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import pl.ochnios.samurai.model.dtos.PatchDto;
 import pl.ochnios.samurai.model.dtos.document.DocumentDto;
 import pl.ochnios.samurai.model.entities.PatchableEntity;
@@ -118,12 +120,21 @@ public class DocumentEntity extends FileEntity implements PatchableEntity {
             throw new InvalidDocumentStatusException("Document status must not be null");
         }
 
-        if (!requested.equals(ACTIVE) && !requested.equals(ARCHIVED)) {
+        if (!requested.equals(ACTIVE) && !requested.equals(ARCHIVED) && !requested.equals(UPLOADED)) {
             throw new InvalidDocumentStatusException("Status '" + requested.name() + "' cannot be assigned manually");
         }
 
         if (!current.equals(ACTIVE) && !current.equals(ARCHIVED)) {
             throw new InvalidDocumentStatusException("Status '" + current.name() + "' cannot be changed manually");
         }
+    }
+
+    public Resource asResource() {
+        return new ByteArrayResource(getContent()) {
+            @Override
+            public String getFilename() {
+                return getName();
+            }
+        };
     }
 }

@@ -1,7 +1,5 @@
 package pl.ochnios.samurai.repositories.impl;
 
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +8,10 @@ import org.springframework.stereotype.Repository;
 import pl.ochnios.samurai.commons.exceptions.ResourceNotFoundException;
 import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
 import pl.ochnios.samurai.repositories.ChunkRepository;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,13 +43,19 @@ public class ChunkRepositoryImpl implements ChunkRepository {
     }
 
     @Override
-    public Iterable<Chunk> saveAll(List<Chunk> chunks) {
-        return chunkCrudRepository.saveAll(chunks);
+    public List<Chunk> saveAll(List<Chunk> chunks) {
+        return StreamSupport.stream(chunkCrudRepository.saveAll(chunks).spliterator(), false)
+                .toList();
     }
 
     @Override
     public void delete(Chunk chunk) {
         chunkCrudRepository.delete(chunk);
+    }
+
+    @Override
+    public void deleteAll(List<Chunk> chunks) {
+        chunkCrudRepository.deleteAll(chunks);
     }
 
     private Specification<Chunk> addDocumentIdToSpecification(UUID documentId, Specification<Chunk> specification) {

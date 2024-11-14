@@ -1,5 +1,7 @@
 package pl.ochnios.samurai.model.seeders;
 
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -37,6 +39,8 @@ public class ChunkSeeder implements DataSeeder {
             var document = documentRepository.findById(id);
             var chunks = createChunks(document, "files/sample-chunks.txt");
             createEmbeddings(chunks, "files/sample-embeddings.txt");
+            document.setStatus(ACTIVE);
+            documentRepository.save(document);
         }
     }
 

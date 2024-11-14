@@ -1,5 +1,6 @@
 export enum DocumentStatus {
   UPLOADED = "UPLOADED",
+  IN_PROGRESS = "IN_PROGRESS",
   ACTIVE = "ACTIVE",
   ARCHIVED = "ARCHIVED",
   FAILED = "FAILED",

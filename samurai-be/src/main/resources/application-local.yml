@@ -19,7 +19,7 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
     open-in-view: true
   h2:
     console:
@@ -55,6 +55,9 @@ spring:
 
 logging:
   level:
+    pl:
+      ochnios:
+        samurai: DEBUG
     org:
       springframework:
         web: DEBUG
@@ -71,6 +74,14 @@ custom:
   loader:
     enabled: true
     bulk: false
+  chunking:
+    enabled: true;
+    initialDelay:
+      seconds: 30
+    fixedDelay:
+      seconds: 10
+    maxChunkLength: 8000
+    minChunkLength: 300
   allowed-origins: http://localhost:5173,localhost
   jwt:
     passphrase: ${JWT_PASSPHRASE}

@@ -1,27 +1,5 @@
 package pl.ochnios.samurai.integration;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.samurai.TestUtils.asJsonString;
-import static pl.ochnios.samurai.TestUtils.asParamsMap;
-import static pl.ochnios.samurai.TestUtils.generateTooLongString;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +27,32 @@ import pl.ochnios.samurai.model.seeders.DocumentSeeder;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
 import pl.ochnios.samurai.repositories.impl.DocumentCrudRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.samurai.TestUtils.asJsonString;
+import static pl.ochnios.samurai.TestUtils.asParamsMap;
+import static pl.ochnios.samurai.TestUtils.generateTooLongString;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.FAILED;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.IN_PROGRESS;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -199,7 +203,18 @@ public class DocumentControllerTests {
                     .andExpect(header().string(
                                     HttpHeaders.CONTENT_DISPOSITION,
                                     "form-data; name=\"attachment\"; filename*=UTF-8''" + samplePDF.getName()))
-                    .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                    .andExpect(content().contentType(MediaType.parseMediaType(samplePDF.getMimeType())))
+                    .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, Long.toString(samplePDF.getSize())));
+        }
+
+        @Test
+        public void preview_by_id_200() throws Exception {
+            var requestBuilder =
+                    MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + samplePDF.getId() + "/download?inline=true");
+            mockMvc.perform(requestBuilder)
+                    .andExpect(header().string(
+                                    HttpHeaders.CONTENT_DISPOSITION, "inline; filename*=UTF-8''" + samplePDF.getName()))
+                    .andExpect(content().contentType(MediaType.parseMediaType(samplePDF.getMimeType())))
                     .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, Long.toString(samplePDF.getSize())));
         }
     }
@@ -356,7 +371,7 @@ public class DocumentControllerTests {
             samplePDF.setStatus(DocumentStatus.ARCHIVED);
             documentCrudRepository.save(samplePDF);
 
-            var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
+            var patch = new JsonPatchDto("replace", "/status", ACTIVE.name());
             var requestBuilder = MockMvcRequestBuilders.patch(DOCUMENTS_URI + "/" + samplePDF.getId())
                     .content(asJsonString(Set.of(patch)))
                     .contentType(AppConstants.PATCH_MEDIA_TYPE);
@@ -370,7 +385,7 @@ public class DocumentControllerTests {
 
         @Test
         public void patch_document_status_to_archived_200() throws Exception {
-            samplePDF.setStatus(DocumentStatus.ACTIVE);
+            samplePDF.setStatus(ACTIVE);
             documentCrudRepository.save(samplePDF);
 
             var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ARCHIVED.name());
@@ -386,30 +401,38 @@ public class DocumentControllerTests {
         }
 
         @Test
-        public void patch_document_status_to_uploaded_400() throws Exception {
-            samplePDF.setStatus(DocumentStatus.ACTIVE);
-            documentCrudRepository.save(samplePDF);
-            var patch = new JsonPatchDto("replace", "/status", UPLOADED.name());
+        public void patch_document_status_to_in_progress_400() throws Exception {
+            var patch = new JsonPatchDto("replace", "/status", IN_PROGRESS.name());
             test_patch_validation(patch, "cannot be assigned manually");
         }
 
         @Test
         public void patch_document_status_to_failed_400() throws Exception {
-            samplePDF.setStatus(DocumentStatus.ACTIVE);
-            documentCrudRepository.save(samplePDF);
             var patch = new JsonPatchDto("replace", "/status", DocumentStatus.FAILED.name());
             test_patch_validation(patch, "cannot be assigned manually");
         }
 
         @Test
         public void patch_document_status_from_uploaded_400() throws Exception {
-            var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
+            samplePDF.setStatus(UPLOADED);
+            documentCrudRepository.save(samplePDF);
+            var patch = new JsonPatchDto("replace", "/status", ACTIVE.name());
             test_patch_validation(patch, "cannot be changed manually");
         }
 
         @Test
         public void patch_document_status_from_failed_400() throws Exception {
-            var patch = new JsonPatchDto("replace", "/status", DocumentStatus.ACTIVE.name());
+            samplePDF.setStatus(FAILED);
+            documentCrudRepository.save(samplePDF);
+            var patch = new JsonPatchDto("replace", "/status", ACTIVE.name());
+            test_patch_validation(patch, "cannot be changed manually");
+        }
+
+        @Test
+        public void patch_document_status_from_in_progress_400() throws Exception {
+            samplePDF.setStatus(IN_PROGRESS);
+            documentCrudRepository.save(samplePDF);
+            var patch = new JsonPatchDto("replace", "/status", ACTIVE.name());
             test_patch_validation(patch, "cannot be changed manually");
         }
 
@@ -548,11 +571,10 @@ public class DocumentControllerTests {
 
         @Test
         public void search_by_status() throws Exception {
-            samplePDF.setStatus(DocumentStatus.ACTIVE);
+            samplePDF.setStatus(ACTIVE);
             documentCrudRepository.save(samplePDF);
 
-            var searchCriteria =
-                    DocumentCriteria.builder().status(DocumentStatus.ACTIVE).build();
+            var searchCriteria = DocumentCriteria.builder().status(ACTIVE).build();
             var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -561,7 +583,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.totalPages", is(1)))
                     .andExpect(jsonPath("$.items", hasSize(1)))
                     .andExpect(jsonPath("$.items[0].id", is(samplePDF.getId().toString())))
-                    .andExpect(jsonPath("$.items[0].status", is(DocumentStatus.ACTIVE.name())));
+                    .andExpect(jsonPath("$.items[0].status", is(ACTIVE.name())));
         }
 
         @Test

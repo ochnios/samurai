@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 public class ChatOptionsDto {
 
     private String model;
-    private Float frequencyPenalty;
+    private Double frequencyPenalty;
     private Integer maxTokens;
-    private Float presencePenalty;
-    private Float temperature;
+    private Double presencePenalty;
+    private Double temperature;
     private Integer topK;
-    private Float topP;
+    private Double topP;
 }

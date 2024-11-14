@@ -1,24 +1,5 @@
 package pl.ochnios.samurai.integration;
 
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.samurai.TestUtils.asJsonString;
-import static pl.ochnios.samurai.TestUtils.asParamsMap;
-import static pl.ochnios.samurai.TestUtils.generateTooLongString;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -44,6 +26,28 @@ import pl.ochnios.samurai.model.seeders.UserSeeder;
 import pl.ochnios.samurai.repositories.impl.ChunkCrudRepository;
 import pl.ochnios.samurai.repositories.impl.DocumentCrudRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
+import pl.ochnios.samurai.services.EmbeddingService;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.samurai.TestUtils.asJsonString;
+import static pl.ochnios.samurai.TestUtils.asParamsMap;
+import static pl.ochnios.samurai.TestUtils.generateTooLongString;
+import static pl.ochnios.samurai.model.entities.document.chunk.Chunk.MAX_CHUNK_LENGTH;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -52,6 +56,9 @@ public class ChunkControllerTests {
 
     private static final UUID DOCUMENT_ID = UUID.nameUUIDFromBytes("Sample PDF".getBytes());
     private static final String CHUNKS_URI = "/documents/" + DOCUMENT_ID + "/chunks";
+
+    @MockBean
+    private EmbeddingService embeddingService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -78,7 +85,6 @@ public class ChunkControllerTests {
 
     @BeforeAll
     public void setup() {
-        documentCrudRepository.deleteAll();
         userCrudRepository.deleteAll();
         userSeeder.seed();
     }
@@ -129,8 +135,6 @@ public class ChunkControllerTests {
                     .andExpect(jsonPath("$.content", is(chunkDto.getContent())))
                     .andExpect(jsonPath("$.length", is(chunkDto.getContent().length())))
                     .andExpect(jsonPath("$.updatedAt", is(not(emptyOrNullString()))));
-
-            // TODO check whether chunk was saved in vector store
         }
 
         @Test
@@ -141,8 +145,8 @@ public class ChunkControllerTests {
 
         @Test
         public void add_content_too_long_400() throws Exception {
-            chunkDto.setContent(generateTooLongString(8193));
-            test_add_validation(chunkDto, "must have at most 8192 characters");
+            chunkDto.setContent(generateTooLongString(MAX_CHUNK_LENGTH + 1));
+            test_add_validation(chunkDto, "must have at most " + MAX_CHUNK_LENGTH + " characters");
         }
 
         @Test
@@ -191,8 +195,6 @@ public class ChunkControllerTests {
                     .andExpect(jsonPath("$.id", is(chunks.getFirst().getId().toString())))
                     .andExpect(jsonPath("$.content", is(newContent)))
                     .andExpect(jsonPath("$.length", is(newContent.length())));
-
-            // TODO check whether chunk was modified in vector store?
         }
 
         @Test
@@ -217,8 +219,8 @@ public class ChunkControllerTests {
 
         @Test
         public void patch_chunk_content_too_long_400() throws Exception {
-            var patch = new JsonPatchDto("replace", "/content", generateTooLongString(8193));
-            test_patch_validation(patch, "must have at most 8192 characters");
+            var patch = new JsonPatchDto("replace", "/content", generateTooLongString(MAX_CHUNK_LENGTH + 1));
+            test_patch_validation(patch, "must have at most " + MAX_CHUNK_LENGTH + " characters");
         }
 
         @Test
@@ -286,8 +288,6 @@ public class ChunkControllerTests {
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isNoContent())
                     .andExpect(content().string(""));
-
-            // TODO check whether chunk was deleted from vector store?
         }
 
         @Test

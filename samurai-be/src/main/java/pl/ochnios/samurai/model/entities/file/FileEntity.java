@@ -7,8 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLConnection;
+import java.nio.file.Files;
 import java.sql.Blob;
+import java.sql.SQLException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -40,6 +41,14 @@ public abstract class FileEntity {
     @Column(nullable = false, updatable = false)
     private Blob content;
 
+    public byte[] getContent() {
+        try {
+            return content.getBytes(1, (int) content.length());
+        } catch (SQLException ex) {
+            throw new ApplicationException("Failed to get file content", ex);
+        }
+    }
+
     public abstract static class FileEntityBuilder<C extends FileEntity, B extends FileEntityBuilder<C, B>> {
         public B multipartFile(MultipartFile multipartFile) {
             if (multipartFile != null) {
@@ -63,7 +72,8 @@ public abstract class FileEntity {
                     var bytes = inputStream.readAllBytes();
                     this.name = file.getName();
                     this.size = file.length();
-                    this.mimeType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(bytes));
+                    this.mimeType =
+                            Files.probeContentType(file.getAbsoluteFile().toPath());
                     this.content = BlobProxy.generateProxy(new ByteArrayInputStream(bytes), file.length());
                 } catch (IOException ex) {
                     throw new ApplicationException("Failed to read file", ex);

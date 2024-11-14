@@ -31,6 +31,7 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final JsonPatchService patchService;
+    private final ChunkService chunkService;
     private final PageMapper pageMapper;
     private final FileMapper fileMapper;
     private final DocumentMapper documentMapper;
@@ -39,19 +40,19 @@ public class DocumentService {
     private DataSize maxFileSize;
 
     @Transactional(readOnly = true)
-    public DocumentDto getDocument(UUID documentId) {
+    public DocumentDto get(UUID documentId) {
         var document = documentRepository.findById(documentId);
         return documentMapper.map(document);
     }
 
     @Transactional(readOnly = true)
-    public FileDownloadDto getDocumentFile(UUID documentId) {
+    public FileDownloadDto getFile(UUID documentId) {
         var document = documentRepository.findById(documentId);
         return fileMapper.mapToDownloadDto(document);
     }
 
     @Transactional(readOnly = true)
-    public PageDto<DocumentDto> getDocumentsPage(DocumentCriteria criteria, PageRequestDto pageRequestDto) {
+    public PageDto<DocumentDto> getPage(DocumentCriteria criteria, PageRequestDto pageRequestDto) {
         var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
         var specification = DocumentSpecification.create(criteria);
         var documentsPage = documentRepository.findAll(specification, pageRequest);
@@ -59,7 +60,7 @@ public class DocumentService {
     }
 
     @Transactional
-    public DocumentDto saveDocument(User user, DocumentUploadDto documentUploadDto) {
+    public DocumentDto save(User user, DocumentUploadDto documentUploadDto) {
         // TODO auto generating document summary if requested
         validateFileSize(documentUploadDto.getFile());
         var document = documentMapper.map(user, documentUploadDto);
@@ -69,7 +70,7 @@ public class DocumentService {
     }
 
     @Transactional
-    public DocumentDto patchDocument(UUID documentId, JsonPatch jsonPatch) {
+    public DocumentDto patch(UUID documentId, JsonPatch jsonPatch) {
         var document = documentRepository.findById(documentId);
         patchService.apply(document, jsonPatch);
         var savedDocument = documentRepository.save(document);
@@ -78,7 +79,7 @@ public class DocumentService {
     }
 
     @Transactional
-    public void deleteDocument(UUID documentId) {
+    public void delete(UUID documentId) {
         var document = documentRepository.findById(documentId);
         documentRepository.delete(document);
         log.info("Document {} deleted", documentId);

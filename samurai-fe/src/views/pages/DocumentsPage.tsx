@@ -1,9 +1,10 @@
-import { Button, Menu, Text } from "@mantine/core";
+import { Anchor, Button, Menu, Text } from "@mantine/core";
 import {
   IconArchive,
   IconDownload,
   IconEdit,
   IconFileStack,
+  IconReload,
   IconRestore,
   IconTrash,
 } from "@tabler/icons-react";
@@ -45,6 +46,8 @@ import { JsonPatch } from "../../model/api/patch/JsonPatch.ts";
 import { Link } from "react-router-dom";
 import { JsonPatchNodeImpl } from "../../model/api/patch/JsonPatchNodeImpl.ts";
 
+const apiUrl = config.baseUrl;
+
 export default function DocumentsPage() {
   const tableState = useTableState("documents");
   const tableFilters = useTableFilters();
@@ -68,13 +71,34 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     setLoading(true);
+    refreshDocuments();
+  }, [pageRequest]);
+
+  useEffect(() => {
+    if (
+      !page.items.find(
+        (d) =>
+          d.status === DocumentStatus.UPLOADED ||
+          d.status === DocumentStatus.IN_PROGRESS,
+      )
+    )
+      return;
+
+    const interval = setInterval(() => {
+      refreshDocuments();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [page]);
+
+  function refreshDocuments() {
     fetchDocuments(pageRequest)
       .then((response) => setPage(response))
       .catch(() => {
         showErrorMessage("Failed to fetch documents");
       })
       .finally(() => setLoading(false));
-  }, [pageRequest]);
+  }
 
   function handleAddDocument(document: DocumentUpload) {
     uploadDocument(document)
@@ -107,6 +131,13 @@ export default function DocumentsPage() {
       });
   }
 
+  function handleUpdateDocumentStatus(id: string, status: DocumentStatus) {
+    handleUpdateDocument(
+      id,
+      JsonPatch.of(JsonPatchNodeImpl.replace("/status", status)),
+    );
+  }
+
   function handleDeleteDocument(id: string) {
     deleteDocument(id)
       .then(() => {
@@ -131,6 +162,25 @@ export default function DocumentsPage() {
       {
         accessorKey: "name",
         header: "Filename",
+        Cell: ({ cell }) => (
+          <Anchor
+            href={`${apiUrl}/documents/${page.items[cell.row.index].id}/download?inline=true`}
+            target="_blank"
+            td="underline"
+            c="inherit"
+            fz="sm"
+          >
+            <HighlightedText
+              text={cell.getValue<string>()}
+              phrase={
+                tableFilters.globalFilter
+                  ? tableFilters.globalFilter
+                  : (tableFilters.columnFilters.find((e) => e.id == "name")
+                      ?.value as string)
+              }
+            />
+          </Anchor>
+        ),
       },
       {
         accessorKey: "user",
@@ -240,7 +290,6 @@ export default function DocumentsPage() {
       </Button>
     ),
     renderRowActionMenuItems: ({ row }) => {
-      const apiUrl = config.baseUrl;
       const document = page.items[row.index];
       return (
         <>
@@ -280,19 +329,46 @@ export default function DocumentsPage() {
           >
             Download
           </Menu.Item>
+          {(document?.status === DocumentStatus.ACTIVE ||
+            document?.status === DocumentStatus.ARCHIVED ||
+            document?.status === DocumentStatus.FAILED) && (
+            <Menu.Item
+              leftSection={<IconReload />}
+              onClick={() => {
+                modals.openConfirmModal({
+                  title: (
+                    <Text fz="h3" fw="bold" span>
+                      Reload document
+                    </Text>
+                  ),
+                  children: (
+                    <Text>
+                      Are you sure? The document will be processed again, all
+                      changes will be lost. It may also generate additional
+                      costs.
+                    </Text>
+                  ),
+                  labels: { confirm: "Reload", cancel: "Cancel" },
+                  onConfirm: () =>
+                    handleUpdateDocumentStatus(
+                      document.id,
+                      DocumentStatus.UPLOADED,
+                    ),
+                  size: "md",
+                });
+              }}
+            >
+              Reload
+            </Menu.Item>
+          )}
           {document?.status === DocumentStatus.ACTIVE && (
             <Menu.Item
               color="yellow"
               leftSection={<IconArchive />}
               onClick={() => {
-                handleUpdateDocument(
+                handleUpdateDocumentStatus(
                   document.id,
-                  JsonPatch.of(
-                    JsonPatchNodeImpl.replace(
-                      "/status",
-                      DocumentStatus.ARCHIVED,
-                    ),
-                  ),
+                  DocumentStatus.ARCHIVED,
                 );
               }}
             >
@@ -304,41 +380,38 @@ export default function DocumentsPage() {
               color="green"
               leftSection={<IconRestore />}
               onClick={() => {
-                handleUpdateDocument(
-                  document.id,
-                  JsonPatch.of(
-                    JsonPatchNodeImpl.replace("/status", DocumentStatus.ACTIVE),
-                  ),
-                );
+                handleUpdateDocumentStatus(document.id, DocumentStatus.ACTIVE);
               }}
             >
               Restore
             </Menu.Item>
           )}
-          <Menu.Item
-            color="red"
-            leftSection={<IconTrash />}
-            onClick={() => {
-              modals.openConfirmModal({
-                title: (
-                  <Text fz="h3" fw="bold" span>
-                    Delete document
-                  </Text>
-                ),
-                children: (
-                  <Text>
-                    Are you sure? The document will be permanently deleted, this
-                    action cannot be undone
-                  </Text>
-                ),
-                labels: { confirm: "Delete", cancel: "Cancel" },
-                onConfirm: () => handleDeleteDocument(document.id),
-                size: "md",
-              });
-            }}
-          >
-            Delete
-          </Menu.Item>
+          {document?.status !== DocumentStatus.IN_PROGRESS && (
+            <Menu.Item
+              color="red"
+              leftSection={<IconTrash />}
+              onClick={() => {
+                modals.openConfirmModal({
+                  title: (
+                    <Text fz="h3" fw="bold" span>
+                      Delete document
+                    </Text>
+                  ),
+                  children: (
+                    <Text>
+                      Are you sure? The document will be permanently deleted,
+                      this action cannot be undone
+                    </Text>
+                  ),
+                  labels: { confirm: "Delete", cancel: "Cancel" },
+                  onConfirm: () => handleDeleteDocument(document.id),
+                  size: "md",
+                });
+              }}
+            >
+              Delete
+            </Menu.Item>
+          )}
         </>
       );
     },

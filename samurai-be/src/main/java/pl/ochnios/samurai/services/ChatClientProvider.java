@@ -26,14 +26,14 @@ public class ChatClientProvider {
     public ChatClient getChatClient() {
         // TODO fetch chat options from db configuration
         var chatOptionsDto =
-                ChatOptionsDto.builder().model(chatModelName).temperature(0.7F).build();
+                ChatOptionsDto.builder().model(chatModelName).temperature(0.7).build();
         return getClient(chatOptionsDto);
     }
 
     public ChatClient getTaskClient() {
         // TODO fetch task options from db configuration
         var chatOptionsDto =
-                ChatOptionsDto.builder().model(taskModelName).temperature(0.7F).build();
+                ChatOptionsDto.builder().model(taskModelName).temperature(0.7).build();
         return getClient(chatOptionsDto);
     }
 
@@ -42,7 +42,7 @@ public class ChatClientProvider {
         if (chatOptionsDto == null) {
             chatOptions = ChatOptionsBuilder.builder()
                     .withModel(chatModelName)
-                    .withTemperature(0.7F)
+                    .withTemperature(0.7)
                     .build();
         } else {
             chatOptions = chatOptionsMapper.map(chatOptionsDto);
