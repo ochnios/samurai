@@ -1,4 +1,4 @@
-package pl.ochnios.samurai.services.excpetion;
+package pl.ochnios.samurai.services.exception;
 
 public class EmbeddingException extends ServiceException {
 

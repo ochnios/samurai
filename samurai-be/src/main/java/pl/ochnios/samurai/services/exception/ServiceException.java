@@ -1,4 +1,4 @@
-package pl.ochnios.samurai.services.excpetion;
+package pl.ochnios.samurai.services.exception;
 
 import pl.ochnios.samurai.commons.exceptions.ApplicationException;
 

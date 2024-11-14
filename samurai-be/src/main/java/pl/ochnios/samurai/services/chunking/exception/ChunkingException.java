@@ -1,6 +1,6 @@
 package pl.ochnios.samurai.services.chunking.exception;
 
-import pl.ochnios.samurai.services.excpetion.ServiceException;
+import pl.ochnios.samurai.services.exception.ServiceException;
 
 public class ChunkingException extends ServiceException {
 
