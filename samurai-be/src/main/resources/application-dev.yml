@@ -12,11 +12,11 @@ spring:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     url: jdbc:sqlserver://localhost:1433;encrypt=false;trustServerCertificate=true;databaseName=samurai-db
     username: samurai-be
-    password: samurai-be
+    password: ${SAMURAI_DB_PASSWORD}
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: false
@@ -29,6 +29,8 @@ spring:
       qdrant:
         host: localhost
         port: 6334
+        initialize-schema: true
+        collection-name: documents_dev
     openai:
       api-key: ${OPENAI_API_KEY}
       embedding:
@@ -69,7 +71,7 @@ custom:
     initialDelay:
       seconds: 30
     fixedDelay:
-      seconds: 1
+      seconds: 5
     maxChunkLength: 8000
     minChunkLength: 300
   jwt:

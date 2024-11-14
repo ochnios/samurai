@@ -25,7 +25,7 @@ public class DataLoader implements ApplicationRunner {
     private final ChunkSeeder chunkSeeder;
     private final BulkSeeder bulkSeeder;
 
-    @Value("${custom.loader.bulk}")
+    @Value("${custom.loader.bulk:false}")
     private Boolean bulkEnabled;
 
     @Override
