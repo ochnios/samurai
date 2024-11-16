@@ -14,8 +14,10 @@ public class DocumentSpecification {
 
             if (criteria.getGlobalSearch() != null) {
                 String globalSearchPattern = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
-                var titlePredicate = builder.like(builder.lower(root.get("title")), globalSearchPattern);
-                var descriptionPredicate = builder.like(builder.lower(root.get("description")), globalSearchPattern);
+                var titlePredicate =
+                        builder.like(builder.lower(root.get("title").as(String.class)), globalSearchPattern);
+                var descriptionPredicate =
+                        builder.like(builder.lower(root.get("description").as(String.class)), globalSearchPattern);
                 var filenamePredicate = builder.like(builder.lower(root.get("name")), globalSearchPattern);
                 var fullNamePredicate = builder.like(
                         builder.lower(builder.concat(
@@ -27,13 +29,13 @@ public class DocumentSpecification {
 
             if (criteria.getTitle() != null) {
                 predicates.add(builder.like(
-                        builder.lower(root.get("title")),
+                        builder.lower(root.get("title").as(String.class)),
                         "%" + criteria.getTitle().toLowerCase() + "%"));
             }
 
             if (criteria.getDescription() != null) {
                 predicates.add(builder.like(
-                        builder.lower(root.get("description")),
+                        builder.lower(root.get("description").as(String.class)),
                         "%" + criteria.getDescription().toLowerCase() + "%"));
             }
 
@@ -49,7 +51,7 @@ public class DocumentSpecification {
 
             if (criteria.getFilename() != null) {
                 predicates.add(builder.like(
-                        builder.lower(root.get("name")),
+                        builder.lower(root.get("name").as(String.class)),
                         "%" + criteria.getFilename().toLowerCase() + "%"));
             }
 

@@ -1,8 +1,6 @@
 package pl.ochnios.samurai.services.chat;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +10,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -24,23 +26,47 @@ public class ChatContext {
     @Getter
     private final Set<UUID> documents = new HashSet<>();
 
-    @Value("${custom.chat.maxContextTokens:16000}")
-    private int availableTokens;
+    @Value("${custom.chat.maxDocumentTokens:16000}")
+    private int docTokensLeft;
 
-    public boolean add(UUID documentId, String content) {
+    @Value("${custom.chat.maxMessageTokens:2000}")
+    private int msgTokensLeft;
+
+    @PostConstruct
+    public void init() {
+        addMessage(Prompts.CHAT_PROMPT);
+    }
+
+    public boolean addDocument(UUID documentId, String content) {
         int tokens = estimator.estimate(content);
-        if (availableTokens - tokens < 0) {
+        if (docTokensLeft - tokens < 0) {
             return false;
         }
 
         documents.add(documentId);
-        availableTokens -= tokens;
-        log.debug("Added {} tokens to context, {} tokens left", tokens, availableTokens);
+        docTokensLeft -= tokens;
+        log.debug("Added {} context tokens, {} tokens left", tokens, docTokensLeft);
 
         return true;
     }
 
-    public boolean canBeAdded(String content) {
-        return availableTokens - estimator.estimate(content) >= 0;
+    public boolean canAddDocument(String content) {
+        return docTokensLeft - estimator.estimate(content) >= 0;
+    }
+
+    public boolean addMessage(String content) {
+        int tokens = estimator.estimate(content);
+        if (msgTokensLeft - tokens < 0) {
+            return false;
+        }
+
+        msgTokensLeft -= tokens;
+        log.debug("Added {} message tokens, {} tokens left", tokens, msgTokensLeft);
+
+        return true;
+    }
+
+    public boolean canAddMessage(String content) {
+        return msgTokensLeft - estimator.estimate(content) >= 0;
     }
 }

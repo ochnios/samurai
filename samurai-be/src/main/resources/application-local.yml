@@ -95,10 +95,12 @@ custom:
       acceptAsHeader: true
       headerPrefix: "Bearer "
   # Note that both models have to be from single provider
+  # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
   chat:
     model: gpt-4o
     tokenEncoding: o200k_base
-    maxContextTokens: 16000
+    maxDocumentTokens: 32000
+    maxMessageTokens: 2000
   task:
     model: gpt-4o-mini
   search:

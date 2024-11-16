@@ -30,7 +30,7 @@ public class GetDocumentsFunction implements Function<GetDocumentsFunction.Reque
         List<DocumentSummary> summaries = new ArrayList<>();
         for (var document : documents) {
             var summary = DocumentSummary.fromDocumentDto(document);
-            if (chatContext.add(document.getId(), summary.toString())) {
+            if (chatContext.addDocument(document.getId(), summary.toString())) {
                 summaries.add(summary);
             } else {
                 log.warn("Context limit exceeded, ignoring document {}", document.getId());

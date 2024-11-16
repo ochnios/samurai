@@ -1,9 +1,13 @@
 package pl.ochnios.samurai.services.chat;
 
+import static pl.ochnios.samurai.services.chat.Prompts.CHAT_PROMPT;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
 import pl.ochnios.samurai.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.samurai.model.dtos.chat.ChatResponseDto;
@@ -20,47 +24,27 @@ import pl.ochnios.samurai.services.chat.provider.ChatClientProvider;
 @RequiredArgsConstructor
 public class ChatService {
 
+    private final ChatContext chatContext;
     private final ChatClientProvider chatClientProvider;
     private final ConversationService conversationService;
     private final MessageMapper messageMapper;
 
     public ChatResponseDto getCompletion(User user, ChatRequestDto chatRequestDto) {
         var conversationDto = getConversation(user, chatRequestDto);
-        var springMessages = getSpringMessages(conversationDto);
 
         var userMessage = MessageDto.user(chatRequestDto.getQuestion());
         conversationService.saveMessage(user, conversationDto.getId(), userMessage);
 
-        var chatResponse = chatClientProvider
-                .getChatClient()
-                .prompt()
-                .functions("getDocuments", "getDocument", "search")
-                .advisors(new SimpleLoggerAdvisor())
-                .system(
-                        """
-You are a knowledgeable assistant with access to a document retrieval system.
-Your goal is to provide accurate information based on the available knowledge base.
-
-1. Use the available tools to find relevant information before responding to any use questions.
-2. Base your answers on retrieved documents, quoting specific passages when necessary.
-3. If no relevant information is found, state: "I don't have specific information about this in my knowledge base."
-4. Be transparent about the sources of your information and acknowledge any limitations.
-5. Avoid making assumptions; prioritize accuracy over completeness.
-6. When user intention is not clear, don't hesitate to ask for clarification
-
-Your primary duty is to provide truthful information, acknowledging gaps when they exist.
-""") // TODO from app configuration
-                .messages(springMessages)
-                .user(chatRequestDto.getQuestion())
-                .call()
-                .chatResponse();
+        chatContext.addMessage(userMessage.getContent());
+        var messageHistory = getMessageHistory(conversationDto);
+        var chatResponse = getChatResponse(messageHistory, chatRequestDto.getQuestion());
 
         var completion = chatResponse.getResult().getOutput().getContent();
         var assistantMessage = MessageDto.assistant(completion);
         var savedAssistantMessage = conversationService.saveMessage(user, conversationDto.getId(), assistantMessage);
 
         log.info("Completion for conversation {} created", conversationDto.getId());
-        return getChatResponse(conversationDto, savedAssistantMessage);
+        return getChatResponseDto(conversationDto, savedAssistantMessage);
     }
 
     private ConversationDto getConversation(User user, ChatRequestDto chatRequestDto) {
@@ -72,13 +56,38 @@ Your primary duty is to provide truthful information, acknowledging gaps when th
         return conversationService.getConversation(user, chatRequestDto.getConversationId());
     }
 
-    private List<Message> getSpringMessages(ConversationDto conversationDto) {
-        return conversationDto.getMessages().stream()
+    // Get last messages which fits in maxMessageTokens window
+    private List<Message> getMessageHistory(ConversationDto conversationDto) {
+        var fullHistory = conversationDto.getMessages().stream()
                 .map(messageMapper::mapToSpringMessage)
                 .toList();
+
+        List<Message> cutOffHistory = new ArrayList<>();
+        for (int i = fullHistory.size() - 1; i >= 0; i--) {
+            if (chatContext.addMessage(fullHistory.get(i).getContent())) {
+                cutOffHistory.addFirst(fullHistory.get(i));
+            } else {
+                break;
+            }
+        }
+
+        return cutOffHistory;
     }
 
-    private ChatResponseDto getChatResponse(ConversationDto conversationDto, MessageDto messageDto) {
+    private ChatResponse getChatResponse(List<Message> history, String question) {
+        return chatClientProvider
+                .getChatClient()
+                .prompt()
+                .functions("getDocuments", "getDocument", "search")
+                .advisors(new SimpleLoggerAdvisor())
+                .system(CHAT_PROMPT) // TODO from app configuration
+                .messages(history)
+                .user(question)
+                .call()
+                .chatResponse();
+    }
+
+    private ChatResponseDto getChatResponseDto(ConversationDto conversationDto, MessageDto messageDto) {
         return ChatResponseDto.builder()
                 .conversationId(conversationDto.getId())
                 .messageId(messageDto.getId())

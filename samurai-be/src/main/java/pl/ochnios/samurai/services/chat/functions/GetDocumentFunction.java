@@ -31,7 +31,7 @@ public class GetDocumentFunction implements Function<GetDocumentFunction.Request
         var truncated = false;
         var content = documentService.getContentById(documentId);
         var initialLength = content.length();
-        while (content.length() > 100 && !chatContext.canBeAdded(content)) {
+        while (content.length() > 100 && !chatContext.canAddDocument(content)) {
             content = content.substring(0, content.length() - 100);
             truncated = true;
         }
@@ -45,7 +45,7 @@ public class GetDocumentFunction implements Function<GetDocumentFunction.Request
                     content.length());
         }
 
-        if(!chatContext.add(documentId, content)) {
+        if(!chatContext.addDocument(documentId, content)) {
             log.warn("Context limit exceeded, ignoring document {}", documentId);
             return "";
         }

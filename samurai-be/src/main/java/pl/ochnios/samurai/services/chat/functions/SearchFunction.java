@@ -1,15 +1,16 @@
 package pl.ochnios.samurai.services.chat.functions;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
 import pl.ochnios.samurai.services.chat.ChatContext;
 import pl.ochnios.samurai.services.chat.SearchService;
 import pl.ochnios.samurai.services.chat.dto.DocumentPart;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,7 +49,7 @@ public class SearchFunction implements Function<SearchFunction.Request, SearchFu
         List<DocumentPart> parts = new ArrayList<>();
         for (var chunk : chunks) {
             var part = DocumentPart.fromEmbeddedChunk(chunk);
-            if (chatContext.add(UUID.fromString(chunk.getDocumentId()), part.toString())) {
+            if (chatContext.addDocument(UUID.fromString(chunk.getDocumentId()), part.toString())) {
                 parts.add(part);
             } else {
                 log.warn("Context limit exceeded, ignoring chunk {}", chunk.getId());
