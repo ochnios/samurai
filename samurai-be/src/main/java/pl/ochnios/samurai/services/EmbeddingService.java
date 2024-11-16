@@ -1,28 +1,30 @@
 package pl.ochnios.samurai.services;
 
+import static io.qdrant.client.PointIdFactory.id;
+import static io.qdrant.client.VectorsFactory.vectors;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_CONTENT_KEY;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_ID_KEY;
+import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_TITLE_KEY;
+
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.ValueFactory;
 import io.qdrant.client.grpc.JsonWithInt;
 import io.qdrant.client.grpc.Points;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
 import pl.ochnios.samurai.services.exception.EmbeddingException;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static io.qdrant.client.PointIdFactory.id;
-import static io.qdrant.client.VectorsFactory.vectors;
-import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_CONTENT_KEY;
-import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_ID_KEY;
-import static pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk.DOCUMENT_TITLE_KEY;
 
 @Slf4j
 @Service
@@ -44,12 +46,28 @@ public class EmbeddingService {
     @Value("${custom.search.similarityThreshold:0.5}")
     private Float similarityThreshold;
 
-    public List<EmbeddedChunk> search(String query) {
-        var searchRequest =
-                SearchRequest.defaults().withQuery(query).withTopK(topK).withSimilarityThreshold(similarityThreshold);
+    @Async
+    public CompletableFuture<List<EmbeddedChunk>> searchAsync(String query, List<UUID> documentIds) {
+        return CompletableFuture.completedFuture(search(query, documentIds));
+    }
+
+    public List<EmbeddedChunk> search(String query, List<UUID> documentIds) {
+        if (documentIds.isEmpty()) {
+            return List.of();
+        }
+
+        var searchRequest = SearchRequest.defaults()
+                .withQuery(query)
+                .withTopK(topK)
+                .withSimilarityThreshold(similarityThreshold)
+                .withFilterExpression(buildFilterExpression(documentIds));
+
         try {
-            var results = vectorStore.similaritySearch(searchRequest);
-            return results.stream().map(EmbeddedChunk::new).toList();
+            var results = vectorStore.similaritySearch(searchRequest).stream()
+                    .map(EmbeddedChunk::new)
+                    .toList();
+            logResults(query, results);
+            return results;
         } catch (Exception ex) {
             throw new EmbeddingException("Failed to search chunks in vector store", ex);
         }
@@ -117,8 +135,21 @@ public class EmbeddingService {
 
     private Map<String, JsonWithInt.Value> createPayload(EmbeddedChunk chunk) {
         var docId = ValueFactory.value(chunk.getId());
-        var docName = ValueFactory.value(chunk.getDocumentName());
+        var docName = ValueFactory.value(chunk.getDocumentTitle());
         var docContent = ValueFactory.value(chunk.getContent());
         return Map.of(DOCUMENT_ID_KEY, docId, DOCUMENT_TITLE_KEY, docName, DOCUMENT_CONTENT_KEY, docContent);
+    }
+
+    private String buildFilterExpression(List<UUID> documentIds) {
+        String ids = documentIds.stream().map(id -> "'" + id.toString() + "'").collect(Collectors.joining(","));
+        return "'" + DOCUMENT_ID_KEY + "' in [" + ids + "]";
+    }
+
+    private void logResults(String query, List<EmbeddedChunk> results) {
+        if (log.isDebugEnabled()) {
+            var resultsString =
+                    results.stream().map(EmbeddedChunk::formatFoundChunk).collect(Collectors.joining("\n"));
+            log.debug("Search for query:\n{}\nResults ({}):\n{}", query, results.size(), resultsString);
+        }
     }
 }

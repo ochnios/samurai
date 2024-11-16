@@ -1,5 +1,6 @@
 package pl.ochnios.samurai.services.chunking;
 
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,8 @@ public class DocumentChunkingService {
 
         try {
             chunkService.deleteAll(document.getId());
-            document = documentRepository.findById(document.getId());
+            document.setChunks(new ArrayList<>());
+            document = documentRepository.save(document);
 
             var chunks = documentChunker.process(document);
             chunkService.saveAllEmbedded(document.getId(), chunks);

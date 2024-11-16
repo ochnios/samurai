@@ -1,10 +1,14 @@
 package pl.ochnios.samurai.services;
 
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+
+import java.util.List;
 import java.util.UUID;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.unit.DataSize;
@@ -31,7 +35,6 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final JsonPatchService patchService;
-    private final ChunkService chunkService;
     private final PageMapper pageMapper;
     private final FileMapper fileMapper;
     private final DocumentMapper documentMapper;
@@ -53,10 +56,10 @@ public class DocumentService {
 
     @Transactional(readOnly = true)
     public PageDto<DocumentDto> getPage(DocumentCriteria criteria, PageRequestDto pageRequestDto) {
-        var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
+        var pageRequest = pageMapper.map(pageRequestDto);
         var specification = DocumentSpecification.create(criteria);
         var documentsPage = documentRepository.findAll(specification, pageRequest);
-        return pageMapper.validOrDefaultSort(documentsPage, documentMapper::map);
+        return pageMapper.map(documentsPage, documentMapper::map);
     }
 
     @Transactional
@@ -83,6 +86,14 @@ public class DocumentService {
         var document = documentRepository.findById(documentId);
         documentRepository.delete(document);
         log.info("Document {} deleted", documentId);
+    }
+
+    @Transactional
+    public List<DocumentDto> getActiveDocuments() {
+        var criteria = DocumentCriteria.builder().status(ACTIVE).build();
+        var specification = DocumentSpecification.create(criteria);
+        var documents = documentRepository.findAll(specification, Pageable.unpaged());
+        return pageMapper.map(documents, documentMapper::map).getItems();
     }
 
     private void validateFileSize(MultipartFile multipartFile) {

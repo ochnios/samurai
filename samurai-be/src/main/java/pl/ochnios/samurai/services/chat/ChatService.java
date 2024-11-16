@@ -1,4 +1,4 @@
-package pl.ochnios.samurai.services;
+package pl.ochnios.samurai.services.chat;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,9 @@ import pl.ochnios.samurai.model.dtos.conversation.ConversationDto;
 import pl.ochnios.samurai.model.dtos.conversation.MessageDto;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.MessageMapper;
+import pl.ochnios.samurai.services.ConversationService;
+import pl.ochnios.samurai.services.chat.advisors.SimpleLoggerAdvisor;
+import pl.ochnios.samurai.services.chat.provider.ChatClientProvider;
 
 @Slf4j
 @Service
@@ -31,7 +34,21 @@ public class ChatService {
         var chatResponse = chatClientProvider
                 .getChatClient()
                 .prompt()
-                .system("You are a helpful assistant") // TODO from app configuration
+                .functions("search")
+                .advisors(new SimpleLoggerAdvisor())
+                .system(
+                        """
+You are a knowledgeable assistant with access to a document retrieval system.
+Your goal is to provide accurate information based on the available knowledge base.
+
+1. Use the search tool to find relevant information before responding to any use questions.
+2. Base your answers on retrieved documents, quoting specific passages when necessary.
+3. If no relevant information is found, state: "I don't have specific information about this in my knowledge base."
+4. Be transparent about the sources of your information and acknowledge any limitations.
+5. Avoid making assumptions; prioritize accuracy over completeness.
+
+Your primary duty is to provide truthful information, acknowledging gaps when they exist.
+""") // TODO from app configuration
                 .messages(springMessages)
                 .user(chatRequestDto.getQuestion())
                 .call()

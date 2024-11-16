@@ -1,10 +1,5 @@
 package pl.ochnios.samurai.services;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
-import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +18,12 @@ import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.ChunkRepository;
 import pl.ochnios.samurai.repositories.DocumentRepository;
 
+import javax.json.JsonPatch;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,10 +38,10 @@ public class ChunkService {
 
     @Transactional(readOnly = true)
     public PageDto<ChunkDto> getPage(UUID documentId, ChunkCriteria criteria, PageRequestDto pageRequestDto) {
-        var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
+        var pageRequest = pageMapper.map(pageRequestDto);
         var specification = ChunkSpecification.create(criteria);
         var chunksPage = chunkRepository.findAll(documentId, specification, pageRequest);
-        return pageMapper.validOrDefaultSort(chunksPage, chunkMapper::map);
+        return pageMapper.map(chunksPage, chunkMapper::map);
     }
 
     @Transactional
@@ -51,11 +52,11 @@ public class ChunkService {
         var embeddedChunk = chunkMapper.mapToEmbeddedChunk(savedChunk);
         embeddingService.add(embeddedChunk);
 
-        log.info("Chunk {} saved in document {}", chunk.getId(), documentId);
+        log.info("Chunk {} saved for document {}", chunk.getId(), documentId);
         return chunkMapper.map(savedChunk);
     }
 
-    @Transactional
+    @Transactional()
     public List<ChunkDto> saveAll(UUID documentId, List<ChunkDto> chunkDtos) {
         var document = documentRepository.findById(documentId);
         var chunks = chunkDtos.stream()
@@ -74,7 +75,10 @@ public class ChunkService {
         embeddingService.add(
                 savedChunks.stream().map(chunkMapper::mapToEmbeddedChunk).toList());
 
-        log.info("Chunks {} saved for document {}", savedChunks.stream().map(Chunk::getId), documentId);
+        log.info(
+                "Chunks {} saved for document {}",
+                savedChunks.stream().map(Chunk::getId).toList(),
+                documentId);
         return savedChunks.stream().map(chunkMapper::map).toList();
     }
 

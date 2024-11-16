@@ -16,6 +16,7 @@ public class EmbeddedChunk extends Document {
     public static final String DOCUMENT_ID_KEY = "doc_id";
     public static final String DOCUMENT_TITLE_KEY = "doc_title";
     public static final String DOCUMENT_CONTENT_KEY = "doc_content";
+    public static final String DISTANCE_KEY = "distance";
 
     public EmbeddedChunk(Document document) {
         this(document.getId(), document.getContent(), document.getMetadata());
@@ -36,7 +37,11 @@ public class EmbeddedChunk extends Document {
         super.setContentFormatter(defaultFormatter());
     }
 
-    public String getDocumentName() {
+    public static EmbeddedChunkBuilder builder() {
+        return new EmbeddedChunkBuilder();
+    }
+
+    public String getDocumentTitle() {
         return (String) super.getMetadata().get(DOCUMENT_TITLE_KEY);
     }
 
@@ -44,14 +49,24 @@ public class EmbeddedChunk extends Document {
         return (String) super.getMetadata().get(DOCUMENT_ID_KEY);
     }
 
-    public static EmbeddedChunkBuilder builder() {
-        return new EmbeddedChunkBuilder();
+    public ContentFormatter defaultFormatter() {
+        return DefaultContentFormatter.builder()
+                .withExcludedEmbedMetadataKeys(DOCUMENT_ID_KEY)
+                .build();
+    }
+
+    public Float getScore() {
+        return 1 - (Float) super.getMetadata().get(DISTANCE_KEY);
+    }
+
+    public String formatFoundChunk() {
+        return getScore() + ": '" + getContent().replace('\n', ' ') + "'; metadata=" + getMetadata();
     }
 
     public static class EmbeddedChunkBuilder extends Document.Builder {
+        private final Map<String, Object> metadata = new HashMap<>();
         private String id = null;
         private String content = "";
-        private final Map<String, Object> metadata = new HashMap<>();
 
         public EmbeddedChunkBuilder id(UUID id) {
             this.id = id.toString();
@@ -81,11 +96,5 @@ public class EmbeddedChunk extends Document {
         public EmbeddedChunk build() {
             return id != null ? new EmbeddedChunk(id, content, metadata) : new EmbeddedChunk(content, metadata);
         }
-    }
-
-    public ContentFormatter defaultFormatter() {
-        return DefaultContentFormatter.builder()
-                .withExcludedEmbedMetadataKeys(DOCUMENT_ID_KEY)
-                .build();
     }
 }

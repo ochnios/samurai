@@ -1,8 +1,5 @@
 package pl.ochnios.samurai.services;
 
-import java.util.ArrayList;
-import java.util.UUID;
-import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +19,10 @@ import pl.ochnios.samurai.model.mappers.ConversationMapper;
 import pl.ochnios.samurai.model.mappers.MessageMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.ConversationRepository;
+
+import javax.json.JsonPatch;
+import java.util.ArrayList;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -47,18 +48,18 @@ public class ConversationService {
 
     @Transactional(readOnly = true)
     public PageDto<ConversationSummaryDto> getSummariesPage(User user, PageRequestDto pageRequestDto) {
-        var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
+        var pageRequest = pageMapper.map(pageRequestDto);
         var conversationsPage = conversationRepository.findAllByUser(user, pageRequest);
-        return pageMapper.validOrDefaultSort(conversationsPage, conversationMapper::mapToSummary);
+        return pageMapper.map(conversationsPage, conversationMapper::mapToSummary);
     }
 
     @Transactional(readOnly = true)
     public PageDto<ConversationDetailsDto> getDetailsPage(
             ConversationCriteria criteria, PageRequestDto pageRequestDto) {
-        var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
+        var pageRequest = pageMapper.map(pageRequestDto);
         var specification = ConversationSpecification.create(criteria);
         var conversationsPage = conversationRepository.findAllIncludingDeleted(specification, pageRequest);
-        return pageMapper.validOrDefaultSort(conversationsPage, conversationMapper::mapToDetails);
+        return pageMapper.map(conversationsPage, conversationMapper::mapToDetails);
     }
 
     @Transactional

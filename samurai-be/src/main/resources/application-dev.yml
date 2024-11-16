@@ -24,6 +24,7 @@ spring:
     open-in-view: true
   # Important note: Only one ChatModel have to be available in application context
   # You can disable unused chat models using its 'enable' flag or by excluding model autoconfiguration
+  # After switching models it may be necessary to customize ChatClientProvider
   ai:
     vectorstore:
       qdrant:
