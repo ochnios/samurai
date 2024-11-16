@@ -1,5 +1,10 @@
 package pl.ochnios.samurai.services;
 
+import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
+
+import java.util.ArrayList;
+import java.util.UUID;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,10 +24,6 @@ import pl.ochnios.samurai.model.mappers.ConversationMapper;
 import pl.ochnios.samurai.model.mappers.MessageMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.ConversationRepository;
-
-import javax.json.JsonPatch;
-import java.util.ArrayList;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -97,9 +98,11 @@ public class ConversationService {
     }
 
     private Conversation createConversation(User user, String summary) {
+        String validSummary =
+                summary.length() > MAX_SUMMARY_LENGTH ? summary.substring(0, MAX_SUMMARY_LENGTH) : summary;
         return Conversation.builder()
                 .user(user)
-                .summary(summary)
+                .summary(validSummary)
                 .messages(new ArrayList<>())
                 .build();
     }

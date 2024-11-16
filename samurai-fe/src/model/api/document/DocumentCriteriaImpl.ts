@@ -51,7 +51,7 @@ export class DocumentCriteriaImpl implements DocumentCriteria {
       ?.value as string;
     criteria.description = columnFilters.find((e) => e.id == "description")
       ?.value as string;
-    criteria.filename = columnFilters.find((e) => e.id == "filename")
+    criteria.filename = columnFilters.find((e) => e.id == "name")
       ?.value as string;
     criteria.userFullName = columnFilters.find((e) => e.id == "user")
       ?.value as string;

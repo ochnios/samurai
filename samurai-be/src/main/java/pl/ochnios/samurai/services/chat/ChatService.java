@@ -1,6 +1,7 @@
 package pl.ochnios.samurai.services.chat;
 
 import static pl.ochnios.samurai.services.chat.Prompts.CHAT_PROMPT;
+import static pl.ochnios.samurai.services.chat.Prompts.CONVERSATION_SUMMARY_PROMPT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +98,16 @@ public class ChatService {
     }
 
     private String generateSummary(String question) {
-        return "New conversation"; // TODO generate with AI basing on question
+        String systemPrompt = CONVERSATION_SUMMARY_PROMPT.replace("{user_message}", question);
+        return chatClientProvider
+                .getTaskClient()
+                .prompt()
+                .advisors(new SimpleLoggerAdvisor())
+                .system(systemPrompt)
+                .call()
+                .chatResponse()
+                .getResult()
+                .getOutput()
+                .getContent();
     }
 }
