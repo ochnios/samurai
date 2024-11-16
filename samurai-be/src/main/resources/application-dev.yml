@@ -87,6 +87,8 @@ custom:
   # Note that both models have to be from single provider
   chat:
     model: gpt-4o
+    tokenEncoding: o200k_base
+    maxContextTokens: 16000
   task:
     model: gpt-4o-mini
   search:

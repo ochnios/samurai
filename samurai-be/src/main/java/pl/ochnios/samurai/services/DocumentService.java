@@ -4,6 +4,7 @@ import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import pl.ochnios.samurai.model.dtos.file.FileDownloadDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.samurai.model.entities.document.DocumentSpecification;
+import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.DocumentMapper;
 import pl.ochnios.samurai.model.mappers.FileMapper;
@@ -94,6 +96,21 @@ public class DocumentService {
         var specification = DocumentSpecification.create(criteria);
         var documents = documentRepository.findAll(specification, Pageable.unpaged());
         return pageMapper.map(documents, documentMapper::map).getItems();
+    }
+
+    @Transactional
+    public List<DocumentDto> getByTitle(String title) {
+        var criteria = DocumentCriteria.builder().status(ACTIVE).title(title).build();
+        var specification = DocumentSpecification.create(criteria);
+        var documents = documentRepository.findAll(specification, Pageable.unpaged());
+        return pageMapper.map(documents, documentMapper::map).getItems();
+    }
+
+    @Transactional
+    public String getContentById(UUID documentId) {
+        return documentRepository.findById(documentId).getChunks().stream()
+                .map(Chunk::getContent)
+                .collect(Collectors.joining("\n\n"));
     }
 
     private void validateFileSize(MultipartFile multipartFile) {
