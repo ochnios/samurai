@@ -1,10 +1,11 @@
 package pl.ochnios.samurai.model.dtos.document;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
 import pl.ochnios.samurai.model.entities.document.DocumentStatus;
+
+import java.time.Instant;
 
 @Data
 @Builder
@@ -22,7 +23,7 @@ public class DocumentCriteria {
     private Long minSize;
     private Long maxSize;
 
-    private Instant minCreatedAt;
-    private Instant maxCreatedAt;
+    private Instant minUpdatedAt;
+    private Instant maxUpdatedAt;
     private DocumentStatus status;
 }

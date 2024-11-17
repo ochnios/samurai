@@ -1,5 +1,11 @@
 package pl.ochnios.samurai.services;
 
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,18 +27,12 @@ import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentSpecification;
 import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
 import pl.ochnios.samurai.model.entities.user.User;
+import pl.ochnios.samurai.model.mappers.ChunkMapper;
 import pl.ochnios.samurai.model.mappers.DocumentMapper;
 import pl.ochnios.samurai.model.mappers.FileMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.DocumentRepository;
 import pl.ochnios.samurai.repositories.MessageSourceRepository;
-
-import javax.json.JsonPatch;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
 
 @Slf4j
 @Service
@@ -41,10 +41,12 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final MessageSourceRepository messageSourceRepository;
+    private final EmbeddingService embeddingService;
     private final JsonPatchService patchService;
     private final PageMapper pageMapper;
     private final FileMapper fileMapper;
     private final DocumentMapper documentMapper;
+    private final ChunkMapper chunkMapper;
 
     @Value("${spring.servlet.multipart.max-file-size:50MB}")
     private DataSize maxFileSize;
@@ -82,8 +84,20 @@ public class DocumentService {
     @Transactional
     public DocumentDto patch(UUID documentId, JsonPatch jsonPatch) {
         var document = documentRepository.findById(documentId);
+        var title = document.getTitle();
         patchService.apply(document, jsonPatch);
         var savedDocument = documentRepository.save(document);
+
+        if (!savedDocument.getTitle().equals(title)
+                && !savedDocument.getChunks().isEmpty()) {
+            var chunks = savedDocument.getChunks();
+            embeddingService.delete(
+                    chunks.stream().map(d -> d.getId().toString()).toList());
+            embeddingService.add(
+                    chunks.stream().map(chunkMapper::mapToEmbeddedChunk).toList());
+            log.info("Document {} title changed, chunks re-embedded", documentId);
+        }
+
         log.info("Document {} patched", documentId);
         return documentMapper.map(savedDocument);
     }

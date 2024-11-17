@@ -45,4 +45,8 @@ public class DocumentDto extends FileDto implements PatchDto {
     @NotPatchable
     @Schema(description = "${docs.dto.document.createdAt}", accessMode = READ_ONLY)
     private String createdAt;
+
+    @NotPatchable
+    @Schema(description = "${docs.dto.document.updatedAt}", accessMode = READ_ONLY)
+    private String updatedAt;
 }

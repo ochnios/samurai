@@ -7,5 +7,5 @@ export interface Document extends File {
   title: string;
   description: string;
   status: DocumentStatus;
-  createdAt: string;
+  updatedAt: string;
 }

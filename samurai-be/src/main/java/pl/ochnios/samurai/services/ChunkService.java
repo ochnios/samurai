@@ -1,5 +1,11 @@
 package pl.ochnios.samurai.services;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,12 +23,6 @@ import pl.ochnios.samurai.model.mappers.ChunkMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.ChunkRepository;
 import pl.ochnios.samurai.repositories.DocumentRepository;
-
-import javax.json.JsonPatch;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -46,6 +46,7 @@ public class ChunkService {
 
     @Transactional
     public ChunkDto save(UUID documentId, ChunkDto chunkDto) {
+        refreshDocument(documentId);
         var document = documentRepository.findById(documentId);
         var chunk = chunkMapper.map(chunkDto, document);
         var savedChunk = doAdd(documentId, chunk);
@@ -58,6 +59,7 @@ public class ChunkService {
 
     @Transactional()
     public List<ChunkDto> saveAll(UUID documentId, List<ChunkDto> chunkDtos) {
+        refreshDocument(documentId);
         var document = documentRepository.findById(documentId);
         var chunks = chunkDtos.stream()
                 .map(ch -> chunkMapper.map(ch, document))
@@ -84,6 +86,7 @@ public class ChunkService {
 
     @Transactional
     public List<ChunkDto> saveAllEmbedded(UUID documentId, List<EmbeddedChunk> embeddedChunks) {
+        refreshDocument(documentId);
         List<ChunkDto> chunkDtos = new ArrayList<>();
         for (int i = 0; i < embeddedChunks.size(); i++) {
             chunkDtos.add(chunkMapper.mapToChunkDto(embeddedChunks.get(i), i));
@@ -93,6 +96,7 @@ public class ChunkService {
 
     @Transactional
     public ChunkDto patch(UUID documentId, UUID chunkId, JsonPatch jsonPatch) {
+        refreshDocument(documentId);
         var chunk = chunkRepository.findById(documentId, chunkId);
         var patched = chunkMapper.copy(chunk);
         patchService.apply(patched, jsonPatch);
@@ -116,6 +120,7 @@ public class ChunkService {
 
     @Transactional
     public void delete(UUID documentId, UUID chunkId) {
+        refreshDocument(documentId);
         var chunk = chunkRepository.findById(documentId, chunkId);
         chunkRepository.delete(chunk);
         reorderChunks(documentId, chunk.getPosition());
@@ -125,6 +130,7 @@ public class ChunkService {
 
     @Transactional
     public void deleteAll(UUID documentId) {
+        refreshDocument(documentId);
         var chunks = documentRepository.findById(documentId).getChunks();
         if (!chunks.isEmpty()) {
             chunkRepository.deleteAll(chunks);
@@ -183,5 +189,11 @@ public class ChunkService {
             }
         }
         return chunkRepository.saveAll(chunks);
+    }
+
+    private void refreshDocument(UUID documentId) {
+        var document = documentRepository.findById(documentId);
+        document.setUpdatedAt(Instant.now());
+        documentRepository.save(document);
     }
 }
