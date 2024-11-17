@@ -10,11 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,10 +18,22 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
+import org.mapstruct.factory.Mappers;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.ochnios.samurai.model.dtos.PatchDto;
+import pl.ochnios.samurai.model.dtos.user.UserDto;
+import pl.ochnios.samurai.model.entities.PatchableEntity;
 import pl.ochnios.samurai.model.entities.conversation.Conversation;
+import pl.ochnios.samurai.model.mappers.UserMapper;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -36,7 +43,7 @@ import pl.ochnios.samurai.model.entities.conversation.Conversation;
 @ToString
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+public class User implements UserDetails, PatchableEntity {
 
     @Id
     private String username;
@@ -125,4 +132,24 @@ public class User implements UserDetails {
     public boolean hasModRole() {
         return this.role.equals(Role.Mod);
     }
+
+    @Override
+    public PatchDto getPatchDto() {
+        var userMapper = Mappers.getMapper(UserMapper.class);
+        return userMapper.map(this);
+    }
+
+    @Override
+    public void apply(PatchDto patchDto) {
+        var userPatchDto = (UserDto) patchDto;
+        role = userPatchDto.getRole();
+    }
+
+    @Override
+    public UUID getId() {
+        return null;
+    }
+
+    @Override
+    public void setId(UUID id) {}
 }
