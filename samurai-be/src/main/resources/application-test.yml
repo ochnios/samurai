@@ -1,3 +1,21 @@
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:samurai-db
+    username: sa
+    password: sa
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  ai:
+    vectorstore:
+      qdrant:
+        initialize-schema: true
+        collection-name: documents_test
+
 custom:
   loader:
     enabled: false

@@ -1,21 +1,19 @@
-package pl.ochnios.samurai.services;
+package pl.ochnios.samurai.services.chat.provider;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.ChatOptions;
-import org.springframework.ai.chat.prompt.ChatOptionsBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.ochnios.samurai.model.dtos.config.ChatOptionsDto;
-import pl.ochnios.samurai.model.mappers.ChatOptionsMapper;
 
 @Service
 @RequiredArgsConstructor
 public class ChatClientProvider {
 
-    private final ChatOptionsMapper chatOptionsMapper;
     private final ChatModel chatModel;
+    private final ChatOptionsFactory chatOptionsFactory;
 
     @Value("${custom.chat.model}")
     private String chatModelName;
@@ -38,15 +36,7 @@ public class ChatClientProvider {
     }
 
     public ChatClient getClient(ChatOptionsDto chatOptionsDto) {
-        final ChatOptions chatOptions;
-        if (chatOptionsDto == null) {
-            chatOptions = ChatOptionsBuilder.builder()
-                    .withModel(chatModelName)
-                    .withTemperature(0.7)
-                    .build();
-        } else {
-            chatOptions = chatOptionsMapper.map(chatOptionsDto);
-        }
+        var chatOptions = chatOptionsFactory.get(chatOptionsDto, chatModel);
         return getClient(chatOptions);
     }
 

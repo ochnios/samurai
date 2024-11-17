@@ -24,6 +24,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Nationalized;
 import org.mapstruct.factory.Mappers;
 import pl.ochnios.samurai.model.dtos.PatchDto;
 import pl.ochnios.samurai.model.dtos.conversation.ConversationDto;
@@ -42,14 +43,18 @@ import pl.ochnios.samurai.model.mappers.ConversationMapper;
 @Table(name = "conversations")
 public class Conversation implements PatchableEntity {
 
+    public static final int MIN_SUMMARY_LENGTH = 3;
+    public static final int MAX_SUMMARY_LENGTH = 50;
+
     @Id
     @CustomUuidGenerator
     private UUID id;
 
+    @Builder.Default
     @ToString.Exclude
     @OrderBy("createdAt asc")
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<MessageEntity> messages;
+    private List<MessageEntity> messages = new ArrayList<>();
 
     @Setter(AccessLevel.NONE)
     private int messageCount;
@@ -59,12 +64,14 @@ public class Conversation implements PatchableEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(length = 140)
-    private String summary;
+    @Builder.Default
+    @Nationalized
+    @Column(length = MAX_SUMMARY_LENGTH)
+    private String summary = "New conversation";
 
     @Builder.Default
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Instant createdAt = Instant.now();
 
     @Builder.Default

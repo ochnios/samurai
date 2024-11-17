@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static pl.ochnios.samurai.TestUtils.asJsonString;
 import static pl.ochnios.samurai.TestUtils.asParamsMap;
 import static pl.ochnios.samurai.TestUtils.generateTooLongString;
+import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -48,6 +49,8 @@ import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
 public class ConversationControllerTests {
 
     private static final String CONVERSATIONS_URI = "/conversations";
+    private final UUID conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
+    private final String conversationSummary = "New conversation";
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,9 +66,6 @@ public class ConversationControllerTests {
 
     @Autowired
     private ConversationCrudRepository conversationCrudRepository;
-
-    private final UUID conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
-    private final String conversationSummary = "New conversation";
 
     @BeforeAll
     public void setup() {
@@ -197,7 +197,7 @@ public class ConversationControllerTests {
 
         @Test
         public void patch_conversation_summary_too_long_400() throws Exception {
-            var tooLongSummary = generateTooLongString(33);
+            var tooLongSummary = generateTooLongString(MAX_SUMMARY_LENGTH + 1);
             var patch = new JsonPatchDto("replace", "/summary", tooLongSummary);
             test_patch_validation(patch, "summary must have at most");
         }

@@ -1,13 +1,15 @@
 package pl.ochnios.samurai.model.dtos.conversation;
 
-import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.ai.chat.messages.MessageType;
+
+import java.util.List;
+import java.util.UUID;
+
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 
 @Data
 @AllArgsConstructor
@@ -27,8 +29,11 @@ public class MessageDto {
     @Schema(description = "${docs.dto.message.createdAt}", accessMode = READ_ONLY)
     private String createdAt;
 
+    @Schema(description = "${docs.dto.message.sources}", accessMode = READ_ONLY)
+    private List<MessageSourceDto> sources;
+
     public static MessageDto message(String content, MessageType type) {
-        return new MessageDto(null, content, type, null);
+        return new MessageDto(null, content, type, null, null);
     }
 
     public static MessageDto user(String content) {

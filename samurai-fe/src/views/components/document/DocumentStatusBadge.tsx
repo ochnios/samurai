@@ -23,7 +23,7 @@ function getBadgeColor(status: DocumentStatus): string {
 export default function DocumentStatusBadge(props: DocumentStatusBadgeProps) {
   const color = getBadgeColor(props.status);
   return (
-    <Badge color={color}>
+    <Badge color={color} w={100}>
       {props.status.toString()}{" "}
       {props.status === DocumentStatus.IN_PROGRESS && (
         <Loader size={10} color="white" />

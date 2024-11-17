@@ -6,7 +6,7 @@ const chatUrl = "/chat";
 
 export const sendMessage = async (
   chatRequest: ChatRequest,
-): Promise<ChatResponse | void> => {
+): Promise<ChatResponse> => {
   return await axios
     .post<ChatResponse>(chatUrl, chatRequest)
     .then((response) => response.data)

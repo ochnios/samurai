@@ -51,6 +51,10 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         conversation.setDeleted(true);
         for (var message : conversation.getMessages()) {
             message.setDeleted(true);
+            var sources = message.getSources();
+            for (var source : sources) {
+                source.setDeleted(true);
+            }
         }
         conversationCrudRepository.save(conversation);
     }

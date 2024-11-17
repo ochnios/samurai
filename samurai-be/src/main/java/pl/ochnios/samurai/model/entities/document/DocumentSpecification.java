@@ -1,10 +1,11 @@
 package pl.ochnios.samurai.model.entities.document;
 
 import jakarta.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import pl.ochnios.samurai.model.dtos.document.DocumentCriteria;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DocumentSpecification {
 
@@ -61,12 +62,12 @@ public class DocumentSpecification {
                 predicates.add(builder.lessThanOrEqualTo(root.get("size"), criteria.getMaxSize()));
             }
 
-            if (criteria.getMinCreatedAt() != null) {
-                predicates.add(builder.greaterThanOrEqualTo(root.get("createdAt"), criteria.getMinCreatedAt()));
+            if (criteria.getMinUpdatedAt() != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("updatedAt"), criteria.getMinUpdatedAt()));
             }
 
-            if (criteria.getMaxCreatedAt() != null) {
-                predicates.add(builder.lessThanOrEqualTo(root.get("createdAt"), criteria.getMaxCreatedAt()));
+            if (criteria.getMaxUpdatedAt() != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("updatedAt"), criteria.getMaxUpdatedAt()));
             }
 
             if (criteria.getStatus() != null) {

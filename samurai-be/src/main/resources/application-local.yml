@@ -9,23 +9,24 @@ spring:
   mvc:
     log-request-details: true
   datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:samurai-db
-    username: sa
-    password: sa
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://localhost:11433;encrypt=false;trustServerCertificate=true;databaseName=samurai-db
+    username: samurai-be
+    password: ${SAMURAI_DB_PASSWORD}
   jpa:
-    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: false
+        dialect: org.hibernate.dialect.SQLServerDialect
     open-in-view: true
   h2:
     console:
       enabled: true
   # Important note: Only one ChatModel have to be available in application context
   # You can disable unused chat models using its 'enable' flag or by excluding model autoconfiguration
+  # After switching models it may be necessary to customize ChatClientProvider
   ai:
     vectorstore:
       qdrant:
@@ -62,7 +63,7 @@ logging:
       springframework:
         web: DEBUG
         security: DEBUG
-        ai: DEBUG
+        ai: INFO
       hibernate:
         SQL: DEBUG
         type:
@@ -72,10 +73,10 @@ logging:
 
 custom:
   loader:
-    enabled: true
+    enabled: false
     bulk: false
   chunking:
-    enabled: true;
+    enabled: false;
     initialDelay:
       seconds: 30
     fixedDelay:
@@ -94,8 +95,12 @@ custom:
       acceptAsHeader: true
       headerPrefix: "Bearer "
   # Note that both models have to be from single provider
+  # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
   chat:
     model: gpt-4o
+    tokenEncoding: o200k_base
+    maxDocumentTokens: 32000
+    maxMessageTokens: 2000
   task:
     model: gpt-4o-mini
   search:

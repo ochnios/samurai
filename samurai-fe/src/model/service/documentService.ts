@@ -11,6 +11,7 @@ import { PageRequestImpl } from "../api/page/PageRequestImpl.ts";
 import { JsonPatch } from "../api/patch/JsonPatch.ts";
 import { processUserSorting } from "./sortService.ts";
 import { DocumentUpload } from "../api/document/DocumentUpload.ts";
+import { DocumentContent } from "../api/document/DocumentContent.ts";
 
 export const MAX_FILE_SIZE = 52_428_800;
 export const MIN_TITLE_LENGTH = 3;
@@ -23,6 +24,18 @@ const documentsUrl = "/documents";
 export const fetchDocument = async (documentId: string): Promise<Document> => {
   return await axios
     .get<Document>(`${documentsUrl}/${documentId}`)
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
+};
+
+export const fetchDocumentContent = async (
+  documentId: string,
+): Promise<DocumentContent> => {
+  return await axios
+    .get<DocumentContent>(`${documentsUrl}/${documentId}/content`)
     .then((response) => response.data)
     .catch((error) => {
       console.error(error);

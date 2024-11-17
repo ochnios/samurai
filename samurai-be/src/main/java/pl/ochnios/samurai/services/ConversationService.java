@@ -1,6 +1,8 @@
 package pl.ochnios.samurai.services;
 
-import java.util.ArrayList;
+import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
+
+import java.util.Set;
 import java.util.UUID;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +19,13 @@ import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.samurai.model.entities.conversation.Conversation;
 import pl.ochnios.samurai.model.entities.conversation.ConversationSpecification;
+import pl.ochnios.samurai.model.entities.conversation.MessageSource;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.ConversationMapper;
 import pl.ochnios.samurai.model.mappers.MessageMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.ConversationRepository;
+import pl.ochnios.samurai.repositories.DocumentRepository;
 
 @Slf4j
 @Service
@@ -29,13 +33,14 @@ import pl.ochnios.samurai.repositories.ConversationRepository;
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
+    private final DocumentRepository documentRepository;
     private final JsonPatchService patchService;
     private final PageMapper pageMapper;
     private final ConversationMapper conversationMapper;
     private final MessageMapper messageMapper;
 
     @Transactional(readOnly = true)
-    public ConversationDto getConversation(User user, UUID conversationId) {
+    public ConversationDto getConversationPreview(User user, UUID conversationId) {
         Conversation conversation;
         if (user.hasModRole() || user.hasAdminRole()) {
             conversation = conversationRepository.findByIdIncludingDeleted(conversationId);
@@ -46,33 +51,59 @@ public class ConversationService {
     }
 
     @Transactional(readOnly = true)
+    public ConversationDto getConversation(User user, UUID conversationId) {
+        var conversation = conversationRepository.findByUserAndId(user, conversationId);
+        return conversationMapper.map(conversation);
+    }
+
+    @Transactional(readOnly = true)
     public PageDto<ConversationSummaryDto> getSummariesPage(User user, PageRequestDto pageRequestDto) {
-        var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
+        var pageRequest = pageMapper.map(pageRequestDto);
         var conversationsPage = conversationRepository.findAllByUser(user, pageRequest);
-        return pageMapper.validOrDefaultSort(conversationsPage, conversationMapper::mapToSummary);
+        return pageMapper.map(conversationsPage, conversationMapper::mapToSummary);
     }
 
     @Transactional(readOnly = true)
     public PageDto<ConversationDetailsDto> getDetailsPage(
             ConversationCriteria criteria, PageRequestDto pageRequestDto) {
-        var pageRequest = pageMapper.validOrDefaultSort(pageRequestDto);
+        var pageRequest = pageMapper.map(pageRequestDto);
         var specification = ConversationSpecification.create(criteria);
         var conversationsPage = conversationRepository.findAllIncludingDeleted(specification, pageRequest);
-        return pageMapper.validOrDefaultSort(conversationsPage, conversationMapper::mapToDetails);
+        return pageMapper.map(conversationsPage, conversationMapper::mapToDetails);
     }
 
     @Transactional
     public ConversationDto startConversation(User user, String summary) {
-        var conversation = createConversation(user, summary);
+        var conversation = Conversation.builder()
+                .user(user)
+                .summary(validatedSummary(summary))
+                .build();
         var savedConversation = conversationRepository.save(conversation);
         log.info("Conversation {} started", savedConversation.getId());
         return conversationMapper.map(savedConversation);
     }
 
     @Transactional
-    public MessageDto saveMessage(User user, UUID conversationId, MessageDto messageDto) {
+    public MessageDto saveUserMessage(User user, UUID conversationId, String content) {
         var conversation = conversationRepository.findByUserAndId(user, conversationId);
-        var message = messageMapper.map(conversation, messageDto);
+        var message = messageMapper.map(MessageDto.user(content), conversation);
+        conversation.addMessage(message);
+        var savedConversation = conversationRepository.save(conversation);
+        log.info("Message {} for conversation {} saved", message.getId(), conversationId);
+        return messageMapper.map(savedConversation.getMessages().getLast());
+    }
+
+    @Transactional
+    public MessageDto saveAssistantMessage(User user, UUID conversationId, String content, Set<UUID> documents) {
+        var conversation = conversationRepository.findByUserAndId(user, conversationId);
+        var sources = documentRepository.findAllById(documents).stream()
+                .map(d -> MessageSource.builder()
+                        .originalTitle(d.getTitle())
+                        .document(d)
+                        .build())
+                .toList();
+        var message = messageMapper.map(MessageDto.assistant(content), conversation, sources);
+        message.getSources().forEach(m -> m.setMessage(message));
         conversation.addMessage(message);
         var savedConversation = conversationRepository.save(conversation);
         log.info("Message for conversation {} saved", conversationId);
@@ -95,11 +126,7 @@ public class ConversationService {
         log.info("Conversation {} deleted", conversationId);
     }
 
-    private Conversation createConversation(User user, String summary) {
-        return Conversation.builder()
-                .user(user)
-                .summary(summary)
-                .messages(new ArrayList<>())
-                .build();
+    private String validatedSummary(String summary) {
+        return summary.length() > MAX_SUMMARY_LENGTH ? summary.substring(0, MAX_SUMMARY_LENGTH) : summary;
     }
 }

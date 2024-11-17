@@ -24,6 +24,7 @@ spring:
     open-in-view: true
   # Important note: Only one ChatModel have to be available in application context
   # You can disable unused chat models using its 'enable' flag or by excluding model autoconfiguration
+  # After switching models it may be necessary to customize ChatClientProvider
   ai:
     vectorstore:
       qdrant:
@@ -84,8 +85,12 @@ custom:
       prefix: Bearer_
       acceptAsHeader: false
   # Note that both models have to be from single provider
+  # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
   chat:
     model: gpt-4o
+    tokenEncoding: o200k_base
+    maxDocumentTokens: 32000
+    maxMessageTokens: 2000
   task:
     model: gpt-4o-mini
   search:

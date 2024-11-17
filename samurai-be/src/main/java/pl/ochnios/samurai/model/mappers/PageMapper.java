@@ -1,15 +1,16 @@
 package pl.ochnios.samurai.model.mappers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Mapper
 public interface PageMapper {
@@ -20,7 +21,7 @@ public interface PageMapper {
     int DEFAULT_PAGE_SIZE = 10;
     Sort DEFAULT_SORT = Sort.unsorted();
 
-    default <T, DTO> PageDto<DTO> validOrDefaultSort(Page<T> page, Function<T, DTO> mapper) {
+    default <T, DTO> PageDto<DTO> map(Page<T> page, Function<T, DTO> mapper) {
         if (page == null) {
             return new PageDto<>(List.of(), 0, 0, 0);
         } else {
@@ -29,13 +30,13 @@ public interface PageMapper {
         }
     }
 
-    default PageRequest validOrDefaultSort(PageRequestDto pageRequestDto) {
+    default PageRequest map(PageRequestDto pageRequestDto) {
         if (pageRequestDto == null) {
             return PageRequest.of(0, 10);
         }
         var page = validOrDefaultPage(pageRequestDto.getPage());
         var size = validOrDefaultSize(pageRequestDto.getSize());
-        var sort = validOrDefaultSort(pageRequestDto.getSortBy(), pageRequestDto.getSortDir());
+        var sort = map(pageRequestDto.getSortBy(), pageRequestDto.getSortDir());
         return PageRequest.of(page, size, sort);
     }
 
@@ -55,7 +56,7 @@ public interface PageMapper {
         }
     }
 
-    default Sort validOrDefaultSort(List<String> sortBy, List<String> sortDir) {
+    default Sort map(List<String> sortBy, List<String> sortDir) {
         if (sortBy != null) {
             List<Sort.Order> orders = new ArrayList<>();
             for (int i = 0; i < sortBy.size(); i++) {

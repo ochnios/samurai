@@ -91,12 +91,12 @@ export default function ChatPage() {
       answerPlaceholder,
     ]);
 
+    let answerMessage: Message;
     sendMessage({
       conversationId: conversationId,
       question: content,
-    }).then((response) => {
-      let answerMessage: Message;
-      if (response) {
+    })
+      .then((response) => {
         answerMessage = {
           id: response.messageId,
           content: response.completion,
@@ -112,7 +112,8 @@ export default function ChatPage() {
           );
           navigate(`/conversations/${response.conversationId}`);
         }
-      } else {
+      })
+      .catch(() => {
         answerMessage = {
           id: "error",
           content:
@@ -121,13 +122,13 @@ export default function ChatPage() {
           status: MessageStatus.ERROR,
         };
         showErrorMessage("Failed to send the message");
-      }
-
-      setMessages((prevMessages) => [
-        ...prevMessages.slice(0, prevMessages.length - 1),
-        answerMessage,
-      ]);
-    });
+      })
+      .finally(() => {
+        setMessages((prevMessages) => [
+          ...prevMessages.slice(0, prevMessages.length - 1),
+          answerMessage,
+        ]);
+      });
   };
 
   return (

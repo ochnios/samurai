@@ -9,7 +9,7 @@ export interface DocumentCriteria extends SearchCriteria {
   filename?: string;
   minSize?: number;
   maxSize?: number;
-  minCreatedAt?: string;
-  maxCreatedAt?: string;
+  minUpdatedAt?: string;
+  maxUpdatedAt?: string;
   status?: DocumentStatus;
 }

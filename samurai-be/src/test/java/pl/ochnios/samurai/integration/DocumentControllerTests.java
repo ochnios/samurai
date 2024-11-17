@@ -1,5 +1,30 @@
 package pl.ochnios.samurai.integration;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.ochnios.samurai.TestUtils.asJsonString;
+import static pl.ochnios.samurai.TestUtils.asParamsMap;
+import static pl.ochnios.samurai.TestUtils.generateTooLongString;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.FAILED;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.IN_PROGRESS;
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,32 +52,6 @@ import pl.ochnios.samurai.model.seeders.DocumentSeeder;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
 import pl.ochnios.samurai.repositories.impl.DocumentCrudRepository;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.ochnios.samurai.TestUtils.asJsonString;
-import static pl.ochnios.samurai.TestUtils.asParamsMap;
-import static pl.ochnios.samurai.TestUtils.generateTooLongString;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.FAILED;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.IN_PROGRESS;
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.UPLOADED;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -136,7 +135,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.title", is(documentUploadDto.getTitle())))
                     .andExpect(jsonPath("$.description", is(documentUploadDto.getDescription())))
                     .andExpect(jsonPath("$.status", is(UPLOADED.name())))
-                    .andExpect(jsonPath("$.createdAt", is(not(emptyOrNullString()))));
+                    .andExpect(jsonPath("$.updatedAt", is(not(emptyOrNullString()))));
         }
 
         @Test
@@ -255,7 +254,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath(
                             "$.items[0].status", is(samplePDF.getStatus().toString())))
                     .andExpect(jsonPath(
-                            "$.items[0].createdAt", is(samplePDF.getCreatedAt().toString())));
+                            "$.items[0].updatedAt", is(samplePDF.getUpdatedAt().toString())));
         }
 
         @Test
@@ -284,7 +283,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.description", is(sampleDOCX.getDescription())))
                     .andExpect(jsonPath("$.status", is(sampleDOCX.getStatus().toString())))
                     .andExpect(
-                            jsonPath("$.createdAt", is(sampleDOCX.getCreatedAt().toString())));
+                            jsonPath("$.updatedAt", is(sampleDOCX.getUpdatedAt().toString())));
         }
 
         @Test
@@ -311,7 +310,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
                     .andExpect(jsonPath("$.title", is(patch.getValue())))
                     .andExpect(
-                            jsonPath("$.createdAt", is(samplePDF.getCreatedAt().toString())));
+                            jsonPath("$.updatedAt", is(samplePDF.getUpdatedAt().toString())));
         }
 
         @Test
@@ -350,7 +349,7 @@ public class DocumentControllerTests {
                     .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
                     .andExpect(jsonPath("$.description", is(patch.getValue())))
                     .andExpect(
-                            jsonPath("$.createdAt", is(samplePDF.getCreatedAt().toString())));
+                            jsonPath("$.updatedAt", is(samplePDF.getUpdatedAt().toString())));
         }
 
         @Test
@@ -378,9 +377,7 @@ public class DocumentControllerTests {
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
-                    .andExpect(jsonPath("$.status", is(patch.getValue())))
-                    .andExpect(
-                            jsonPath("$.createdAt", is(samplePDF.getCreatedAt().toString())));
+                    .andExpect(jsonPath("$.status", is(patch.getValue())));
         }
 
         @Test
@@ -395,9 +392,7 @@ public class DocumentControllerTests {
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
-                    .andExpect(jsonPath("$.status", is(patch.getValue())))
-                    .andExpect(
-                            jsonPath("$.createdAt", is(samplePDF.getCreatedAt().toString())));
+                    .andExpect(jsonPath("$.status", is(patch.getValue())));
         }
 
         @Test
@@ -635,9 +630,9 @@ public class DocumentControllerTests {
         }
 
         @Test
-        public void search_by_min_created_at_no_results() throws Exception {
+        public void search_by_min_updated_at_no_results() throws Exception {
             var searchCriteria =
-                    DocumentCriteria.builder().minCreatedAt(Instant.now()).build();
+                    DocumentCriteria.builder().minUpdatedAt(Instant.now()).build();
             var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -648,10 +643,10 @@ public class DocumentControllerTests {
         }
 
         @Test
-        public void search_by_min_created_at_all_results() throws Exception {
+        public void search_by_min_updated_at_all_results() throws Exception {
             var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
             var searchCriteria =
-                    DocumentCriteria.builder().minCreatedAt(oneHourEarlier).build();
+                    DocumentCriteria.builder().minUpdatedAt(oneHourEarlier).build();
             var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -662,10 +657,10 @@ public class DocumentControllerTests {
         }
 
         @Test
-        public void search_by_max_created_at_no_results() throws Exception {
+        public void search_by_max_updated_at_no_results() throws Exception {
             var oneHourEarlier = Instant.now().minus(Duration.ofHours(1));
             var searchCriteria =
-                    DocumentCriteria.builder().maxCreatedAt(oneHourEarlier).build();
+                    DocumentCriteria.builder().maxUpdatedAt(oneHourEarlier).build();
             var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())
@@ -676,9 +671,9 @@ public class DocumentControllerTests {
         }
 
         @Test
-        public void search_by_max_created_at_all_results() throws Exception {
+        public void search_by_max_updated_at_all_results() throws Exception {
             var searchCriteria =
-                    DocumentCriteria.builder().maxCreatedAt(Instant.now()).build();
+                    DocumentCriteria.builder().maxUpdatedAt(Instant.now()).build();
             var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI).params(asParamsMap(searchCriteria));
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isOk())

@@ -1,6 +1,10 @@
 package pl.ochnios.samurai.controllers.impl;
 
 import jakarta.validation.Valid;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.ochnios.samurai.commons.AppConstants;
 import pl.ochnios.samurai.controllers.DocumentApi;
+import pl.ochnios.samurai.model.dtos.document.DocumentContentDto;
 import pl.ochnios.samurai.model.dtos.document.DocumentCriteria;
 import pl.ochnios.samurai.model.dtos.document.DocumentDto;
 import pl.ochnios.samurai.model.dtos.document.DocumentUploadDto;
@@ -27,11 +32,6 @@ import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.samurai.services.DocumentService;
 import pl.ochnios.samurai.services.security.AuthService;
-
-import javax.json.JsonPatch;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,6 +67,13 @@ public class DocumentController implements DocumentApi {
         return ResponseEntity.ok(document);
     }
 
+    @Override
+    @GetMapping(value = "/{documentId}/content")
+    public ResponseEntity<DocumentContentDto> getDocumentContent(@PathVariable UUID documentId) {
+        String content = documentService.getContentById(documentId);
+        return ResponseEntity.ok(new DocumentContentDto(documentId, content));
+    }
+
     @GetMapping(value = "/{documentId}/download")
     public ResponseEntity<byte[]> downloadDocument(
             @PathVariable UUID documentId, @RequestParam(required = false) Boolean inline) {
@@ -92,9 +99,9 @@ public class DocumentController implements DocumentApi {
     }
 
     private HttpHeaders createFileDownloadHeaders(FileDownloadDto file, Boolean inline) {
-        return inline != null && inline ?
-                createFileDownloadHeaders(file, "inline; filename*=") :
-            createFileDownloadHeaders(file, "form-data; name=\"attachment\"; filename*=");
+        return inline != null && inline
+                ? createFileDownloadHeaders(file, "inline; filename*=")
+                : createFileDownloadHeaders(file, "form-data; name=\"attachment\"; filename*=");
     }
 
     private HttpHeaders createFileDownloadHeaders(FileDownloadDto file, String headerValue) {

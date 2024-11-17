@@ -14,13 +14,14 @@ public class ChunkSpecification {
 
             if (criteria.getGlobalSearch() != null) {
                 String globalSearchPattern = "%" + criteria.getGlobalSearch().toLowerCase() + "%";
-                var contentPredicate = builder.like(builder.lower(root.get("content")), globalSearchPattern);
+                var contentPredicate =
+                        builder.like(builder.lower(root.get("content").as(String.class)), globalSearchPattern);
                 predicates.add(builder.or(contentPredicate));
             }
 
             if (criteria.getContent() != null) {
                 predicates.add(builder.like(
-                        builder.lower(root.get("content")),
+                        builder.lower(root.get("content").as(String.class)),
                         "%" + criteria.getContent().toLowerCase() + "%"));
             }
 

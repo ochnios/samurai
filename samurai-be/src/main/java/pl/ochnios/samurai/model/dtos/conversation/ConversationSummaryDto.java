@@ -1,6 +1,8 @@
 package pl.ochnios.samurai.model.dtos.conversation;
 
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
+import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
+import static pl.ochnios.samurai.model.entities.conversation.Conversation.MIN_SUMMARY_LENGTH;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -23,8 +25,8 @@ public class ConversationSummaryDto {
 
     @Schema(description = "${docs.dto.conversation.summary}", accessMode = READ_ONLY)
     @NotBlank(message = "must not be blank or null")
-    @Size(min = 3, message = "must have at least 3 characters")
-    @Size(max = 32, message = "must have at most 32 characters")
+    @Size(min = MIN_SUMMARY_LENGTH, message = "must have at least " + MIN_SUMMARY_LENGTH + " characters")
+    @Size(max = MAX_SUMMARY_LENGTH, message = "must have at most " + MAX_SUMMARY_LENGTH + " characters")
     private String summary;
 
     @NotPatchable

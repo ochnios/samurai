@@ -86,7 +86,7 @@ export default function DocumentsPage() {
 
     const interval = setInterval(() => {
       refreshDocuments();
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [page]);
@@ -228,9 +228,9 @@ export default function DocumentsPage() {
         grow: false,
       },
       {
-        accessorKey: "createdAt",
-        header: "Uploaded at",
-        accessorFn: (row) => new Date(row.createdAt),
+        accessorKey: "updatedAt",
+        header: "Updated at",
+        accessorFn: (row) => new Date(row.updatedAt),
         filterVariant: "date-range",
         Cell: ({ cell }) =>
           `${cell.getValue<Date>().toLocaleDateString()} ${cell

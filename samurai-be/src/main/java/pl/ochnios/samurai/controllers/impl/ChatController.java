@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.ochnios.samurai.controllers.ChatApi;
 import pl.ochnios.samurai.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.samurai.model.dtos.chat.ChatResponseDto;
-import pl.ochnios.samurai.services.ChatService;
+import pl.ochnios.samurai.services.chat.ChatService;
 import pl.ochnios.samurai.services.security.AuthService;
 
 @RestController

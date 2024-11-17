@@ -10,8 +10,8 @@ export class DocumentCriteriaImpl implements DocumentCriteria {
   filename?: string;
   minSize?: number;
   maxSize?: number;
-  minCreatedAt?: string;
-  maxCreatedAt?: string;
+  minUpdatedAt?: string;
+  maxUpdatedAt?: string;
   status?: DocumentStatus;
 
   constructor(init?: Partial<DocumentCriteria>) {
@@ -36,22 +36,22 @@ export class DocumentCriteriaImpl implements DocumentCriteria {
       criteria.maxSize = isNaN(maxSize) ? undefined : maxSize;
     }
 
-    const createdAtFilter = columnFilters.find(
-      (e) => e.id == "createdAt",
+    const updatedAtFilter = columnFilters.find(
+      (e) => e.id == "updatedAt",
     )?.value;
-    if (createdAtFilter) {
-      const createdAtFilterValue = createdAtFilter as Date[];
-      criteria.minCreatedAt =
-        createdAtFilterValue[0] && createdAtFilterValue[0]?.toISOString();
-      criteria.maxCreatedAt =
-        createdAtFilterValue[1] && createdAtFilterValue[1]?.toISOString();
+    if (updatedAtFilter) {
+      const updatedAtFilterValue = updatedAtFilter as Date[];
+      criteria.minUpdatedAt =
+        updatedAtFilterValue[0] && updatedAtFilterValue[0]?.toISOString();
+      criteria.maxUpdatedAt =
+        updatedAtFilterValue[1] && updatedAtFilterValue[1]?.toISOString();
     }
 
     criteria.title = columnFilters.find((e) => e.id == "title")
       ?.value as string;
     criteria.description = columnFilters.find((e) => e.id == "description")
       ?.value as string;
-    criteria.filename = columnFilters.find((e) => e.id == "filename")
+    criteria.filename = columnFilters.find((e) => e.id == "name")
       ?.value as string;
     criteria.userFullName = columnFilters.find((e) => e.id == "user")
       ?.value as string;
@@ -73,10 +73,10 @@ export class DocumentCriteriaImpl implements DocumentCriteria {
     if (this.maxSize !== undefined) {
       params.append("maxSize", this.maxSize.toString());
     }
-    if (this.minCreatedAt) params.append("minCreatedAt", this.minCreatedAt);
-    if (this.maxCreatedAt) params.append("maxCreatedAt", this.maxCreatedAt);
+    if (this.minUpdatedAt) params.append("minUpdatedAt", this.minUpdatedAt);
+    if (this.maxUpdatedAt) params.append("maxUpdatedAt", this.maxUpdatedAt);
     if (this.userFullName) params.append("userFullName", this.userFullName);
-    if (this.minCreatedAt) params.append("minCreatedAt", this.minCreatedAt);
+    if (this.minUpdatedAt) params.append("minCreatedAt", this.minUpdatedAt);
     if (this.status) params.append("status", this.status.toString());
     return params.toString();
   }
