@@ -13,7 +13,7 @@ import {
 import { useDocumentTitle } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useRef } from "react";
-import { useNavigate, useNavigationType } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/useAppDispatch.ts";
 import { useAuth } from "../../hooks/useAuth.ts";
 import { Login } from "../../model/api/auth/Login.ts";
@@ -22,9 +22,8 @@ import { resetConversationList } from "../../reducers/conversationsSlice.ts";
 import { showErrorMessage, showNotImplementedMessage } from "../../utils.ts";
 
 export default function LoginPage() {
-  useDocumentTitle("Sign in | SamurAI");
+  useDocumentTitle("Log in | SamurAI");
   const navigate = useNavigate();
-  const navigationType = useNavigationType();
   const dispatch = useAppDispatch();
   const auth = useAuth();
 
@@ -38,11 +37,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (auth.loading) return;
     else if (auth.authenticated) {
-      if (navigationType === "POP") {
-        navigate("/");
-      } else {
-        navigate(-1);
-      }
+      navigate("/");
     } else if (auth.errors) {
       showErrorMessage("Wrong username or password");
     }
@@ -63,7 +58,7 @@ export default function LoginPage() {
       <Title ta="center">Welcome back!</Title>
       <Text c="dimmed" size="sm" ta="center" mt={5}>
         Do not have an account yet?{" "}
-        <Anchor size="sm" onClick={showNotImplementedMessage}>
+        <Anchor size="sm" onClick={() => navigate("/register")}>
           Create account
         </Anchor>
       </Text>

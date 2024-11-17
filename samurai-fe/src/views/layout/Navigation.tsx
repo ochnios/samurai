@@ -1,7 +1,8 @@
 import { Box, Divider, ScrollArea } from "@mantine/core";
 import { useElementSize } from "@mantine/hooks";
 import {
-  IconFiles,
+  IconChartBar,
+  IconFile,
   IconLogout,
   IconMessagePlus,
   IconMessages,
@@ -20,8 +21,9 @@ import { useIsAdmin } from "../../hooks/useIsAdmin.ts";
 const adminLinks = [{ link: "/users", label: "Users", icon: IconUsers }];
 
 const modLinks = [
-  { link: "/documents", label: "Documents", icon: IconFiles },
-  { link: "/conversations/all", label: "Conversations", icon: IconMessages },
+  { link: "/statistics", label: "Statistics", icon: IconChartBar },
+  { link: "/documents", label: "Documents", icon: IconFile },
+  { link: "/conversations/all", label: "Conversations", icon: IconMessagePlus },
 ];
 
 const links = [
@@ -31,8 +33,8 @@ const links = [
 export default function Navigation() {
   const { ref, height } = useElementSize();
   const dispatch = useAppDispatch();
-  const isAdmin = useIsAdmin();
   const isMod = useIsMod();
+  const isAdmin = useIsAdmin();
 
   const handleLogout = (e: any) => {
     e.preventDefault();

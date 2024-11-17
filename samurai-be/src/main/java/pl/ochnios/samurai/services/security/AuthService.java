@@ -7,8 +7,11 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.ochnios.samurai.commons.exceptions.ValidationException;
 import pl.ochnios.samurai.model.dtos.auth.LoginDto;
+import pl.ochnios.samurai.model.dtos.auth.RegisterDto;
 import pl.ochnios.samurai.model.dtos.user.UserDto;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.UserMapper;
@@ -22,6 +25,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public UserDto authenticate(LoginDto loginDto, HttpServletResponse response) {
         var authToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
@@ -37,6 +41,23 @@ public class AuthService {
         jwtService.unsetJwtCookie(response);
     }
 
+    public UserDto register(RegisterDto registerDto) {
+        validateRegisterDto(registerDto);
+
+        var user = User.builder()
+                .username(registerDto.getUsername())
+                .firstname(registerDto.getFirstname())
+                .lastname(registerDto.getLastname())
+                .email(registerDto.getEmail())
+                .password(passwordEncoder.encode(registerDto.getPassword()))
+                .build();
+
+        // TODO email verification
+
+        user = userRepository.save(user);
+        return userMapper.map(user);
+    }
+
     public User getAuthenticatedUser() {
         var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof User user) {
@@ -45,6 +66,20 @@ public class AuthService {
             return userRepository.findByUsername(userDetails.getUsername());
         } else {
             throw new AuthenticationServiceException("Bad principal type");
+        }
+    }
+
+    private void validateRegisterDto(RegisterDto registerDto) {
+        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
+            throw new ValidationException("Passwords do not match");
+        }
+
+        if (userRepository.existsByUsername(registerDto.getUsername())) {
+            throw new ValidationException("Username already exists");
+        }
+
+        if (userRepository.existsByEmail(registerDto.getEmail())) {
+            throw new ValidationException("Email already exists");
         }
     }
 }

@@ -10,4 +10,6 @@ public interface UserCrudRepository extends CrudRepository<User, String>, JpaSpe
     Optional<User> findByUsername(String username);
 
     boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
 }

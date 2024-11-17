@@ -45,16 +45,20 @@ import java.util.UUID;
 @Table(name = "users")
 public class User implements UserDetails, PatchableEntity {
 
+    public static final int MAX_NAME_LENGTH = 30;
+
     @Id
     private String username;
 
     @Nationalized
+    @Column(nullable = false, length = MAX_NAME_LENGTH)
     private String firstname;
 
     @Nationalized
+    @Column(nullable = false, length = MAX_NAME_LENGTH)
     private String lastname;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @ToString.Exclude
