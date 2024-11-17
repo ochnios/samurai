@@ -2,7 +2,6 @@ package pl.ochnios.samurai.services;
 
 import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
 
-import java.util.ArrayList;
 import java.util.UUID;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +36,19 @@ public class ConversationService {
     private final MessageMapper messageMapper;
 
     @Transactional(readOnly = true)
-    public ConversationDto getConversation(User user, UUID conversationId) {
+    public ConversationDto getConversationPreview(User user, UUID conversationId) {
         Conversation conversation;
         if (user.hasModRole() || user.hasAdminRole()) {
             conversation = conversationRepository.findByIdIncludingDeleted(conversationId);
         } else {
             conversation = conversationRepository.findByUserAndId(user, conversationId);
         }
+        return conversationMapper.map(conversation);
+    }
+
+    @Transactional(readOnly = true)
+    public ConversationDto getConversation(User user, UUID conversationId) {
+        var conversation = conversationRepository.findByUserAndId(user, conversationId);
         return conversationMapper.map(conversation);
     }
 
@@ -65,9 +70,21 @@ public class ConversationService {
 
     @Transactional
     public ConversationDto startConversation(User user, String summary) {
-        var conversation = createConversation(user, summary);
+        var conversation = Conversation.builder()
+                .user(user)
+                .summary(validatedSummary(summary))
+                .build();
         var savedConversation = conversationRepository.save(conversation);
         log.info("Conversation {} started", savedConversation.getId());
+        return conversationMapper.map(savedConversation);
+    }
+
+    @Transactional
+    public ConversationDto updateSummary(User user, UUID conversationId, String summary) {
+        var conversation = conversationRepository.findByUserAndId(user, conversationId);
+        conversation.setSummary(validatedSummary(summary));
+        var savedConversation = conversationRepository.save(conversation);
+        log.info("Conversation {} summary updated", savedConversation.getId());
         return conversationMapper.map(savedConversation);
     }
 
@@ -97,13 +114,7 @@ public class ConversationService {
         log.info("Conversation {} deleted", conversationId);
     }
 
-    private Conversation createConversation(User user, String summary) {
-        String validSummary =
-                summary.length() > MAX_SUMMARY_LENGTH ? summary.substring(0, MAX_SUMMARY_LENGTH) : summary;
-        return Conversation.builder()
-                .user(user)
-                .summary(validSummary)
-                .messages(new ArrayList<>())
-                .build();
+    private String validatedSummary(String summary) {
+        return summary.length() > MAX_SUMMARY_LENGTH ? summary.substring(0, MAX_SUMMARY_LENGTH) : summary;
     }
 }

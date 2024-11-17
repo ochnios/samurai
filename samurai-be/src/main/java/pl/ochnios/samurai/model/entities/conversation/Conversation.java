@@ -50,10 +50,11 @@ public class Conversation implements PatchableEntity {
     @CustomUuidGenerator
     private UUID id;
 
+    @Builder.Default
     @ToString.Exclude
     @OrderBy("createdAt asc")
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<MessageEntity> messages;
+    private List<MessageEntity> messages = new ArrayList<>();
 
     @Setter(AccessLevel.NONE)
     private int messageCount;
@@ -63,9 +64,10 @@ public class Conversation implements PatchableEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Builder.Default
     @Nationalized
     @Column(length = MAX_SUMMARY_LENGTH)
-    private String summary;
+    private String summary = "New conversation";
 
     @Builder.Default
     @CreationTimestamp

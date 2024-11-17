@@ -8,7 +8,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
 import pl.ochnios.samurai.model.dtos.chat.ChatRequestDto;
 import pl.ochnios.samurai.model.dtos.chat.ChatResponseDto;
@@ -32,33 +31,28 @@ public class ChatService {
 
     public ChatResponseDto getCompletion(User user, ChatRequestDto chatRequestDto) {
         var conversationDto = getConversation(user, chatRequestDto);
+        var conversationId = conversationDto.getId();
 
-        var userMessage = MessageDto.user(chatRequestDto.getQuestion());
-        conversationService.saveMessage(user, conversationDto.getId(), userMessage);
-
+        var userMessage =
+                conversationService.saveMessage(user, conversationId, MessageDto.user(chatRequestDto.getQuestion()));
         chatContext.addMessage(userMessage.getContent());
-        var messageHistory = getMessageHistory(conversationDto);
-        var chatResponse = getChatResponse(messageHistory, chatRequestDto.getQuestion());
 
-        var completion = chatResponse.getResult().getOutput().getContent();
-        var assistantMessage = MessageDto.assistant(completion);
-        var savedAssistantMessage = conversationService.saveMessage(user, conversationDto.getId(), assistantMessage);
+        var messageHistory = loadMessageHistory(conversationDto);
+        var completion = generateCompletion(messageHistory, chatRequestDto.getQuestion());
+        var assistantMessage = conversationService.saveMessage(user, conversationId, MessageDto.assistant(completion));
 
-        log.info("Completion for conversation {} created", conversationDto.getId());
-        return getChatResponseDto(conversationDto, savedAssistantMessage);
+        log.info("Completion for conversation {} created", conversationDto);
+        return getChatResponseDto(conversationDto, assistantMessage);
     }
 
     private ConversationDto getConversation(User user, ChatRequestDto chatRequestDto) {
-        if (chatRequestDto.getConversationId() == null) {
-            var summary = generateSummary(chatRequestDto.getQuestion());
-            return conversationService.startConversation(user, summary);
-        }
-
-        return conversationService.getConversation(user, chatRequestDto.getConversationId());
+        return chatRequestDto.getConversationId() != null
+                ? conversationService.getConversation(user, chatRequestDto.getConversationId())
+                : conversationService.startConversation(user, generateSummary(chatRequestDto.getQuestion()));
     }
 
-    // Get last messages which fits in maxMessageTokens window
-    private List<Message> getMessageHistory(ConversationDto conversationDto) {
+    // Load messages which fits in maxMessageTokens window
+    private List<Message> loadMessageHistory(ConversationDto conversationDto) {
         var fullHistory = conversationDto.getMessages().stream()
                 .map(messageMapper::mapToSpringMessage)
                 .toList();
@@ -75,7 +69,7 @@ public class ChatService {
         return cutOffHistory;
     }
 
-    private ChatResponse getChatResponse(List<Message> history, String question) {
+    private String generateCompletion(List<Message> history, String question) {
         return chatClientProvider
                 .getChatClient()
                 .prompt()
@@ -85,16 +79,7 @@ public class ChatService {
                 .messages(history)
                 .user(question)
                 .call()
-                .chatResponse();
-    }
-
-    private ChatResponseDto getChatResponseDto(ConversationDto conversationDto, MessageDto messageDto) {
-        return ChatResponseDto.builder()
-                .conversationId(conversationDto.getId())
-                .messageId(messageDto.getId())
-                .summary(conversationDto.getMessages().isEmpty() ? conversationDto.getSummary() : null)
-                .completion(messageDto.getContent())
-                .build();
+                .content();
     }
 
     private String generateSummary(String question) {
@@ -105,9 +90,15 @@ public class ChatService {
                 .advisors(new SimpleLoggerAdvisor())
                 .system(systemPrompt)
                 .call()
-                .chatResponse()
-                .getResult()
-                .getOutput()
-                .getContent();
+                .content();
+    }
+
+    private ChatResponseDto getChatResponseDto(ConversationDto conversationDto, MessageDto messageDto) {
+        return ChatResponseDto.builder()
+                .conversationId(conversationDto.getId())
+                .messageId(messageDto.getId())
+                .summary(conversationDto.getMessages().isEmpty() ? conversationDto.getSummary() : null)
+                .completion(messageDto.getContent())
+                .build();
     }
 }

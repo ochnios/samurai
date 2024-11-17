@@ -1,7 +1,5 @@
 package pl.ochnios.samurai.controllers.impl;
 
-import java.util.UUID;
-import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +20,9 @@ import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.samurai.services.ConversationService;
 import pl.ochnios.samurai.services.security.AuthService;
+
+import javax.json.JsonPatch;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class ConversationController implements ConversationApi {
     @GetMapping("/{conversationId}")
     public ResponseEntity<ConversationDto> getConversation(@PathVariable UUID conversationId) {
         var user = authService.getAuthenticatedUser();
-        var conversation = conversationService.getConversation(user, conversationId);
+        var conversation = conversationService.getConversationPreview(user, conversationId);
         return ResponseEntity.ok(conversation);
     }
 
