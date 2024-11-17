@@ -33,13 +33,13 @@ public class ChatService {
         var conversationDto = getConversation(user, chatRequestDto);
         var conversationId = conversationDto.getId();
 
-        var userMessage =
-                conversationService.saveMessage(user, conversationId, MessageDto.user(chatRequestDto.getQuestion()));
+        var userMessage = conversationService.saveUserMessage(user, conversationId, chatRequestDto.getQuestion());
         chatContext.addMessage(userMessage.getContent());
 
         var messageHistory = loadMessageHistory(conversationDto);
         var completion = generateCompletion(messageHistory, chatRequestDto.getQuestion());
-        var assistantMessage = conversationService.saveMessage(user, conversationId, MessageDto.assistant(completion));
+        var assistantMessage =
+                conversationService.saveAssistantMessage(user, conversationId, completion, chatContext.getDocuments());
 
         log.info("Completion for conversation {} created", conversationDto);
         return getChatResponseDto(conversationDto, assistantMessage);

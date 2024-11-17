@@ -71,7 +71,7 @@ public class Conversation implements PatchableEntity {
 
     @Builder.Default
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Instant createdAt = Instant.now();
 
     @Builder.Default

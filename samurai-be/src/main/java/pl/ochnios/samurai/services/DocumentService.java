@@ -1,11 +1,5 @@
 package pl.ochnios.samurai.services;
 
-import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +16,8 @@ import pl.ochnios.samurai.model.dtos.document.DocumentUploadDto;
 import pl.ochnios.samurai.model.dtos.file.FileDownloadDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
+import pl.ochnios.samurai.model.entities.conversation.MessageSource;
+import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentSpecification;
 import pl.ochnios.samurai.model.entities.document.chunk.Chunk;
 import pl.ochnios.samurai.model.entities.user.User;
@@ -29,6 +25,14 @@ import pl.ochnios.samurai.model.mappers.DocumentMapper;
 import pl.ochnios.samurai.model.mappers.FileMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.DocumentRepository;
+import pl.ochnios.samurai.repositories.MessageSourceRepository;
+
+import javax.json.JsonPatch;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static pl.ochnios.samurai.model.entities.document.DocumentStatus.ACTIVE;
 
 @Slf4j
 @Service
@@ -36,6 +40,7 @@ import pl.ochnios.samurai.repositories.DocumentRepository;
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
+    private final MessageSourceRepository messageSourceRepository;
     private final JsonPatchService patchService;
     private final PageMapper pageMapper;
     private final FileMapper fileMapper;
@@ -86,6 +91,7 @@ public class DocumentService {
     @Transactional
     public void delete(UUID documentId) {
         var document = documentRepository.findById(documentId);
+        detachUsages(document);
         documentRepository.delete(document);
         log.info("Document {} deleted", documentId);
     }
@@ -117,5 +123,12 @@ public class DocumentService {
         if (multipartFile.getSize() > maxFileSize.toBytes()) {
             throw new ValidationException("File size must not be greater than " + maxFileSize);
         }
+    }
+
+    private void detachUsages(DocumentEntity document) {
+        document.getUsages().forEach(MessageSource::detachDocument);
+        messageSourceRepository.saveAll(document.getUsages());
+        document.getUsages().clear();
+        documentRepository.save(document);
     }
 }

@@ -10,7 +10,9 @@ import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentStatus;
 import pl.ochnios.samurai.repositories.DocumentRepository;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,6 +30,12 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     @Override
     public Page<DocumentEntity> findAll(Specification<DocumentEntity> specification, Pageable pageable) {
         return documentCrudRepository.findAll(specification, pageable);
+    }
+
+    @Override
+    public List<DocumentEntity> findAllById(Iterable<UUID> ids) {
+        return StreamSupport.stream(documentCrudRepository.findAllById(ids).spliterator(), false)
+                .toList();
     }
 
     @Override

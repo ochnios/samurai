@@ -2,6 +2,7 @@ package pl.ochnios.samurai.services;
 
 import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
 
+import java.util.Set;
 import java.util.UUID;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,13 @@ import pl.ochnios.samurai.model.dtos.pagination.PageDto;
 import pl.ochnios.samurai.model.dtos.pagination.PageRequestDto;
 import pl.ochnios.samurai.model.entities.conversation.Conversation;
 import pl.ochnios.samurai.model.entities.conversation.ConversationSpecification;
+import pl.ochnios.samurai.model.entities.conversation.MessageSource;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.ConversationMapper;
 import pl.ochnios.samurai.model.mappers.MessageMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.ConversationRepository;
+import pl.ochnios.samurai.repositories.DocumentRepository;
 
 @Slf4j
 @Service
@@ -30,6 +33,7 @@ import pl.ochnios.samurai.repositories.ConversationRepository;
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
+    private final DocumentRepository documentRepository;
     private final JsonPatchService patchService;
     private final PageMapper pageMapper;
     private final ConversationMapper conversationMapper;
@@ -80,18 +84,26 @@ public class ConversationService {
     }
 
     @Transactional
-    public ConversationDto updateSummary(User user, UUID conversationId, String summary) {
+    public MessageDto saveUserMessage(User user, UUID conversationId, String content) {
         var conversation = conversationRepository.findByUserAndId(user, conversationId);
-        conversation.setSummary(validatedSummary(summary));
+        var message = messageMapper.map(MessageDto.user(content), conversation);
+        conversation.addMessage(message);
         var savedConversation = conversationRepository.save(conversation);
-        log.info("Conversation {} summary updated", savedConversation.getId());
-        return conversationMapper.map(savedConversation);
+        log.info("Message {} for conversation {} saved", message.getId(), conversationId);
+        return messageMapper.map(savedConversation.getMessages().getLast());
     }
 
     @Transactional
-    public MessageDto saveMessage(User user, UUID conversationId, MessageDto messageDto) {
+    public MessageDto saveAssistantMessage(User user, UUID conversationId, String content, Set<UUID> documents) {
         var conversation = conversationRepository.findByUserAndId(user, conversationId);
-        var message = messageMapper.map(conversation, messageDto);
+        var sources = documentRepository.findAllById(documents).stream()
+                .map(d -> MessageSource.builder()
+                        .originalTitle(d.getTitle())
+                        .document(d)
+                        .build())
+                .toList();
+        var message = messageMapper.map(MessageDto.assistant(content), conversation, sources);
+        message.getSources().forEach(m -> m.setMessage(message));
         conversation.addMessage(message);
         var savedConversation = conversationRepository.save(conversation);
         log.info("Message for conversation {} saved", conversationId);

@@ -1,16 +1,16 @@
 package pl.ochnios.samurai.model.entities.conversation;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +23,12 @@ import org.hibernate.annotations.Nationalized;
 import org.springframework.ai.chat.messages.MessageType;
 import pl.ochnios.samurai.model.entities.AppEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -43,6 +49,11 @@ public class MessageEntity implements AppEntity {
     @JoinColumn(name = "conversation_id", nullable = false)
     private Conversation conversation;
 
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<MessageSource> sources = new ArrayList<>();
+
     @Nationalized
     @Column(length = 16384)
     private String content;
@@ -52,7 +63,7 @@ public class MessageEntity implements AppEntity {
 
     @Builder.Default
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Instant createdAt = Instant.now();
 
     @Builder.Default

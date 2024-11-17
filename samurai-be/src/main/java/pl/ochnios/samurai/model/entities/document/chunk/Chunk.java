@@ -7,9 +7,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +23,10 @@ import pl.ochnios.samurai.model.entities.PatchableEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.samurai.model.mappers.ChunkMapper;
+
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -59,6 +60,7 @@ public class Chunk implements PatchableEntity {
 
     @Builder.Default
     @UpdateTimestamp
+    @Column(nullable = false)
     private Instant updatedAt = Instant.now();
 
     @Override
