@@ -41,6 +41,7 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final MessageSourceRepository messageSourceRepository;
+    private final ChunkService chunkService;
     private final EmbeddingService embeddingService;
     private final JsonPatchService patchService;
     private final PageMapper pageMapper;
@@ -106,6 +107,7 @@ public class DocumentService {
     public void delete(UUID documentId) {
         var document = documentRepository.findById(documentId);
         detachUsages(document);
+        chunkService.deleteAll(documentId);
         documentRepository.delete(document);
         log.info("Document {} deleted", documentId);
     }

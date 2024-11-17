@@ -12,7 +12,7 @@ import pl.ochnios.samurai.services.chunking.DocumentChunkingTask;
 public class SchedulingConf {
 
     @Bean
-    @ConditionalOnProperty(prefix = "custom.chunking", name = "enabled")
+    @ConditionalOnProperty(prefix = "custom.chunking", name = "enabled", havingValue = "true")
     public DocumentChunkingTask documentChunkingTask(DocumentChunkingService chunkingService) {
         return new DocumentChunkingTask(chunkingService);
     }
