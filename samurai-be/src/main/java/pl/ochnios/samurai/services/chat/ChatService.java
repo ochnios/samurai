@@ -99,6 +99,7 @@ public class ChatService {
                 .messageId(messageDto.getId())
                 .summary(conversationDto.getMessages().isEmpty() ? conversationDto.getSummary() : null)
                 .completion(messageDto.getContent())
+                .sources(messageDto.getSources())
                 .build();
     }
 }

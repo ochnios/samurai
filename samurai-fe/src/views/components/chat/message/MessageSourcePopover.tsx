@@ -9,7 +9,7 @@ import {
 import FormattedText from "../FormattedText.tsx";
 import { MessageSource } from "../../../../model/api/message/MessageSource.ts";
 import config from "../../../../config.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { showErrorMessage } from "../../../../utils.ts";
 import { fetchDocumentContent } from "../../../../model/service/documentService.ts";
 
@@ -27,8 +27,8 @@ export default function MessageSourcePopover(props: MessageSource) {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState("");
 
-  useEffect(() => {
-    if (props.documentId) {
+  function loadContent() {
+    if (props.documentId && content.length == 0) {
       setLoading(true);
       fetchDocumentContent(props.documentId)
         .then((response) => setContent(response.content))
@@ -37,10 +37,16 @@ export default function MessageSourcePopover(props: MessageSource) {
         })
         .finally(() => setLoading(false));
     }
-  }, [props]);
+  }
 
   return (
-    <Popover position="top" shadow="md" withArrow arrowSize={12}>
+    <Popover
+      position="top"
+      shadow="md"
+      withArrow
+      arrowSize={12}
+      onOpen={() => loadContent()}
+    >
       <Popover.Target>
         <Badge
           size="sm"
