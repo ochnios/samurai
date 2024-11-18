@@ -1,5 +1,9 @@
 package pl.ochnios.samurai.services.chunking.readers;
 
+import static org.apache.tika.parser.pdf.PDFParserConfig.OCR_STRATEGY.NO_OCR;
+
+import java.io.InputStream;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -16,11 +20,6 @@ import pl.ochnios.samurai.services.chunking.converters.Html2MdConverter;
 import pl.ochnios.samurai.services.chunking.exception.ChunkingException;
 import pl.ochnios.samurai.services.chunking.readers.markdown.MarkdownReader;
 import pl.ochnios.samurai.services.chunking.readers.markdown.MarkdownReaderConfig;
-
-import java.io.InputStream;
-import java.util.List;
-
-import static org.apache.tika.parser.pdf.PDFParserConfig.OCR_STRATEGY.NO_OCR;
 
 @Slf4j
 public class SemanticReader implements DocumentReader {
@@ -73,8 +72,8 @@ public class SemanticReader implements DocumentReader {
     private PDFParserConfig getPdfParserConfig() {
         var config = new PDFParserConfig();
         config.setExtractMarkedContent(true);
-        config.setExtractInlineImages(true);
-        config.setExtractUniqueInlineImagesOnly(true);
+        config.setExtractInlineImages(false);
+        config.setExtractUniqueInlineImagesOnly(false);
         config.setOcrStrategy(NO_OCR);
         return config;
     }

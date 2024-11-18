@@ -106,6 +106,8 @@ export default function UsersPage() {
           data: Object.values(Role),
           allowDeselect: false,
         },
+        size: 100,
+        grow: false,
       },
       {
         accessorKey: "createdAt",

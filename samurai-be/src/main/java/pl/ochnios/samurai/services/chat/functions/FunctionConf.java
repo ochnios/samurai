@@ -28,6 +28,7 @@ Searches documents and returns relevant text fragments based on conversation con
     @Description(
             """
 Fetches documents that are available for searching.
+Should be used only when explicitly asked about available documents. In other cases use search tool.
 @return an array of document summaries (title and description)""")
     public Function<GetDocumentsFunction.Request, GetDocumentsFunction.Response> getDocuments(
             ChatContext chatContext, DocumentService documentService) {

@@ -27,8 +27,10 @@ import {
   diffSourcePlugin,
   DiffSourceToggleWrapper,
   headingsPlugin,
+  imagePlugin,
   InsertTable,
   linkDialogPlugin,
+  linkPlugin,
   listsPlugin,
   ListsToggle,
   MDXEditor,
@@ -133,7 +135,7 @@ export default function ChunkEditForm(props: ChunkEditFormProps) {
           <Paper
             withBorder
             radius="sm"
-            style={{ overflowY: "auto", maxHeight: "66vh" }}
+            style={{ overflowY: "auto", maxHeight: "60vh" }}
           >
             <MDXEditor
               ref={ref}
@@ -151,6 +153,8 @@ export default function ChunkEditForm(props: ChunkEditFormProps) {
                 quotePlugin(),
                 thematicBreakPlugin(),
                 linkDialogPlugin(),
+                linkPlugin(),
+                imagePlugin(),
                 tablePlugin(),
                 diffSourcePlugin({
                   diffMarkdown: props.current?.content,

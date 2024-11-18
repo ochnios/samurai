@@ -76,12 +76,12 @@ custom:
     enabled: false
     bulk: false
   chunking:
-    enabled: false;
+    enabled: true
     initialDelay:
-      seconds: 30
+      seconds: 15
     fixedDelay:
-      seconds: 10
-    maxChunkLength: 8000
+      seconds: 5
+    maxChunkLength: 5000
     minChunkLength: 300
   allowed-origins: http://localhost:5173,localhost
   jwt:

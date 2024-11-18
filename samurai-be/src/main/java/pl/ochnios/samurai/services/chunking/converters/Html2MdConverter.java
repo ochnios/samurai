@@ -15,6 +15,8 @@ public class Html2MdConverter {
         this(new MutableDataSet()
                 .set(FlexmarkHtmlConverter.SKIP_ATTRIBUTES, true)
                 .set(FlexmarkHtmlConverter.SKIP_CHAR_ESCAPE, true)
+                .set(FlexmarkHtmlConverter.BR_AS_PARA_BREAKS, false)
+                .set(FlexmarkHtmlConverter.BR_AS_EXTRA_BLANK_LINES, true)
                 .set(TablesExtension.COLUMN_SPANS, false)
                 .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
                 .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
@@ -26,6 +28,6 @@ public class Html2MdConverter {
     }
 
     public String convert(String html) {
-        return converter.convert(html);
+        return converter.convert(html).replaceAll("<br\\s*/?>", "\n");
     }
 }
