@@ -24,10 +24,10 @@ export const fetchUser = async (username: string): Promise<User> => {
 
 export const fetchUsers = async (
   pageRequest: PageRequest<UserCriteria>,
-): Promise<Page<UserDetails>> => {
+): Promise<Page<User>> => {
   const postfix = normalizePostfix(pageRequest.getUrlParams());
   return await axios
-    .get<Page<UserDetails>>(`${usersUrl}${postfix}`)
+    .get<Page<User>>(`${usersUrl}${postfix}`)
     .then((response) => response.data)
     .catch((error) => {
       console.error(error);

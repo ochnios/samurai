@@ -9,10 +9,10 @@ spring:
   mvc:
     log-request-details: false
   datasource:
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: jdbc:sqlserver://localhost:1433;encrypt=false;trustServerCertificate=true;databaseName=samurai-db
-    username: samurai-be
-    password: ${SAMURAI_DB_PASSWORD}
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://${PRIMARY_DB_HOST}:${PRIMARY_DB_PORT}/${PRIMARY_DB_NAME}
+    username: ${PRIMARY_DB_USER}
+    password: ${PRIMARY_DB_PASSWORD}
   jpa:
     defer-datasource-initialization: true
     hibernate:
@@ -20,7 +20,7 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.SQLServerDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialectt
     open-in-view: true
   # Important note: Only one ChatModel have to be available in application context
   # You can disable unused chat models using its 'enable' flag or by excluding model autoconfiguration
@@ -28,8 +28,8 @@ spring:
   ai:
     vectorstore:
       qdrant:
-        host: localhost
-        port: 6334
+        host: ${QDRANT_HOST}
+        port: ${QDRANT_PORT}
         initialize-schema: true
         collection-name: documents_dev
     openai:

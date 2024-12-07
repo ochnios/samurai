@@ -9,17 +9,17 @@ spring:
   mvc:
     log-request-details: true
   datasource:
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: jdbc:sqlserver://localhost:11433;encrypt=false;trustServerCertificate=true;databaseName=samurai-db
-    username: samurai-be
-    password: ${SAMURAI_DB_PASSWORD}
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://${PRIMARY_DB_HOST}:${PRIMARY_DB_PORT}/${PRIMARY_DB_NAME}
+    username: ${PRIMARY_DB_USER}
+    password: ${PRIMARY_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.SQLServerDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: true
   h2:
     console:
@@ -30,8 +30,8 @@ spring:
   ai:
     vectorstore:
       qdrant:
-        host: localhost
-        port: 6334
+        host: ${QDRANT_HOST}
+        port: ${QDRANT_PORT}
         initialize-schema: true
         collection-name: documents
     openai:
@@ -83,7 +83,7 @@ custom:
       seconds: 5
     maxChunkLength: 5000
     minChunkLength: 300
-  allowed-origins: http://localhost:5173,localhost
+  allowed-origins: http://localhost:5173,http://localhost,https://localhost
   jwt:
     passphrase: ${JWT_PASSPHRASE}
     expiration: 8h

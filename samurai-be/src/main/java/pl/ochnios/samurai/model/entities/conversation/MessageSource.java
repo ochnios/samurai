@@ -16,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import pl.ochnios.samurai.model.entities.AppEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
@@ -56,11 +55,9 @@ public class MessageSource implements AppEntity {
 
     @Builder.Default
     @Setter(AccessLevel.NONE)
-    @ColumnDefault(value = "0")
     private boolean documentDeleted = false;
 
     @Builder.Default
-    @ColumnDefault(value = "0")
     private boolean deleted = false;
 
     public void detachDocument() {

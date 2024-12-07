@@ -10,11 +10,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +17,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.mapstruct.factory.Mappers;
@@ -32,6 +26,12 @@ import pl.ochnios.samurai.model.entities.PatchableEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
 import pl.ochnios.samurai.model.entities.user.User;
 import pl.ochnios.samurai.model.mappers.ConversationMapper;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -75,7 +75,6 @@ public class Conversation implements PatchableEntity {
     private Instant createdAt = Instant.now();
 
     @Builder.Default
-    @ColumnDefault(value = "0")
     private boolean deleted = false;
 
     @Override

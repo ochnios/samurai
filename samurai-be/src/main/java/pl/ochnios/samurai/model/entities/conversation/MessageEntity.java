@@ -11,24 +11,22 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.springframework.ai.chat.messages.MessageType;
 import pl.ochnios.samurai.model.entities.AppEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -67,7 +65,6 @@ public class MessageEntity implements AppEntity {
     private Instant createdAt = Instant.now();
 
     @Builder.Default
-    @ColumnDefault(value = "0")
     private boolean deleted = false;
 
     @Override
