@@ -60,6 +60,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
 
+    runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'

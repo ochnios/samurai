@@ -1,0 +1,89 @@
+name: samurai
+
+services:
+  primary-db:
+    container_name: primary-db
+    image: postgres:17.2-alpine3.20
+    environment:
+      - POSTGRES_DB=${PRIMARY_DB_NAME}
+      - POSTGRES_USER=${PRIMARY_DB_USER}
+      - POSTGRES_PASSWORD=${PRIMARY_DB_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ${DATA_DIR}/postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - 5432:5432 # for development only!
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRIMARY_DB_USER} -d ${PRIMARY_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  qdrant-db:
+    container_name: qdrant-db
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM qdrant/qdrant:v1.12.4
+        RUN apt-get update -yq && apt-get install -yqq curl
+    networks:
+      - app-network
+    volumes:
+      - ${DATA_DIR}/qdrant_data:/qdrant/storage
+    ports:
+      - 6333:6333 # for development only!
+      - 6334:6334 # for development only!
+    restart: unless-stopped
+    healthcheck:
+      test: curl -s http://localhost:6333/healthz | grep -q 'healthz check passed' || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    container_name: backend
+    build: samurai-be
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      QDRANT_HOST: ${QDRANT_HOST}
+      QDRANT_PORT: ${QDRANT_PORT}
+      PRIMARY_DB_HOST: ${PRIMARY_DB_HOST}
+      PRIMARY_DB_PORT: ${PRIMARY_DB_PORT}
+      PRIMARY_DB_NAME: ${PRIMARY_DB_NAME}
+      PRIMARY_DB_PASSWORD: ${PRIMARY_DB_PASSWORD}
+      PRIMARY_DB_USER: ${PRIMARY_DB_USER}
+    networks:
+      - app-network
+    ports:
+      - 8080:8080 # for development only!
+    restart: unless-stopped
+    depends_on:
+      primary-db:
+        condition: service_healthy
+      qdrant-db:
+        condition: service_healthy
+
+  frontend:
+    container_name: frontend
+    build:
+      context: samurai-fe
+      args:
+        - VITE_BASE_URL=${BACKEND_URL}
+    networks:
+      - app-network
+    ports:
+      - 80:8080
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+networks:
+  app-network:
+    driver: bridge

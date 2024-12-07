@@ -37,16 +37,11 @@ public abstract class FileEntity {
     private long size;
 
     @ToString.Exclude
-    @Lob
     @Column(nullable = false, updatable = false)
-    private Blob content;
+    private byte[] content;
 
     public byte[] getContent() {
-        try {
-            return content.getBytes(1, (int) content.length());
-        } catch (SQLException ex) {
-            throw new ApplicationException("Failed to get file content", ex);
-        }
+        return content;
     }
 
     public abstract static class FileEntityBuilder<C extends FileEntity, B extends FileEntityBuilder<C, B>> {
@@ -56,7 +51,7 @@ public abstract class FileEntity {
                     this.name = multipartFile.getOriginalFilename();
                     this.mimeType = multipartFile.getContentType();
                     this.size = multipartFile.getSize();
-                    this.content = BlobProxy.generateProxy(multipartFile.getInputStream(), multipartFile.getSize());
+                    this.content = multipartFile.getBytes();
                 } catch (IOException ex) {
                     throw new ApplicationException("Failed to read multipartFile", ex);
                 }
@@ -68,13 +63,11 @@ public abstract class FileEntity {
 
         public B file(File file) {
             if (file != null) {
-                try (var inputStream = new FileInputStream(file)) {
-                    var bytes = inputStream.readAllBytes();
+                try {
                     this.name = file.getName();
                     this.size = file.length();
-                    this.mimeType =
-                            Files.probeContentType(file.getAbsoluteFile().toPath());
-                    this.content = BlobProxy.generateProxy(new ByteArrayInputStream(bytes), file.length());
+                    this.mimeType = Files.probeContentType(file.getAbsoluteFile().toPath());
+                    this.content = Files.readAllBytes(file.toPath());
                 } catch (IOException ex) {
                     throw new ApplicationException("Failed to read file", ex);
                 }
