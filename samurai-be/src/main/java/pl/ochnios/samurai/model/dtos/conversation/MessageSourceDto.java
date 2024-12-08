@@ -1,11 +1,12 @@
 package pl.ochnios.samurai.model.dtos.conversation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -19,6 +20,9 @@ public class MessageSourceDto {
 
     @Schema(description = "${docs.dto.document.id}")
     private UUID documentId;
+
+    @Schema(description = "${docs.dto.message.source.retrievedContent}")
+    private String retrievedContent;
 
     @Schema(description = "${docs.dto.message.source.originalTitle}")
     private String originalTitle;
