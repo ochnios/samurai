@@ -1,16 +1,15 @@
 package pl.ochnios.samurai.services.chat.functions;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pl.ochnios.samurai.model.entities.document.chunk.EmbeddedChunk;
 import pl.ochnios.samurai.services.chat.ChatContext;
 import pl.ochnios.samurai.services.chat.SearchService;
 import pl.ochnios.samurai.services.chat.dto.DocumentPart;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,8 +38,8 @@ public class SearchFunction implements Function<SearchFunction.Request, SearchFu
         if (request.question != null) {
             phrases.add(request.question);
         }
-        if (request.tags != null) {
-            phrases.add(request.tags);
+        if (request.keywords != null) {
+            phrases.add(request.keywords);
         }
         return phrases;
     }
@@ -59,7 +58,7 @@ public class SearchFunction implements Function<SearchFunction.Request, SearchFu
         return parts;
     }
 
-    public record Request(String conversationSummary, String question, String tags) {}
+    public record Request(String conversationSummary, String question, String keywords) {}
 
     public record Response(List<DocumentPart> fragments) {}
 }
