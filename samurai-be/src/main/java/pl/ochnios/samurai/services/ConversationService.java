@@ -1,5 +1,10 @@
 package pl.ochnios.samurai.services;
 
+import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
+
+import java.util.Map;
+import java.util.UUID;
+import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,12 +26,6 @@ import pl.ochnios.samurai.model.mappers.MessageMapper;
 import pl.ochnios.samurai.model.mappers.PageMapper;
 import pl.ochnios.samurai.repositories.ConversationRepository;
 import pl.ochnios.samurai.repositories.DocumentRepository;
-
-import javax.json.JsonPatch;
-import java.util.Map;
-import java.util.UUID;
-
-import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
 
 @Slf4j
 @Service
@@ -101,6 +100,7 @@ public class ConversationService {
         var sources = documentRepository.findAllById(documents.keySet()).stream()
                 .map(d -> MessageSource.builder()
                         .originalTitle(d.getTitle())
+                        .retrievedContent(documents.get(d.getId()))
                         .document(d)
                         .build())
                 .toList();
