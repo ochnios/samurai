@@ -49,6 +49,7 @@ public class MessageSource implements AppEntity {
     @JoinColumn(name = "document_id")
     private DocumentEntity document;
 
+    // This is not the most efficient solution...
     @Nationalized
     @Column(length = Integer.MAX_VALUE)
     private String retrievedContent;

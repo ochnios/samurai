@@ -48,7 +48,7 @@ public class SearchFunction implements Function<SearchFunction.Request, SearchFu
         List<DocumentPart> parts = new ArrayList<>();
         for (var chunk : chunks) {
             var part = DocumentPart.fromEmbeddedChunk(chunk);
-            if (chatContext.addDocument(UUID.fromString(chunk.getDocumentId()), part.toString())) {
+            if (chatContext.addDocument(UUID.fromString(chunk.getDocumentId()), part.toMarkdown())) {
                 parts.add(part);
             } else {
                 log.warn("Context limit exceeded, ignoring chunk {}", chunk.getId());

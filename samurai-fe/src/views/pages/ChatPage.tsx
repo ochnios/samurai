@@ -101,6 +101,7 @@ export default function ChatPage() {
           id: response.messageId,
           content: response.completion,
           type: MessageType.ASSISTANT,
+          sources: response.sources,
         };
         if (!conversationId) {
           setConversationId(response.conversationId);
