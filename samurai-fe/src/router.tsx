@@ -32,16 +32,6 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "statistics",
-        element: (
-          <PageWrapper
-            title="Statistics"
-            content={<DummyPage />}
-            access={Role.Mod}
-          />
-        ),
-      },
-      {
         path: "conversations/all",
         element: (
           <PageWrapper
