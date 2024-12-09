@@ -1,15 +1,14 @@
 package pl.ochnios.samurai.services.chat.functions;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pl.ochnios.samurai.model.dtos.document.DocumentDto;
 import pl.ochnios.samurai.services.DocumentService;
 import pl.ochnios.samurai.services.chat.ChatContext;
 import pl.ochnios.samurai.services.chat.dto.DocumentSummary;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +29,7 @@ public class GetDocumentsFunction implements Function<GetDocumentsFunction.Reque
         List<DocumentSummary> summaries = new ArrayList<>();
         for (var document : documents) {
             var summary = DocumentSummary.fromDocumentDto(document);
-            if (chatContext.addDocument(document.getId(), summary.toString())) {
+            if (chatContext.addDocument(document.getId(), summary.toMarkdown())) {
                 summaries.add(summary);
             } else {
                 log.warn("Context limit exceeded, ignoring document {}", document.getId());

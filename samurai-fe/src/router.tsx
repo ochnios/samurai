@@ -9,6 +9,7 @@ import LoginPage from "./views/pages/LoginPage.tsx";
 import PageWrapper from "./views/pages/PageWrapper.tsx";
 import ChunksPage from "./views/pages/ChunksPage.tsx";
 import UsersPage from "./views/pages/UsersPage.tsx";
+import Homepage from "./views/pages/Homepage.tsx";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -18,9 +19,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: (
-          <PageWrapper title="Default content" content={<DummyPage />} />
-        ),
+        element: <PageWrapper title="Homepage" content={<Homepage />} />,
       },
       {
         path: "users",
@@ -28,16 +27,6 @@ const router = createBrowserRouter([
           <PageWrapper
             title="Users"
             content={<UsersPage />}
-            access={Role.Mod}
-          />
-        ),
-      },
-      {
-        path: "statistics",
-        element: (
-          <PageWrapper
-            title="Statistics"
-            content={<DummyPage />}
             access={Role.Mod}
           />
         ),

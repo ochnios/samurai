@@ -7,4 +7,8 @@ public record DocumentPart(String documentTitle, String documentPart) {
     public static DocumentPart fromEmbeddedChunk(EmbeddedChunk chunk) {
         return new DocumentPart(chunk.getDocumentTitle(), chunk.getContent());
     }
+
+    public String toMarkdown() {
+        return documentPart;
+    }
 }

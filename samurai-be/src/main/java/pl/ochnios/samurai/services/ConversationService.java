@@ -2,7 +2,7 @@ package pl.ochnios.samurai.services;
 
 import static pl.ochnios.samurai.model.entities.conversation.Conversation.MAX_SUMMARY_LENGTH;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 import javax.json.JsonPatch;
 import lombok.RequiredArgsConstructor;
@@ -94,11 +94,13 @@ public class ConversationService {
     }
 
     @Transactional
-    public MessageDto saveAssistantMessage(User user, UUID conversationId, String content, Set<UUID> documents) {
+    public MessageDto saveAssistantMessage(
+            User user, UUID conversationId, String content, Map<UUID, String> documents) {
         var conversation = conversationRepository.findByUserAndId(user, conversationId);
-        var sources = documentRepository.findAllById(documents).stream()
+        var sources = documentRepository.findAllById(documents.keySet()).stream()
                 .map(d -> MessageSource.builder()
                         .originalTitle(d.getTitle())
+                        .retrievedContent(documents.get(d.getId()))
                         .document(d)
                         .build())
                 .toList();

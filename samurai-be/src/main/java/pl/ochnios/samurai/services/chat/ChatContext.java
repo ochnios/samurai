@@ -1,6 +1,9 @@
 package pl.ochnios.samurai.services.chat;
 
 import jakarta.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,10 +14,6 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class ChatContext {
     private final TokenCountEstimator estimator;
 
     @Getter
-    private final Set<UUID> documents = new HashSet<>();
+    private final Map<UUID, String> documents = new HashMap<>();
 
     @Value("${custom.chat.maxDocumentTokens:16000}")
     private int docTokensLeft;
@@ -43,7 +42,7 @@ public class ChatContext {
             return false;
         }
 
-        documents.add(documentId);
+        documents.merge(documentId, content, (current, added) -> current + "\n\n" + added);
         docTokensLeft -= tokens;
         log.debug("Added {} context tokens, {} tokens left", tokens, docTokensLeft);
 

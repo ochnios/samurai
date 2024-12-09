@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Nationalized;
 import pl.ochnios.samurai.model.entities.AppEntity;
 import pl.ochnios.samurai.model.entities.document.DocumentEntity;
 import pl.ochnios.samurai.model.entities.generator.CustomUuidGenerator;
@@ -47,6 +48,11 @@ public class MessageSource implements AppEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "document_id")
     private DocumentEntity document;
+
+    // This is not the most efficient solution...
+    @Nationalized
+    @Column(length = Integer.MAX_VALUE)
+    private String retrievedContent;
 
     @Builder.Default
     @CreationTimestamp

@@ -1,5 +1,6 @@
 package pl.ochnios.samurai.model.mappers;
 
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -12,8 +13,6 @@ import pl.ochnios.samurai.model.dtos.conversation.MessageSourceDto;
 import pl.ochnios.samurai.model.entities.conversation.Conversation;
 import pl.ochnios.samurai.model.entities.conversation.MessageEntity;
 import pl.ochnios.samurai.model.entities.conversation.MessageSource;
-
-import java.util.List;
 
 @Mapper
 public interface MessageMapper {
@@ -53,6 +52,7 @@ public interface MessageMapper {
                 .map(s -> MessageSourceDto.builder()
                         .id(s.getId())
                         .originalTitle(s.getOriginalTitle())
+                        .retrievedContent(s.getRetrievedContent())
                         .documentId(s.getDocument() != null ? s.getDocument().getId() : null)
                         .updated(s.getDocument() != null
                                 && s.getDocument().getUpdatedAt().isAfter(s.getAccessedAt()))

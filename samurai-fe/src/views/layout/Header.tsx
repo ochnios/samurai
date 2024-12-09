@@ -57,9 +57,9 @@ export default function Header(props: HeaderProps) {
           </Group>
         </Link>
         <Code fw={700} visibleFrom="sm" mb="-5px">
-          v0.0.1
+          v1.0.0
         </Code>
-        <Title order={2} ml={85} visibleFrom="sm">
+        <Title order={2} ml={100} visibleFrom="sm">
           {props.title}
         </Title>
       </Group>

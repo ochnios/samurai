@@ -14,10 +14,10 @@ public class FunctionConf {
     @Bean("search")
     @Description(
             """
-Searches documents and returns relevant text fragments based on conversation context, query and tags.
+Searches documents and returns relevant text fragments based on conversation context, query and keywords.
 @param conversationSummary - brief context of the ongoing conversation
 @param question - specific query or topic for which the search is being conducted
-@param tags - related keywords to broaden search scope
+@param keywords - related keywords to broaden search scope
 @return array of document fragments (may include partially relevant matches)""")
     public Function<SearchFunction.Request, SearchFunction.Response> search(
             ChatContext chatContext, SearchService searchService) {

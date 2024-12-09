@@ -1,8 +1,7 @@
 import { Box, Divider, ScrollArea } from "@mantine/core";
 import { useElementSize } from "@mantine/hooks";
 import {
-  IconChartBar,
-  IconFile,
+  IconFiles,
   IconLogout,
   IconMessagePlus,
   IconMessages,
@@ -16,21 +15,23 @@ import { logout } from "../../reducers/authSlice.ts";
 import Conversations from "../components/conversations/Conversations.tsx";
 import NavLink from "../components/navigation/NavLink.tsx";
 import classes from "./Navigation.module.css";
+import { useIsAdmin } from "../../hooks/useIsAdmin.ts";
+
+const adminLinks = [{ link: "/users", label: "Users", icon: IconUsers }];
 
 const modLinks = [
-  { link: "/users", label: "Users", icon: IconUsers },
-  { link: "/statistics", label: "Statistics", icon: IconChartBar },
-  { link: "/conversations/all", label: "Conversations", icon: IconMessagePlus },
+  { link: "/documents", label: "Documents", icon: IconFiles },
+  { link: "/conversations/all", label: "Conversations", icon: IconMessages },
 ];
 
 const links = [
-  { link: "/documents", label: "Documents", icon: IconFile },
   { link: "/conversations/new", label: "New chat", icon: IconMessagePlus },
 ];
 
 export default function Navigation() {
   const { ref, height } = useElementSize();
   const dispatch = useAppDispatch();
+  const isAdmin = useIsAdmin();
   const isMod = useIsMod();
 
   const handleLogout = (e: any) => {
@@ -41,6 +42,12 @@ export default function Navigation() {
   return (
     <Box className={classes.navbar}>
       <Box className={classes.links}>
+        {isAdmin &&
+          adminLinks.map((item) => (
+            <NavLink link={item.link} icon={item.icon} key={item.link}>
+              {item.label}
+            </NavLink>
+          ))}
         {isMod &&
           modLinks.map((item) => (
             <NavLink link={item.link} icon={item.icon} key={item.link}>
