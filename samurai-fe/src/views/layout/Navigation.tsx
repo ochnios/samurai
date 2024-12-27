@@ -6,7 +6,6 @@ import {
   IconLogout,
   IconMessagePlus,
   IconMessages,
-  IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
 
@@ -81,9 +80,10 @@ export default function Navigation() {
       </Box>
       <Divider my="md"></Divider>
       <Box>
-        <NavLink link="/account" icon={IconUserCircle}>
-          Account
-        </NavLink>
+        {/* TODO */}
+        {/*<NavLink link="/account" icon={IconUserCircle}>*/}
+        {/*  Account*/}
+        {/*</NavLink>*/}
         <NavLink link="/logout" icon={IconLogout} onClick={handleLogout}>
           Logout
         </NavLink>

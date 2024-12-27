@@ -1,9 +1,7 @@
 import {
   Anchor,
   Button,
-  Checkbox,
   Container,
-  Group,
   Paper,
   PasswordInput,
   Text,
@@ -19,7 +17,7 @@ import { useAuth } from "../../hooks/useAuth.ts";
 import { Login } from "../../model/api/auth/Login.ts";
 import { authenticate } from "../../reducers/authSlice.ts";
 import { resetConversationList } from "../../reducers/conversationsSlice.ts";
-import { showErrorMessage, showNotImplementedMessage } from "../../utils.ts";
+import { showErrorMessage } from "../../utils.ts";
 
 export default function LoginPage() {
   useDocumentTitle("Log in | SamurAI");
@@ -77,12 +75,13 @@ export default function LoginPage() {
             required
             mt="md"
           />
-          <Group justify="space-between" mt="lg">
-            <Anchor size="sm" onClick={showNotImplementedMessage}>
-              Forgot password?
-            </Anchor>
-            <Checkbox label="Remember me" />
-          </Group>
+          {/* TODO */}
+          {/*<Group justify="space-between" mt="lg">*/}
+          {/*  <Anchor size="sm" onClick={showNotImplementedMessage}>*/}
+          {/*    Forgot password?*/}
+          {/*  </Anchor>*/}
+          {/*  <Checkbox label="Remember me" />*/}
+          {/*</Group>*/}
           <Button fullWidth mt="xl" type="submit">
             Sign in
           </Button>
