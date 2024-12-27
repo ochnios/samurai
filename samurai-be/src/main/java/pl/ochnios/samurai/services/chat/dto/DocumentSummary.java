@@ -9,6 +9,10 @@ public record DocumentSummary(String title, String description) {
     }
 
     public String toMarkdown() {
-        return description;
+        String markdown = title;
+        if (description != null) {
+            markdown += " - " + description;
+        }
+        return markdown;
     }
 }

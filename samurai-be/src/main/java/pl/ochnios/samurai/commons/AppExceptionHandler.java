@@ -65,8 +65,11 @@ public class AppExceptionHandler {
     }
 
     private ResponseEntity<AppError> logAndGetResponse(Exception ex, HttpStatus status) {
-        var errors = List.of(ex.getMessage());
-        return logAndGetResponse(ex, status, errors);
+        if (ex.getMessage() == null) {
+            return logAndGetResponse(ex, status, List.of());
+        } else {
+            return logAndGetResponse(ex, status, List.of(ex.getMessage()));
+        }
     }
 
     private ResponseEntity<AppError> logAndGetResponse(Exception ex, HttpStatus status, Iterable<String> errors) {
