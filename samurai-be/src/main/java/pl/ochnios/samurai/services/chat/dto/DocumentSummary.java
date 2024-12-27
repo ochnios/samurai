@@ -9,6 +9,6 @@ public record DocumentSummary(String title, String description) {
     }
 
     public String toMarkdown() {
-        return description;
+        return String.format("%s - %s", title, description);
     }
 }
