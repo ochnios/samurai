@@ -19,7 +19,7 @@ RUN ./gradlew dependencies
 COPY src src
 RUN ./gradlew build -x test -x spotlessCheck -x spotlessApply
 
-RUN java -Djarmode=layertools -jar build/libs/samurai-be-0.0.1-SNAPSHOT.jar extract --destination target/extracted
+RUN java -Djarmode=layertools -jar build/libs/samurai-be-1.0.0-SNAPSHOT.jar extract --destination target/extracted
 
 FROM eclipse-temurin:21-jre-alpine
 
