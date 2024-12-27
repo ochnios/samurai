@@ -6,6 +6,7 @@ import ConversationsPage from "./views/pages/ConversationsPage.tsx";
 import DocumentsPage from "./views/pages/DocumentsPage.tsx";
 import DummyPage from "./views/pages/DummyPage.tsx";
 import LoginPage from "./views/pages/LoginPage.tsx";
+import RegisterPage from "./views/pages/RegisterPage.tsx";
 import PageWrapper from "./views/pages/PageWrapper.tsx";
 import ChunksPage from "./views/pages/ChunksPage.tsx";
 import UsersPage from "./views/pages/UsersPage.tsx";
@@ -13,6 +14,7 @@ import Homepage from "./views/pages/Homepage.tsx";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <RegisterPage /> },
   {
     path: "/",
     element: <Layout />,

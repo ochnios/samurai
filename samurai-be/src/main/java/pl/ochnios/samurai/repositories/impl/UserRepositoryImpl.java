@@ -36,4 +36,9 @@ public class UserRepositoryImpl implements UserRepository {
     public User save(User user) {
         return userCrudRepository.save(user);
     }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userCrudRepository.existsByEmail(email);
+    }
 }
