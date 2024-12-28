@@ -1,7 +1,7 @@
 import { Box, Divider, ScrollArea } from "@mantine/core";
 import { useElementSize } from "@mantine/hooks";
 import {
-  IconFile,
+  IconFiles,
   IconLogout,
   IconMessagePlus,
   IconMessages,
@@ -20,8 +20,8 @@ const adminLinks = [{ link: "/users", label: "Users", icon: IconUsers }];
 
 const modLinks = [
   // TODO { link: "/statistics", label: "Statistics", icon: IconChartBar },
-  { link: "/documents", label: "Documents", icon: IconFile },
-  { link: "/conversations/all", label: "Conversations", icon: IconMessagePlus },
+  { link: "/documents", label: "Documents", icon: IconFiles },
+  { link: "/conversations/all", label: "Conversations", icon: IconMessages },
 ];
 
 const links = [
