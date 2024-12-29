@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.ochnios.samurai.model.dtos.auth.LoginDto;
+import pl.ochnios.samurai.model.dtos.auth.RegisterDto;
 import pl.ochnios.samurai.model.entities.user.Role;
 import pl.ochnios.samurai.model.seeders.UserSeeder;
 import pl.ochnios.samurai.repositories.impl.UserCrudRepository;
@@ -156,6 +157,138 @@ public class AuthControllerTests {
             mockMvc.perform(requestBuilder)
                     .andExpect(status().isUnauthorized())
                     .andExpect(cookie().doesNotExist(jwtCookieName));
+        }
+    }
+
+    @Nested
+    @DisplayName("Register")
+    class Register {
+
+        @Test
+        void register_valid_user_200() throws Exception {
+            var registerDto =
+                    new RegisterDto("newuser", "John", "Doe", "newuser@users.com", "Password1!", "Password1!");
+
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/register")
+                    .content(asJsonString(registerDto))
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.username", is("newuser")))
+                    .andExpect(jsonPath("$.firstname", is("John")))
+                    .andExpect(jsonPath("$.lastname", is("Doe")))
+                    .andExpect(jsonPath("$.email", is("newuser@users.com")))
+                    .andExpect(jsonPath("$.role", is(Role.User.name())));
+        }
+
+        @Test
+        void register_existing_username_400() throws Exception {
+            var registerDto = new RegisterDto(
+                    "user", // existing username from UserSeeder
+                    "John",
+                    "Doe",
+                    "another@users.com",
+                    "Password1!",
+                    "Password1!");
+
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/register")
+                    .content(asJsonString(registerDto))
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0]", containsString("Username already exists")));
+        }
+
+        @Test
+        void register_existing_email_400() throws Exception {
+            var registerDto = new RegisterDto(
+                    "newuser",
+                    "John",
+                    "Doe",
+                    "user@users.com", // existing email from UserSeeder
+                    "Password1!",
+                    "Password1!");
+
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/register")
+                    .content(asJsonString(registerDto))
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0]", containsString("Email already exists")));
+        }
+
+        @Test
+        void register_passwords_not_matching_400() throws Exception {
+            var registerDto =
+                    new RegisterDto("newuser", "John", "Doe", "newuser@users.com", "Password1!", "DifferentPassword1!");
+
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/register")
+                    .content(asJsonString(registerDto))
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0]", containsString("Passwords do not match")));
+        }
+
+        @Test
+        void register_invalid_username_format_400() throws Exception {
+            var registerDto = new RegisterDto(
+                    "u$", // invalid username format
+                    "John",
+                    "Doe",
+                    "newuser@users.com",
+                    "Password1!",
+                    "Password1!");
+
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/register")
+                    .content(asJsonString(registerDto))
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0]", containsString("must be between 3 and 30 characters")));
+        }
+
+        @Test
+        void register_invalid_password_format_400() throws Exception {
+            var registerDto = new RegisterDto(
+                    "newuser",
+                    "John",
+                    "Doe",
+                    "newuser@users.com",
+                    "weak", // invalid password format
+                    "weak");
+
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/register")
+                    .content(asJsonString(registerDto))
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0]", containsString("must be 8-30 characters long")));
+        }
+
+        @Test
+        void register_invalid_email_format_400() throws Exception {
+            var registerDto = new RegisterDto(
+                    "newuser",
+                    "John",
+                    "Doe",
+                    "invalid-email", // invalid email format
+                    "Password1!",
+                    "Password1!");
+
+            var requestBuilder = MockMvcRequestBuilders.post(AUTH_URL + "/register")
+                    .content(asJsonString(registerDto))
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.errors[0]", containsString("must be a correct email")));
         }
     }
 }

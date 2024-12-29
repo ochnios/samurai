@@ -3,19 +3,14 @@ package pl.ochnios.samurai.model.entities.file;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.sql.Blob;
-import java.sql.SQLException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Nationalized;
-import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.web.multipart.MultipartFile;
 import pl.ochnios.samurai.commons.exceptions.ApplicationException;
 
@@ -38,11 +33,8 @@ public abstract class FileEntity {
 
     @ToString.Exclude
     @Column(nullable = false, updatable = false)
+    @Lob
     private byte[] content;
-
-    public byte[] getContent() {
-        return content;
-    }
 
     public abstract static class FileEntityBuilder<C extends FileEntity, B extends FileEntityBuilder<C, B>> {
         public B multipartFile(MultipartFile multipartFile) {
@@ -66,7 +58,8 @@ public abstract class FileEntity {
                 try {
                     this.name = file.getName();
                     this.size = file.length();
-                    this.mimeType = Files.probeContentType(file.getAbsoluteFile().toPath());
+                    this.mimeType =
+                            Files.probeContentType(file.getAbsoluteFile().toPath());
                     this.content = Files.readAllBytes(file.toPath());
                 } catch (IOException ex) {
                     throw new ApplicationException("Failed to read file", ex);

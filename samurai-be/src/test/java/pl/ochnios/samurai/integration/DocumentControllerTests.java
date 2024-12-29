@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -186,8 +187,6 @@ public class DocumentControllerTests {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errors[0]", containsString(expectedError)));
         }
-
-        // TODO test description auto generation
     }
 
     @Nested
@@ -215,6 +214,32 @@ public class DocumentControllerTests {
                                     HttpHeaders.CONTENT_DISPOSITION, "inline; filename*=UTF-8''" + samplePDF.getName()))
                     .andExpect(content().contentType(MediaType.parseMediaType(samplePDF.getMimeType())))
                     .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, Long.toString(samplePDF.getSize())));
+        }
+    }
+
+    @Nested
+    @DisplayName("Content")
+    @WithMockUser(username = "user")
+    class Content {
+
+        @Test
+        void get_document_content_200() throws Exception {
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + samplePDF.getId() + "/content");
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", is(samplePDF.getId().toString())))
+                    .andExpect(jsonPath("$.content", is(not(nullValue()))));
+        }
+
+        @Test
+        void get_document_content_404() throws Exception {
+            var notExistingId = UUID.nameUUIDFromBytes("not existing".getBytes());
+            var requestBuilder = MockMvcRequestBuilders.get(DOCUMENTS_URI + "/" + notExistingId + "/content");
+
+            mockMvc.perform(requestBuilder)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.errors[0]", containsString("Not found")));
         }
     }
 

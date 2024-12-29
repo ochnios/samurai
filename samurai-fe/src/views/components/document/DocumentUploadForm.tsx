@@ -62,7 +62,7 @@ export default function DocumentUploadForm(props: DocumentUploadFormProps) {
         <Stack gap="md">
           <FileInput
             label="Upload Document"
-            description="Only PDF documents are supported, up to 50MB"
+            description="Many file types are supported, up to 50MB"
             placeholder="Choose file"
             accept="*/*"
             value={form.values.file}
