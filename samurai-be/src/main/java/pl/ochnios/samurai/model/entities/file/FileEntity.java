@@ -1,7 +1,6 @@
 package pl.ochnios.samurai.model.entities.file;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +32,7 @@ public abstract class FileEntity {
 
     @ToString.Exclude
     @Column(nullable = false, updatable = false)
-    @Lob
+    // @Lob TODO this does not work with postgres but is needed for tests with H2 db
     private byte[] content;
 
     public abstract static class FileEntityBuilder<C extends FileEntity, B extends FileEntityBuilder<C, B>> {
