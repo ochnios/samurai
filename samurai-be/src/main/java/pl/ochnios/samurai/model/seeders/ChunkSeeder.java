@@ -37,10 +37,14 @@ public class ChunkSeeder implements DataSeeder {
         for (var title : titles) {
             var id = UUID.nameUUIDFromBytes(title.getBytes());
             var document = documentRepository.findById(id);
-            var chunks = createChunks(document, "files/sample-chunks.txt");
-            createEmbeddings(chunks, "files/sample-embeddings.txt");
-            document.setStatus(ACTIVE);
-            documentRepository.save(document);
+            if (document.getChunks().isEmpty()) {
+                var chunks = createChunks(document, "files/sample-chunks.txt");
+                createEmbeddings(chunks, "files/sample-embeddings.txt");
+                document.setStatus(ACTIVE);
+                documentRepository.save(document);
+            } else {
+                log.info("Chunks for document {} already exists, cancelling seeding", id);
+            }
         }
     }
 

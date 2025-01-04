@@ -25,18 +25,21 @@ public class UserSeeder implements DataSeeder {
     }
 
     private void createUser(String username, String firstname, String lastname, Role role) {
-        if (!userRepository.existsByUsername(username)) {
-            var user = User.builder()
-                    .username(username)
-                    .firstname(firstname)
-                    .lastname(lastname)
-                    .email(username + "@users.com")
-                    .password(passwordEncoder.encode(username))
-                    .role(role)
-                    .conversations(new ArrayList<>())
-                    .build();
-            var savedUser = userRepository.save(user);
-            log.info("Created user: {}", savedUser);
+        if (userRepository.existsByUsername(username)) {
+            log.info("User {} already exists, cancelling seeding", username);
+            return;
         }
+
+        var user = User.builder()
+                .username(username)
+                .firstname(firstname)
+                .lastname(lastname)
+                .email(username + "@users.com")
+                .password(passwordEncoder.encode(username))
+                .role(role)
+                .conversations(new ArrayList<>())
+                .build();
+        var savedUser = userRepository.save(user);
+        log.info("Created user: {}", savedUser);
     }
 }

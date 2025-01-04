@@ -73,7 +73,7 @@ logging:
 
 custom:
   loader:
-    enabled: false
+    enabled: true
     bulk: false
   chunking:
     enabled: true

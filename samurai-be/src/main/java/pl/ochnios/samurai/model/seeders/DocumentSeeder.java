@@ -2,6 +2,7 @@ package pl.ochnios.samurai.model.seeders;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +29,15 @@ public class DocumentSeeder implements DataSeeder {
 
     private void createDocument(String title, String username, String filepath) {
         var user = userRepository.findByUsername(username);
+        var documentId = UUID.nameUUIDFromBytes(title.getBytes());
+        if (!documentRepository.findAllById(List.of(documentId)).isEmpty()) {
+            log.info("Document {} already exists, cancelling seeding", documentId);
+            return;
+        }
+
         var file = getFile(filepath);
         var document = DocumentEntity.builder()
-                .id(UUID.nameUUIDFromBytes(title.getBytes()))
+                .id(documentId)
                 .file(file)
                 .user(user)
                 .title(title)

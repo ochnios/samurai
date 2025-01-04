@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import pl.ochnios.samurai.model.entities.conversation.Conversation;
 import pl.ochnios.samurai.model.entities.conversation.MessageEntity;
@@ -21,8 +22,13 @@ public class ConversationSeeder implements DataSeeder {
 
     @Override
     public void seed() {
-        var conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
         var user = userRepository.findByUsername("user");
+        if (!conversationRepository.findAllByUser(user, Pageable.unpaged()).isEmpty()) {
+            log.info("Some conversations for user {} exists, cancelling seeding", user.getUsername());
+            return;
+        }
+
+        var conversationId = UUID.nameUUIDFromBytes("c1".getBytes());
         var conversation = Conversation.builder()
                 .id(conversationId)
                 .user(user)
